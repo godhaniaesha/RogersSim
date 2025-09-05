@@ -80,9 +80,8 @@ const authSlice = createSlice({
       state.error = null;
     },
     fetchProfileSuccess: (state, action) => {
-      state.user = action.payload;
       state.loading = false;
-      state.error = null;
+      state.user = action.payload;
     },
     fetchProfileFailure: (state, action) => {
       state.loading = false;
@@ -115,6 +114,9 @@ export const {
   updateProfileSuccess,
   updateProfileFailure,
   clearError,
+  fetchProfileFailure,
+  fetchProfileSuccess,
+  fetchProfileStart
 } = authSlice.actions;
 
 export default authSlice.reducer;
