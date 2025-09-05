@@ -30,6 +30,9 @@ import Cart from './pages/cart/Cart';
 import Checkout from './pages/checkout/Checkout';
 import Payment from './pages/checkout/Payment';
 import OrderConfirmation from './pages/checkout/OrderConfirmation';
+import AddBus from './pages/AddBus';
+import AdAbout from './pages/AdAbout';
+import ExplorB from './pages/ExplorB';
 
 function App() {
   return (
@@ -61,6 +64,9 @@ const AppContent = () => {
         <main className="min-vh-100">
           <Routes>
             <Route path="/" element={<Home />} />
+            <Route path="/exb" element={<ExplorB />} />
+            <Route path="/addabout" element={<AdAbout />} />
+            <Route path="/add" element={<AddBus />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
             <Route path="/profile" element={

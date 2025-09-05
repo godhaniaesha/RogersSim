@@ -1,8 +1,13 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { FaArrowRight, FaMobileAlt, FaSimCard, FaWifi } from 'react-icons/fa';
+import AddBus from './AddBus';
+import AdAbout from './AdAbout';
+import ExplorB from './ExplorB';
+import Hero from './Hero';
 
 export default function Home() {
+
   // Mock data for banners
   const banners = [
     {
@@ -58,7 +63,7 @@ export default function Home() {
       id: 4,
       name: 'eSIM',
       icon: <FaSimCard className="fs-1 mb-3 text-primary-custom" />,
-      description: 'Digital SIM for compatible devices',
+      description: 'Digital SIM support for compatible devices',
       link: '/products?type=esim'
     }
   ];
@@ -96,11 +101,14 @@ export default function Home() {
       benefits: ['Free Rogers TV for 84 days', 'Weekend Data Rollover', '5G Access', 'International Roaming Pack']
     }
   ];
-
   return (
     <div className="home-page">
-      {/* Hero Banner Carousel */}
-      <div id="heroCarousel" className="carousel slide" data-bs-ride="carousel">
+
+      {/* Rest of the home page content */}
+      <div >
+        {/* Hero Banner Carousel */}
+        <Hero />
+        {/* <div id="heroCarousel" className="carousel slide" data-bs-ride="carousel">
         <div className="carousel-inner">
           {banners.map((banner, index) => (
             <div key={banner.id} className={`carousel-item ${index === 0 ? 'active' : ''}`}>
@@ -119,11 +127,11 @@ export default function Home() {
                       </Link>
                     </div>
                     <div className="col-md-6 d-none d-md-block text-center">
-                      <img 
-                        src="/logo512.png" 
-                        alt="Rogers SIM" 
-                        className="img-fluid" 
-                        style={{ maxHeight: '300px' }} 
+                      <img
+                        src="/logo512.png"
+                        alt="Rogers SIM"
+                        className="img-fluid"
+                        style={{ maxHeight: '300px' }}
                       />
                     </div>
                   </div>
@@ -140,83 +148,95 @@ export default function Home() {
           <span className="carousel-control-next-icon" aria-hidden="true"></span>
           <span className="visually-hidden">Next</span>
         </button>
-      </div>
+      </div> */}
 
-      {/* SIM Categories Section */}
-      <section className="py-5 bg-light-custom">
-        <div className="container">
-          <h2 className="text-center mb-5 fw-bold">Choose Your SIM Type</h2>
-          <div className="row g-4">
-            {simCategories.map(category => (
-              <div key={category.id} className="col-md-6 col-lg-3">
-                <div className="card h-100 border-0 shadow-sm">
-                  <div className="card-body text-center p-4">
-                    {category.icon}
-                    <h4 className="card-title">{category.name}</h4>
-                    <p className="card-text text-muted">{category.description}</p>
-                    <Link to={category.link} className="btn btn-outline-primary mt-3">
-                      Explore <FaArrowRight className="ms-1" />
-                    </Link>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Popular Plans Section */}
-      <section className="py-5">
-        <div className="container">
-          <h2 className="text-center mb-5 fw-bold">Popular Plans</h2>
-          <div className="row g-4">
-            {popularPlans.map(plan => (
-              <div key={plan.id} className="col-md-4">
-                <div className="card h-100 border-0 shadow-sm">
-                  <div className="card-header bg-white border-0 pt-4 pb-0">
-                    <h3 className="text-center fw-bold">{plan.name}</h3>
-                    <div className="text-center">
-                      <span className="h1 fw-bold text-primary-custom">₹{plan.price}</span>
-                      <span className="text-muted">/{plan.validity}</span>
+        {/* SIM Categories Section */}
+        <section className="py-5 bg-light-custom">
+          <div className="container">
+            <h2 className="text-center mb-5 fw-bold">Choose Your SIM Type</h2>
+            <div className="row g-4">
+              {simCategories.map(category => (
+                <div key={category.id} className="col-md-6 col-lg-3">
+                  <div className="card h-100 border-0 shadow-sm">
+                    <div className="card-body text-center p-4">
+                      {category.icon}
+                      <h4 className="card-title">{category.name}</h4>
+                      <p className="card-text text-muted">{category.description}</p>
+                      <Link to={category.link} className="btn btn-outline-primary mt-3">
+                        Explore <FaArrowRight className="ms-1" />
+                      </Link>
                     </div>
                   </div>
-                  <div className="card-body">
-                    <ul className="list-unstyled">
-                      <li className="mb-2"><strong>Data:</strong> {plan.data}</li>
-                      <li className="mb-2"><strong>Calls:</strong> {plan.calls}</li>
-                      <li className="mb-2"><strong>SMS:</strong> {plan.sms}</li>
-                      <li className="mb-3">
-                        <strong>Benefits:</strong>
-                        <ul className="mt-2">
-                          {plan.benefits.map((benefit, index) => (
-                            <li key={index}>{benefit}</li>
-                          ))}
-                        </ul>
-                      </li>
-                    </ul>
-                  </div>
-                  <div className="card-footer bg-white border-0 pb-4">
-                    <Link to={`/products/${plan.id}`} className="btn btn-primary w-100">
-                      Select Plan
-                    </Link>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Exploring banner */}
+        <ExplorB></ExplorB>
+
+        {/* Add for About redirect */}
+        <AdAbout></AdAbout>
+
+        {/* Popular Plans Section */}
+        <section className="py-5">
+          <div className="container">
+            <h2 className="text-center mb-5 fw-bold">Popular Plans</h2>
+            <div className="row g-4">
+              {popularPlans.map(plan => (
+                <div key={plan.id} className="col-md-4">
+                  <div className="card h-100 border-0 shadow-sm">
+                    <div className="card-header bg-white border-0 pt-4 pb-0">
+                      <h3 className="text-center fw-bold">{plan.name}</h3>
+                      <div className="text-center">
+                        <span className="h1 fw-bold text-primary-custom">₹{plan.price}</span>
+                        <span className="text-muted">/{plan.validity}</span>
+                      </div>
+                    </div>
+                    <div className="card-body">
+                      <ul className="list-unstyled">
+                        <li className="mb-2"><strong>Data:</strong> {plan.data}</li>
+                        <li className="mb-2"><strong>Calls:</strong> {plan.calls}</li>
+                        <li className="mb-2"><strong>SMS:</strong> {plan.sms}</li>
+                        <li className="mb-3">
+                          <strong>Benefits:</strong>
+                          <ul className="mt-2">
+                            {plan.benefits.map((benefit, index) => (
+                              <li key={index}>{benefit}</li>
+                            ))}
+                          </ul>
+                        </li>
+                      </ul>
+                    </div>
+                    <div className="card-footer bg-white border-0 pb-4">
+                      <Link to={`/products/${plan.id}`} className="btn btn-primary w-100">
+                        Select Plan
+                      </Link>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* Buy SIM CTA Section */}
-      <section className="py-5 bg-primary-custom">
-        <div className="container py-4 text-center">
-          <h2 className="text-white mb-4">Ready to Experience Rogers Network?</h2>
-          <p className="lead text-white mb-4">Get started with a new SIM card or port your existing number today!</p>
-          <Link to="/products" className="btn btn-light btn-lg px-5">
-            Buy SIM Now <FaArrowRight className="ms-2" />
-          </Link>
-        </div>
-      </section>
+        {/* Add for 1 million+ */}
+        <AddBus></AddBus>
+
+        {/* Buy SIM CTA Section */}
+        <section className="py-5 bg-primary-custom">
+          <div className="container py-4 text-center">
+            <h2 className="text-white mb-4">Ready to Experience Rogers Network?</h2>
+            <p className="lead text-white mb-4">Get started with a new SIM card or port your existing number today!</p>
+            <Link to="/products" className="btn btn-light btn-lg px-5">
+              Buy SIM Now <FaArrowRight className="ms-2" style={{ fontSize: "16px" }} />
+            </Link>
+          </div>
+        </section>
+      </div>
     </div>
   );
 }
+
+
