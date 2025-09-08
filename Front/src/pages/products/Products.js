@@ -11,7 +11,9 @@ const Products = () => {
   const dispatch = useDispatch();
 
   // Get products state from Redux
-  const { products, loading, error } = useSelector(state => state.products);
+  // const { products, loading, error } = useSelector(state => state.products);
+  const { products = [], loading = false, error = null } =
+    useSelector(state => state.products || {});
 
   // Mock product data (would come from API in real app)
   const [mockProducts, setMockProducts] = useState([
@@ -404,7 +406,7 @@ const Products = () => {
               Filters
             </button>
           </div>
-          
+
           {loading && (
             <div className="d-flex justify-content-center my-4">
               <div className="spinner-border text-primary" role="status">
