@@ -1,9 +1,11 @@
 :root {
   /* Theme Colors */
-  --primary-color: #e50000; /* Rogers Red */
+  --primary-color: #e50000;
+  /* Rogers Red */
   --primary-color-dark: #c00000;
   --primary-color-light: #ff3333;
-  --secondary-color: #ffffff; /* White */
+  --secondary-color: #ffffff;
+  /* White */
   --text-color: #333333;
   --text-color-light: #666666;
   --background-color: #f8f9fa;
@@ -15,33 +17,33 @@
   --warning-color: #ffc107;
   --danger-color: #dc3545;
   --info-color: #17a2b8;
-  
+
   /* Spacing */
   --spacing-xs: 0.25rem;
   --spacing-sm: 0.5rem;
   --spacing-md: 1rem;
   --spacing-lg: 1.5rem;
   --spacing-xl: 3rem;
-  
+
   /* Border Radius */
   --border-radius-sm: 0.25rem;
   --border-radius-md: 0.5rem;
   --border-radius-lg: 1rem;
   --border-radius: 4px;
-  
+
   /* Box Shadow */
   --box-shadow-sm: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
   --box-shadow-md: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
   --box-shadow-lg: 0 1rem 3rem rgba(0, 0, 0, 0.175);
   --box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-  
+
   /* Transitions */
   --transition: all 0.3s ease;
 }
 
 /* Global styles */
 body {
-  font-family: 'Roboto', Arial, sans-serif;
+  font-family: "Roboto", Arial, sans-serif;
   color: var(--text-color);
   background-color: var(--secondary-color);
   margin: 0;
@@ -215,8 +217,13 @@ body {
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
 /* Custom Spacing */
@@ -246,7 +253,7 @@ body {
 }
 
 .banner::after {
-  content: '';
+  content: "";
   position: absolute;
   top: 0;
   left: 0;
@@ -272,4 +279,42 @@ body {
   margin-top: auto;
   background-color: transparent;
   border-top: none;
+}
+
+/* Change color of bedge */
+
+.bg-primary {
+  background-color: var(--primary-color) !important;
+}
+
+.text-primary {
+  color: var(--primary-color) !important;
+}
+
+.btn-primary {
+  background-color: var(--primary-color) !important;
+  border-color: var(--primary-color) !important;
+}
+
+.btn-primary:hover {
+  background-color: var(--primary-color-dark) !important;
+  border-color: var(--primary-color-dark) !important;
+}
+
+/* Custom radio button  */
+/* Custom radio style */
+.form-check-input[type="radio"] {
+  accent-color: #e50000 !important;
+  /* Modern browsers */
+}
+
+/* For better cross-browser styling */
+.form-check-input[type="radio"]:checked {
+  background-color: #e50000 !important;
+  border-color: #e50000 !important;
+}
+
+.form-check-input[type="radio"]:focus {
+  border-color: #e50000 !important;
+  box-shadow: 0 0 0 0.2rem rgba(229, 0, 0, 0.25) !important;
 }

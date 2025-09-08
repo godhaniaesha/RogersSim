@@ -3,6 +3,8 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import { Provider, useSelector } from 'react-redux';
+import 'bootstrap/dist/css/bootstrap.min.css';
+
 
 // Styles
 import './style/theme.css';
