@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { FaFilter, FaSort, FaChevronDown, FaChevronUp } from 'react-icons/fa';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchProducts } from '../../store/slices/productSlice';
 import { setFilters, setSort } from '../../store/slices/productSlice';
 import { toast } from 'react-toastify';
 import productService from '../../services/productService';

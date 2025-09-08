@@ -192,23 +192,6 @@ const Signup = () => {
                       </div>
                       
                       <div className="mb-3">
-                        <label htmlFor="mobile" className="form-label">Mobile Number</label>
-                        <div className="input-group">
-                          <span className="input-group-text">+91</span>
-                          <input 
-                            type="text" 
-                            className="form-control" 
-                            placeholder="Enter 10-digit mobile number"
-                            value={mobileNumber}
-                            onChange={(e) => setMobileNumber(e.target.value)}
-                          />
-                        </div>
-                        {mobileNumber && !mobileNumber.match(/^[0-9]{10}$/) && (
-                          <div className="text-danger mt-1 small">Please enter a valid 10-digit mobile number</div>
-                        )}
-                      </div>
-                      
-                      <div className="mb-3">
                         <label htmlFor="password" className="form-label">Password</label>
                         <Field 
                           type="password" 

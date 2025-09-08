@@ -6,7 +6,7 @@ const Footer = () => {
   const currentYear = new Date().getFullYear();
   
   return (
-    <footer className="text-white pt-5 pb-4" style={{ backgroundColor: '#0b0f14' }}>
+    <footer className="bg-dark text-white pt-5 pb-4">
       <div className="container">
         <div className="row">
           {/* Company Info */}
@@ -91,7 +91,7 @@ const Footer = () => {
         {/* Bottom Footer */}
         <div className="row mt-4 pt-4 border-top border-secondary">
           <div className="col-md-6 mb-md-0 mb-3">
-            <p className="small mb-0" style={{color:"#686868"}}>&copy; {currentYear} Rogers Telecom. All rights reserved.</p>
+            <p className="small text-muted mb-0">&copy; {currentYear} Rogers Telecom. All rights reserved.</p>
           </div>
           <div className="col-md-6 text-md-end">
             <ul className="list-inline mb-0">
