@@ -4,20 +4,16 @@ import { FaFilter, FaSort, FaChevronDown, FaChevronUp } from 'react-icons/fa';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchProducts } from '../../store/slices/productSlice';
 import { setFilters, setSort } from '../../store/slices/productSlice';
+import "../../style/z_app.css"
 import { toast } from 'react-toastify';
 import productService from '../../services/productService';
 
 const Products = () => {
   const dispatch = useDispatch();
-  
+
   // Get products state from Redux
   const { products, loading, error } = useSelector(state => state.products);
-  
-  // Fetch products when component mounts
-  // useEffect(() => {
-  //   dispatch(fetchProducts());
-  // }, [dispatch]);
-  
+
   // Mock product data (would come from API in real app)
   const [mockProducts, setMockProducts] = useState([
     {
@@ -96,24 +92,24 @@ const Products = () => {
     popular: false
   });
 
-  // Mobile filter visibility
-  const [showFilters, setShowFilters] = useState(false);
-
   // Sort state
   const [sortBy, setLocalSortBy] = useState('popularity');
-  
+
+  // Offcanvas state for mobile filters
+  const [showOffcanvas, setShowOffcanvas] = useState(false);
+
   // Update Redux when local state changes
   useEffect(() => {
     dispatch(setFilters(filters));
   }, [filters, dispatch]);
-  
+
   useEffect(() => {
     dispatch(setSort(sortBy));
   }, [sortBy, dispatch]);
 
   // Filtered products
   const [filteredProducts, setFilteredProducts] = useState([]);
-  
+
   // Use products from Redux if available, otherwise use mock data
   const productsToUse = products && products.length > 0 ? products : mockProducts;
 
@@ -166,7 +162,7 @@ const Products = () => {
     }
 
     setFilteredProducts(result);
-  }, [products, filters, sortBy]);
+  }, [productsToUse, filters, sortBy]);
 
   // Handle filter changes
   const handleFilterChange = (filterName, value) => {
@@ -178,7 +174,7 @@ const Products = () => {
 
   // Reset filters
   const resetFilters = () => {
-    setFilters({
+    setLocalFilters({
       type: '',
       simType: '',
       priceRange: '',
@@ -187,12 +183,229 @@ const Products = () => {
     setLocalSortBy('popularity');
   };
 
+  // Filter Content Component (to avoid code duplication)
+  const FilterContent = () => (
+    <>
+      <div className="d-flex justify-content-between align-items-center mb-3">
+        <h5 className="mb-0">Filters</h5>
+        <button
+          className="btn btn-sm btn-link text-decoration-none"
+          onClick={resetFilters}
+        >
+          Reset
+        </button>
+      </div>
+
+      {/* SIM Type Filter */}
+      <div className="mb-4">
+        <h6>SIM Type</h6>
+        <div className="form-check">
+          <input
+            className="form-check-input"
+            type="radio"
+            name="simType"
+            id="simTypeAll"
+            checked={filters.simType === ''}
+            onChange={() => handleFilterChange('simType', '')}
+          />
+          <label className="form-check-label" htmlFor="simTypeAll">
+            All
+          </label>
+        </div>
+        <div className="form-check">
+          <input
+            className="form-check-input"
+            type="radio"
+            name="simType"
+            id="simTypePhysical"
+            checked={filters.simType === 'physical'}
+            onChange={() => handleFilterChange('simType', 'physical')}
+          />
+          <label className="form-check-label" htmlFor="simTypePhysical">
+            Physical SIM
+          </label>
+        </div>
+        <div className="form-check">
+          <input
+            className="form-check-input"
+            type="radio"
+            name="simType"
+            id="simTypeEsim"
+            checked={filters.simType === 'esim'}
+            onChange={() => handleFilterChange('simType', 'esim')}
+          />
+          <label className="form-check-label" htmlFor="simTypeEsim">
+            eSIM
+          </label>
+        </div>
+      </div>
+
+      {/* Plan Type Filter */}
+      <div className="mb-4">
+        <h6>Plan Type</h6>
+        <div className="form-check">
+          <input
+            className="form-check-input"
+            type="radio"
+            name="planType"
+            id="planTypeAll"
+            checked={filters.type === ''}
+            onChange={() => handleFilterChange('type', '')}
+          />
+          <label className="form-check-label" htmlFor="planTypeAll">
+            All
+          </label>
+        </div>
+        <div className="form-check">
+          <input
+            className="form-check-input"
+            type="radio"
+            name="planType"
+            id="planTypePrepaid"
+            checked={filters.type === 'prepaid'}
+            onChange={() => handleFilterChange('type', 'prepaid')}
+          />
+          <label className="form-check-label" htmlFor="planTypePrepaid">
+            Prepaid
+          </label>
+        </div>
+        <div className="form-check">
+          <input
+            className="form-check-input"
+            type="radio"
+            name="planType"
+            id="planTypePostpaid"
+            checked={filters.type === 'postpaid'}
+            onChange={() => handleFilterChange('type', 'postpaid')}
+          />
+          <label className="form-check-label" htmlFor="planTypePostpaid">
+            Postpaid
+          </label>
+        </div>
+        <div className="form-check">
+          <input
+            className="form-check-input"
+            type="radio"
+            name="planType"
+            id="planTypeData"
+            checked={filters.type === 'data'}
+            onChange={() => handleFilterChange('type', 'data')}
+          />
+          <label className="form-check-label" htmlFor="planTypeData">
+            Data Only
+          </label>
+        </div>
+      </div>
+
+      {/* Price Range Filter */}
+      <div className="mb-4">
+        <h6>Price Range</h6>
+        <div className="form-check">
+          <input
+            className="form-check-input"
+            type="radio"
+            name="priceRange"
+            id="priceRangeAll"
+            checked={filters.priceRange === ''}
+            onChange={() => handleFilterChange('priceRange', '')}
+          />
+          <label className="form-check-label" htmlFor="priceRangeAll">
+            All
+          </label>
+        </div>
+        <div className="form-check">
+          <input
+            className="form-check-input"
+            type="radio"
+            name="priceRange"
+            id="priceRangeUnder100"
+            checked={filters.priceRange === 'under100'}
+            onChange={() => handleFilterChange('priceRange', 'under100')}
+          />
+          <label className="form-check-label" htmlFor="priceRangeUnder100">
+            Under ₹100
+          </label>
+        </div>
+        <div className="form-check">
+          <input
+            className="form-check-input"
+            type="radio"
+            name="priceRange"
+            id="priceRange100to200"
+            checked={filters.priceRange === '100to200'}
+            onChange={() => handleFilterChange('priceRange', '100to200')}
+          />
+          <label className="form-check-label" htmlFor="priceRange100to200">
+            ₹100 - ₹200
+          </label>
+        </div>
+        <div className="form-check">
+          <input
+            className="form-check-input"
+            type="radio"
+            name="priceRange"
+            id="priceRangeOver200"
+            checked={filters.priceRange === 'over200'}
+            onChange={() => handleFilterChange('priceRange', 'over200')}
+          />
+          <label className="form-check-label" htmlFor="priceRangeOver200">
+            Over ₹200
+          </label>
+        </div>
+      </div>
+
+      {/* Popular Filter */}
+      <div className="mb-4">
+        <div className="form-check">
+          <input
+            className="form-check-input"
+            type="checkbox"
+            id="popularFilter"
+            checked={filters.popular}
+            onChange={(e) => handleFilterChange('popular', e.target.checked)}
+          />
+          <label className="form-check-label" htmlFor="popularFilter">
+            Show only popular SIMs
+          </label>
+        </div>
+      </div>
+
+      {/* Sort Options */}
+      <div>
+        <h6 className="d-flex align-items-center"><FaSort className="me-2" /> Sort By</h6>
+        <select
+          className="form-select"
+          value={sortBy}
+          onChange={(e) => setLocalSortBy(e.target.value)}
+        >
+          <option value="popularity">Popularity</option>
+          <option value="priceLow">Price: Low to High</option>
+          <option value="priceHigh">Price: High to Low</option>
+        </select>
+      </div>
+    </>
+  );
+
   return (
     <div className="container py-5">
       <div className="row mb-4">
         <div className="col-12">
-          <h1 className="mb-4">SIM Cards</h1>
-          <p className="lead">Choose the perfect SIM card for your needs</p>
+          <div className="d-flex justify-content-between align-items-center mb-4">
+            <div>
+              <h1 className="mb-2">SIM Cards</h1>
+              <p className="lead mb-0">Choose the perfect SIM card for your needs</p>
+            </div>
+            {/* Mobile Filter Button */}
+            <button
+              className="btn btn-outline-primary d-xl-none"
+              type="button"
+              onClick={() => setShowOffcanvas(true)}
+            >
+              <FaFilter className="me-2" />
+              Filters
+            </button>
+          </div>
+          
           {loading && (
             <div className="d-flex justify-content-center my-4">
               <div className="spinner-border text-primary" role="status">
@@ -203,7 +416,7 @@ const Products = () => {
           {error && (
             <div className="alert alert-danger" role="alert">
               {error}
-              <button 
+              <button
                 className="btn btn-sm btn-outline-danger ms-3"
                 onClick={() => dispatch(fetchProducts())}
               >
@@ -215,259 +428,47 @@ const Products = () => {
       </div>
 
       <div className="row">
-        {/* Mobile Filter Toggle */}
-        <div className="col-12 d-md-none mb-3">
-          <button 
-            className="btn btn-outline-primary w-100 d-flex justify-content-between align-items-center"
-            onClick={() => setShowFilters(!showFilters)}
-          >
-            <span><FaFilter className="me-2" /> Filters & Sorting</span>
-            {showFilters ? <FaChevronUp /> : <FaChevronDown />}
-          </button>
-        </div>
-
-        {/* Filters - Desktop (always visible) and Mobile (toggleable) */}
-        <div className={`col-md-3 mb-4 ${showFilters ? 'd-block' : 'd-none d-md-block'}`}>
-          <div className="card border-0 shadow-sm">
+        {/* Desktop Filters - Always visible on desktop */}
+        <div className="col-md-3 mb-4">
+          <div className="card border-0 shadow-sm position-sticky" style={{ top: '1rem' }}>
             <div className="card-body">
-              <div className="d-flex justify-content-between align-items-center mb-3">
-                <h5 className="card-title mb-0">Filters</h5>
-                <button 
-                  className="btn btn-sm btn-link text-decoration-none" 
-                  onClick={resetFilters}
-                >
-                  Reset
-                </button>
-              </div>
-
-              {/* SIM Type Filter */}
-              <div className="mb-4">
-                <h6>SIM Type</h6>
-                <div className="form-check">
-                  <input 
-                    className="form-check-input" 
-                    type="radio" 
-                    name="simType" 
-                    id="simTypeAll" 
-                    checked={filters.simType === ''}
-                    onChange={() => handleFilterChange('simType', '')}
-                  />
-                  <label className="form-check-label" htmlFor="simTypeAll">
-                    All
-                  </label>
-                </div>
-                <div className="form-check">
-                  <input 
-                    className="form-check-input" 
-                    type="radio" 
-                    name="simType" 
-                    id="simTypePhysical" 
-                    checked={filters.simType === 'physical'}
-                    onChange={() => handleFilterChange('simType', 'physical')}
-                  />
-                  <label className="form-check-label" htmlFor="simTypePhysical">
-                    Physical SIM
-                  </label>
-                </div>
-                <div className="form-check">
-                  <input 
-                    className="form-check-input" 
-                    type="radio" 
-                    name="simType" 
-                    id="simTypeEsim" 
-                    checked={filters.simType === 'esim'}
-                    onChange={() => handleFilterChange('simType', 'esim')}
-                  />
-                  <label className="form-check-label" htmlFor="simTypeEsim">
-                    eSIM
-                  </label>
-                </div>
-              </div>
-
-              {/* Plan Type Filter */}
-              <div className="mb-4">
-                <h6>Plan Type</h6>
-                <div className="form-check">
-                  <input 
-                    className="form-check-input" 
-                    type="radio" 
-                    name="planType" 
-                    id="planTypeAll" 
-                    checked={filters.type === ''}
-                    onChange={() => handleFilterChange('type', '')}
-                  />
-                  <label className="form-check-label" htmlFor="planTypeAll">
-                    All
-                  </label>
-                </div>
-                <div className="form-check">
-                  <input 
-                    className="form-check-input" 
-                    type="radio" 
-                    name="planType" 
-                    id="planTypePrepaid" 
-                    checked={filters.type === 'prepaid'}
-                    onChange={() => handleFilterChange('type', 'prepaid')}
-                  />
-                  <label className="form-check-label" htmlFor="planTypePrepaid">
-                    Prepaid
-                  </label>
-                </div>
-                <div className="form-check">
-                  <input 
-                    className="form-check-input" 
-                    type="radio" 
-                    name="planType" 
-                    id="planTypePostpaid" 
-                    checked={filters.type === 'postpaid'}
-                    onChange={() => handleFilterChange('type', 'postpaid')}
-                  />
-                  <label className="form-check-label" htmlFor="planTypePostpaid">
-                    Postpaid
-                  </label>
-                </div>
-                <div className="form-check">
-                  <input 
-                    className="form-check-input" 
-                    type="radio" 
-                    name="planType" 
-                    id="planTypeData" 
-                    checked={filters.type === 'data'}
-                    onChange={() => handleFilterChange('type', 'data')}
-                  />
-                  <label className="form-check-label" htmlFor="planTypeData">
-                    Data Only
-                  </label>
-                </div>
-              </div>
-
-              {/* Price Range Filter */}
-              <div className="mb-4">
-                <h6>Price Range</h6>
-                <div className="form-check">
-                  <input 
-                    className="form-check-input" 
-                    type="radio" 
-                    name="priceRange" 
-                    id="priceRangeAll" 
-                    checked={filters.priceRange === ''}
-                    onChange={() => handleFilterChange('priceRange', '')}
-                  />
-                  <label className="form-check-label" htmlFor="priceRangeAll">
-                    All
-                  </label>
-                </div>
-                <div className="form-check">
-                  <input 
-                    className="form-check-input" 
-                    type="radio" 
-                    name="priceRange" 
-                    id="priceRangeUnder100" 
-                    checked={filters.priceRange === 'under100'}
-                    onChange={() => handleFilterChange('priceRange', 'under100')}
-                  />
-                  <label className="form-check-label" htmlFor="priceRangeUnder100">
-                    Under ₹100
-                  </label>
-                </div>
-                <div className="form-check">
-                  <input 
-                    className="form-check-input" 
-                    type="radio" 
-                    name="priceRange" 
-                    id="priceRange100to200" 
-                    checked={filters.priceRange === '100to200'}
-                    onChange={() => handleFilterChange('priceRange', '100to200')}
-                  />
-                  <label className="form-check-label" htmlFor="priceRange100to200">
-                    ₹100 - ₹200
-                  </label>
-                </div>
-                <div className="form-check">
-                  <input 
-                    className="form-check-input" 
-                    type="radio" 
-                    name="priceRange" 
-                    id="priceRangeOver200" 
-                    checked={filters.priceRange === 'over200'}
-                    onChange={() => handleFilterChange('priceRange', 'over200')}
-                  />
-                  <label className="form-check-label" htmlFor="priceRangeOver200">
-                    Over ₹200
-                  </label>
-                </div>
-              </div>
-
-              {/* Popular Filter */}
-              <div className="mb-4">
-                <div className="form-check">
-                  <input 
-                    className="form-check-input" 
-                    type="checkbox" 
-                    id="popularFilter" 
-                    checked={filters.popular}
-                    onChange={(e) => handleFilterChange('popular', e.target.checked)}
-                  />
-                  <label className="form-check-label" htmlFor="popularFilter">
-                    Show only popular SIMs
-                  </label>
-                </div>
-              </div>
-
-              {/* Sort Options */}
-              <div>
-                <h6 className="d-flex align-items-center"><FaSort className="me-2" /> Sort By</h6>
-                <select 
-                  className="form-select" 
-                  value={sortBy}
-                  onChange={(e) => setLocalSortBy(e.target.value)}
-                >
-                  <option value="popularity">Popularity</option>
-                  <option value="priceLow">Price: Low to High</option>
-                  <option value="priceHigh">Price: High to Low</option>
-                </select>
-              </div>
+              <FilterContent />
             </div>
           </div>
         </div>
 
         {/* Products Grid */}
         <div className="col-md-9">
+          {/* Results count */}
+          <div className="d-flex justify-content-between align-items-center mb-3">
+            <p className="text-muted mb-0">
+              Showing {filteredProducts.length} of {productsToUse.length} SIM cards
+            </p>
+          </div>
+
           {filteredProducts.length > 0 ? (
-            <div className="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+            <div className="row">
               {filteredProducts.map(product => (
-                <div className="col" key={product.id}>
-                  <div className="card h-100 border-0 shadow-sm product-card">
-                    {product.popular && (
-                      <div className="position-absolute top-0 end-0 bg-primary text-white px-2 py-1 m-2 rounded-pill">
-                        Popular
-                      </div>
-                    )}
-                    <img 
-                      src={product.image} 
-                      className="card-img-top" 
-                      alt={product.name} 
-                      style={{ height: '180px', objectFit: 'cover' }}
-                    />
-                    <div className="card-body">
+                <div className="col-12 col-sm-6 col-lg-4 mb-4 d-flex justify-content-center" key={product.id}>
+                  <div className="card h-100 border-0 shadow-sm z_prd_card">
+                    <div className="card-body d-flex flex-column">
                       <div className="d-flex justify-content-between align-items-start mb-2">
                         <h5 className="card-title mb-0">{product.name}</h5>
-                        <span className="badge bg-light text-dark">{product.simType === 'esim' ? 'eSIM' : 'Physical'}</span>
                       </div>
                       <p className="card-text text-muted small mb-3">{product.description}</p>
-                      <div className="mb-3">
+                      <div className="mb-3 flex-grow-1">
                         {product.features.map((feature, index) => (
                           <div key={index} className="d-flex align-items-center mb-1">
-                            <div className="me-2 text-primary">•</div>
+                            <div className="me-2 z_prd_bullet">•</div>
                             <div className="small">{feature}</div>
                           </div>
                         ))}
                       </div>
-                      <div className="d-flex justify-content-between align-items-center">
-                        <h5 className="text-primary mb-0">₹{product.price}</h5>
-                        <Link 
-                          to={`/products/${product.id}`} 
-                          className="btn btn-primary"
+                      <div className="d-flex justify-content-between align-items-center mt-auto">
+                        <h5 className="z_prd_price mb-0">₹{product.price}</h5>
+                        <Link
+                          to={`/products/${product.id}`}
+                          className="btn z_prd_btn"
                         >
                           Select
                         </Link>
@@ -482,8 +483,8 @@ const Products = () => {
               <div className="card-body text-center py-5">
                 <h5>No SIM cards found</h5>
                 <p className="text-muted mb-4">Try adjusting your filters to see more options.</p>
-                <button 
-                  className="btn btn-primary" 
+                <button
+                  className="btn z_prd_btn"
                   onClick={resetFilters}
                 >
                   Reset Filters
