@@ -127,6 +127,7 @@ export const {
   updateQuantity,
   clearCart,
   clearError,
+  
 } = cartSlice.actions;
 
 export default cartSlice.reducer;

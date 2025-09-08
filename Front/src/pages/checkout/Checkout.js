@@ -4,7 +4,7 @@ import { FaArrowLeft, FaPlus, FaEdit, FaCreditCard, FaMoneyBill } from 'react-ic
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 import { useDispatch, useSelector } from 'react-redux';
-import { removeFromCart, updateQuantity } from '../../store/slices/cartSlice';
+import { fetchCart, removeFromCart, updateQuantity } from '../../store/slices/cartSlice';
 import { toast } from 'react-toastify';
 import cartService from '../../services/cartService';
 
@@ -25,9 +25,9 @@ const Checkout = () => {
   const cartTotal = cartItems ? cartItems.reduce((total, item) => total + item.price * item.quantity, 0) : 547;
   
   // Fetch cart items when component mounts
-  useEffect(() => {
-    dispatch(fetchCart());
-  }, [dispatch]);
+  // useEffect(() => {
+  //   dispatch(fetchCart());
+  // }, [dispatch]);
   
   // Redirect to login if not authenticated
   useEffect(() => {

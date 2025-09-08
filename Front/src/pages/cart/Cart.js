@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { FaShoppingCart, FaTrash, FaArrowRight } from 'react-icons/fa';
 import { useDispatch, useSelector } from 'react-redux';
-import { removeFromCart, updateQuantity } from '../../store/slices/cartSlice';
+import { fetchCart, removeFromCart, updateQuantity } from '../../store/slices/cartSlice';
 import { toast } from 'react-toastify';
 import cartService from '../../services/cartService';
 
@@ -15,9 +15,9 @@ const Cart = () => {
   const { isAuthenticated } = useSelector(state => state.auth);
   
   // Fetch cart items when component mounts
-  // useEffect(() => {
-  //   dispatch(fetchCart());
-  // }, [dispatch]);
+  useEffect(() => {
+    dispatch(fetchCart());
+  }, [dispatch]);
   
   // Redirect to login if not authenticated
   useEffect(() => {

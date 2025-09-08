@@ -5,7 +5,7 @@ import { toast } from 'react-toastify';
 import { FaUser, FaIdCard, FaHistory, FaMapMarkerAlt, FaEdit, FaSave } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { updateProfileStart, updateProfileSuccess, updateProfileFailure } from '../../store/slices/authSlice';
+import { updateProfileStart, updateProfileSuccess, updateProfileFailure, fetchProfileStart, fetchProfileSuccess, fetchProfileFailure } from '../../store/slices/authSlice';
 import authService from '../../services/authService';
 
 const Profile = () => {

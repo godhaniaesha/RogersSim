@@ -61,7 +61,7 @@ export default function Header() {
                 </Link>
               </li>
 
-              <li className="nav-item dropdown">
+              {/* <li className="nav-item dropdown">
                 <a
                   className="nav-link dropdown-toggle"
                   href="#"
@@ -93,7 +93,7 @@ export default function Header() {
                     </Link>
                   </li>
                 </ul>
-              </li>
+              </li> */}
               <li className="nav-item">
                 <Link className="nav-link" to="/products">
                   SIM Cards
@@ -107,11 +107,11 @@ export default function Header() {
                 </Link>
               </li>
 
-              <li className="nav-item">
+              {/* <li className="nav-item">
                 <Link className="nav-link" to="/">
                   Plans
                 </Link>
-              </li>
+              </li> */}
               {/* <li className="nav-item">
                 <Link className="nav-link" to="/products?type=addon">
                   Add-ons
