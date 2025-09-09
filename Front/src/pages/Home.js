@@ -5,6 +5,8 @@ import AddBus from './AddBus';
 import AdAbout from './AdAbout';
 import ExplorB from './ExplorB';
 import Hero from './Hero';
+import NewHero from './NewHero';
+import TestSlider from './TestSlider';
 
 export default function Home() {
 
@@ -107,7 +109,9 @@ export default function Home() {
       {/* Rest of the home page content */}
       <div >
         {/* Hero Banner Carousel */}
-        <Hero />
+        {/* <Hero /> */}
+        <NewHero></NewHero>
+        {/* <TestSlider></TestSlider> */}
         {/* <div id="heroCarousel" className="carousel slide" data-bs-ride="carousel">
         <div className="carousel-inner">
           {banners.map((banner, index) => (

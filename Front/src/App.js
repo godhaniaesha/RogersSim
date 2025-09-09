@@ -33,6 +33,8 @@ import AdAbout from './pages/AdAbout';
 import AddBus from './pages/AddBus';
 import Recharge from './pages/Recharge';
 import Plans from './pages/Plans';
+import HelpCenter from './pages/HelpCenter';
+import ForgotPass from './pages/auth/ForgotPass';
 
 function App() {
   return (
@@ -61,7 +63,7 @@ const AppContent = () => {
       <Router>
         <ToastContainer position="top-right" autoClose={3000} hideProgressBar={false} />
         <Header />
-        <main className="min-vh-100">
+        <main className="h-100">
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/exb" element={<ExplorB />} />
@@ -85,21 +87,24 @@ const AppContent = () => {
 
             <Route path="/products/:id" element={<ProductDetail />} />
             <Route path="/cart" element={<Cart />} />
+            <Route path="/forgot-password" element={<ForgotPass />} />
+            <Route path="/helpcenter" element={<HelpCenter />} />
             <Route path="/checkout" element={
-              <ProtectedRoute>
+              // <ProtectedRoute>
                 <Checkout />
-              </ProtectedRoute>
+              // </ProtectedRoute>
             } />
             <Route path="/payment" element={
-              <ProtectedRoute>
+              // <ProtectedRoute>
                 <Payment />
-              </ProtectedRoute>
+              // </ProtectedRoute>
             } />
             <Route path="/order-confirmation" element={
               <ProtectedRoute>
                 <OrderConfirmation />
               </ProtectedRoute>
             } />
+         
           </Routes>
         </main>
         <Footer />

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 import { toast } from 'react-toastify';
-import { FaUser, FaIdCard, FaHistory, FaMapMarkerAlt, FaEdit, FaSave } from 'react-icons/fa';
+import { FaUser, FaIdCard, FaHistory, FaMapMarkerAlt, FaEdit, FaSave, FaBarcode } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { updateProfileStart, updateProfileSuccess, updateProfileFailure, fetchProfileStart, fetchProfileSuccess, fetchProfileFailure } from '../../store/slices/authSlice';
@@ -10,6 +10,11 @@ import authService from '../../services/authService';
 
 const Profile = () => {
   const [activeTab, setActiveTab] = useState('personal');
+  const [barcode, setBarcode] = useState('');
+  const [otp, setOtp] = useState('');
+  const [otpSent, setOtpSent] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [cardActivated, setCardActivated] = useState(false);
   const navigate = useNavigate();
   const dispatch = useDispatch();
   
@@ -178,6 +183,12 @@ const Profile = () => {
                   onClick={() => setActiveTab('orders')}
                 >
                   <FaHistory className="me-2" /> Order History
+                </button>
+                <button
+                  className={`list-group-item list-group-item-action border-0 ${activeTab === 'activate' ? 'active bg-primary-custom text-white' : ''}`}
+                  onClick={() => setActiveTab('activate')}
+                >
+                  <FaBarcode className="me-2" /> Activate Card
                 </button>
               </div>
             </div>
@@ -384,6 +395,81 @@ const Profile = () => {
                 </div>
               )}
               
+              {/* Activate Card Tab */}
+              {activeTab === 'activate' && (
+                <div>
+                  <h4 className="mb-4">Activate Card</h4>
+                  <div className="mb-3">
+                    <label htmlFor="barcode" className="form-label">Barcode Number</label>
+                    <input
+                      type="text"
+                      className="form-control"
+                      id="barcode"
+                      value={barcode}
+                      onChange={e => setBarcode(e.target.value)}
+                      placeholder="Enter your card's barcode number"
+                      disabled={otpSent || cardActivated}
+                    />
+                  </div>
+                  {!otpSent && !cardActivated && (
+                    <button
+                      className="btn btn-primary mb-3"
+                      disabled={!barcode || barcode.length < 8}
+                      onClick={() => {
+                        setOtpSent(true);
+                        toast.info('OTP sent to your registered mobile number');
+                      }}
+                    >
+                      Send OTP
+                    </button>
+                  )}
+                  {otpSent && !cardActivated && (
+                    <>
+                      <div className="mb-3">
+                        <label htmlFor="otp" className="form-label">Enter 6-digit OTP</label>
+                        <input
+                          type="text"
+                          className="form-control"
+                          id="otp"
+                          value={otp}
+                          onChange={e => setOtp(e.target.value.replace(/\D/g, ''))}
+                          maxLength={6}
+                          placeholder="Enter OTP"
+                        />
+                      </div>
+                      <button
+                        className="btn btn-success"
+                        disabled={otp.length !== 6}
+                        onClick={() => {
+                          setCardActivated(true);
+                          setShowSuccess(true);
+                          setTimeout(() => {
+                            setShowSuccess(false);
+                            setActiveTab('personal');
+                            setBarcode('');
+                            setOtp('');
+                            setOtpSent(false);
+                            setCardActivated(false);
+                          }, 2500);
+                          toast.success('Card activated successfully!');
+                        }}
+                      >
+                        Verify & Activate
+                      </button>
+                    </>
+                  )}
+                  {showSuccess && (
+                    <div className="alert alert-success mt-4" role="alert">
+                      Card activated successfully!
+                    </div>
+                  )}
+                  {cardActivated && !showSuccess && (
+                    <div className="alert alert-success mt-4" role="alert">
+                      Card already activated.
+                    </div>
+                  )}
+                </div>
+              )}
               {/* Order History Tab */}
               {activeTab === 'orders' && (
                 <div>
