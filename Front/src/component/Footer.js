@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { FaFacebook, FaTwitter, FaInstagram, FaYoutube, FaLinkedin, FaPhoneAlt, FaEnvelope, FaMapMarkerAlt } from 'react-icons/fa';
+import Logo from "../image/IMG_4025 (1).png";
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
@@ -11,7 +12,10 @@ const Footer = () => {
         <div className="row">
           {/* Company Info */}
           <div className="col-md-3 mb-4">
-            <h5 className="text-primary-custom fw-bold mb-4">ROGERS</h5>
+            {/* <h5 className="text-primary-custom fw-bold mb-4">ROGERS</h5> */}
+            <div className='mb-3'>
+            <img src={Logo} alt="" style={{width: "45%"}}/>
+            </div>
             <p className="small">Rogers is a leading telecom provider offering innovative mobile solutions, high-speed internet, and cutting-edge technology services across India.</p>
             <div className="d-flex gap-2 mt-3">
               <a href="https://facebook.com" className="text-white" aria-label="Facebook">

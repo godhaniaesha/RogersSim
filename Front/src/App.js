@@ -33,6 +33,7 @@ import OrderConfirmation from './pages/checkout/OrderConfirmation';
 import AddBus from './pages/AddBus';
 import AdAbout from './pages/AdAbout';
 import ExplorB from './pages/ExplorB';
+import Plans from './pages/Plans';
 
 function App() {
   return (
@@ -80,6 +81,8 @@ const AppContent = () => {
               </ProtectedRoute>
             } />
             <Route path="/products" element={<Products />} />
+            <Route path="/plans" element={<Plans />} />
+
             <Route path="/products/:id" element={<ProductDetail />} />
             <Route path="/cart" element={<Cart />} />
             <Route path="/checkout" element={
