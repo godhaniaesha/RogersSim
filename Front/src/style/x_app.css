@@ -481,12 +481,13 @@ body {
 }
 
 /* Slide 2 & 3 Specific Styles */
-.x_hero .slide-2{
+.x_hero .slide-2 {
     background: linear-gradient(to right, #ffffff 0%, #f8f9fa 100%);
     /* background-image: url("https://jep-asset.akamaized.net/cms/assets/jioapps/jiohome/home-desk.webp"); */
     background-size: cover;
     repeat: no-repeat;
 }
+
 .x_hero .slide-3 {
     /* background: linear-gradient(to right, #ffffff 0%, #f8f9fa 100%); */
     background-image: url("https://jep-asset.akamaized.net/cms/assets/jioapps/jiohome/home-desk.webp");
@@ -644,3 +645,312 @@ body {
 }
 
 /* Hero Slider End */
+
+/* Recharge page Start */
+.x_rech {
+    background: #ffffff;
+}
+
+.rech_card {
+    width: 70%;
+    margin: auto;
+}
+
+.x_rech .rech_card h2 {
+    color: var(--primary-color);
+}
+
+.rech_icon_span {
+    font-size: 1.7rem;
+    font-weight: 500;
+}
+
+.x_rech .rech_icon {
+    width: 44px;
+    height: 44px;
+    line-height: 44px;
+    text-align: center;
+    border-radius: 50%;
+    background: #f8e7e8;
+    color: var(--primary-color);
+    display: inline-block;
+}
+
+.x_rech .rech_toggle {
+    justify-content: center;
+}
+
+.x_rech .rech_toggle .toggle_btn {
+    border: 1px solid var(--primary-color);
+    background: #fff;
+    color: var(--primary-color);
+    border-radius: 999px;
+    padding: 6px 14px;
+    font-weight: 600;
+    justify-content: center;
+}
+
+.x_rech .rech_toggle .toggle_btn.active {
+    background: var(--primary-color);
+    color: #fff;
+}
+
+.x_rech .rech_input {
+    /* border-width: 2px;
+    border-color: var(--primary-color-light); */
+    font-size: 20px;
+    border: none;
+    border-radius: 0px;
+    border-bottom: black 1px solid;
+}
+
+.x_rech .rech_input:placeholder-shown {
+    font-size: 16px;
+}
+
+.x_rech_btn {
+    background: var(--primary-color);
+    color: #fff;
+    border-radius: 999px;
+}
+
+.x_rech_btn:hover {
+    color: #fff;
+    background: var(--primary-color-dark);
+    /* border: 1px solid var(--primary-color); */
+}
+
+.x_rech .rech_hero_text .rech_chip {
+    background: #fff;
+    border: 1px solid var(--primary-color);
+    color: var(--primary-color);
+    padding: 6px 12px;
+    border-radius: 999px;
+    font-weight: 600;
+}
+
+.x_rech .rech_hero_img .rech_img_1 {
+    width: 520px;
+    max-width: 100%;
+    height: 320px;
+    background-image: url("https://jep-asset.akamaized.net/cms/assets/jioapps/jiohome/home-desk.webp");
+    background-size: cover;
+    background-position: center;
+}
+
+.x_rech .rech_info {
+    background: var(--light-blue-bg);
+}
+
+/* main wrapper */
+
+
+.X_jds_footerContent {
+    padding: 40px 20px;
+    background: #fff;
+    color: #141414;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+}
+
+
+/* .X_jds_footerContent .X_inner {
+    max-width: 980px;
+    margin: 0 auto;
+    } */
+
+
+.X_heading {
+    font-size: 40px;
+    margin: 0 0 16px 0;
+    line-height: 1.05;
+    color: #141414;
+}
+
+
+.X_body p {
+    color: #4b5563;
+    /* slightly muted text */
+    font-size: 15px;
+    line-height: 1.7;
+    margin-bottom: 16px;
+}
+
+
+.X_list,
+.X_plans,
+.X_features {
+    margin: 0 0 16px 20px;
+}
+
+
+.X_list li,
+.X_plans li,
+.X_features li {
+    margin-bottom: 8px;
+    color: #333;
+    font-size: 15px;
+}
+
+
+.X_plans li strong,
+.X_features li strong {
+    color: #111;
+}
+
+
+.X_subheading {
+    font-size: 16px;
+    margin-top: 8px;
+    margin-bottom: 8px;
+    color: #000;
+}
+
+
+.X_last a {
+    color: #1e6ff4;
+    text-decoration: underline;
+}
+
+
+/* Paragraph blocks (keeps spacing consistent) */
+.x-paragraph {
+    margin-bottom: 1rem;
+}
+
+/* Last paragraph - remove bottom margin like original inline style */
+.x-paragraph.x-last {
+    margin-bottom: 0;
+}
+
+/* Link styling */
+.x-link {
+    color: #0b66ff;
+    /* slightly bright blue */
+    text-decoration: underline;
+}
+
+.X_faqContainer {
+    /* max-width: 980px; */
+    margin: 0 auto;
+    padding: 0 16px 3rem;
+    color: #141414;
+  }
+  
+  /* Heading */
+  .X_heading {
+    font-size: 40px;
+    margin-bottom: 1.25rem;
+    color: #141414;
+  }
+  
+  /* Accordion base */
+  .X_accordion .X_panel {
+    background: #fff;
+    border-radius: 0px;
+    margin-bottom: 0.5rem;
+    overflow: visible;
+    transition: box-shadow .2s ease;
+  }
+  
+  .X_accordion .X_panel:hover {
+    box-shadow: 0 6px 20px rgba(0,0,0,0.06);
+  }
+  
+  /* Header */
+  .j-listBlock__main {
+    cursor: pointer;
+    padding: 14px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    outline: none;
+  }
+  
+  .X_question {
+    margin: 0;
+    font-size: 16px;
+    color: var(--color-primary-grey-100, #6b6b6b);
+  }
+  
+  /* Toggle button / chevron */
+  .X_toggleBtn {
+    border: none;
+    background: transparent;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 6px;
+    margin-left: 8px;
+    cursor: pointer;
+  }
+  
+  .X_chev {
+    display: inline-block;
+    transition: transform .25s ease;
+    color: #333;
+  }
+  
+  .X_chev.open {
+    transform: rotate(180deg);
+  }
+  
+  /* Panel content animation */
+  .X_panelInner {
+    overflow: hidden;
+    transition: max-height .28s ease, opacity .22s ease;
+    opacity: 1;
+  }
+  
+  .X_panelInner[aria-hidden="true"] {
+    opacity: 0;
+  }
+  
+  /* Content */
+  .X_accContent {
+    padding: 12px 16px 20px;
+    font-size: 14px;
+    color: #555;
+    line-height: 1.5;
+  }
+  
+  /* Links inside answers */
+  .X_accContent a {
+    color: #007bff;
+    text-decoration: none;
+  }
+  .X_accContent a:hover {
+    text-decoration: underline;
+  }
+  
+  /* Divider (keeps parity with original structure) */
+  .j-Divider_hr_container__hr {
+    height: 1px;
+    background: #eee;
+    margin: 8px 0;
+  }
+  
+  /* Responsive tweaks */
+  @media (max-width: 575px) {
+    .X_faqContainer { padding-left: 12px; padding-right: 12px; }
+    .X_heading { font-size: 28px; }
+    .X_question { font-size: 15px; }
+  }
+/* responsive */
+@media (max-width: 768px) {
+    .X_heading {
+        font-size: 28px;
+    }
+
+
+    .X_jds_footerContent {
+        padding: 24px 12px;
+    }
+}
+
+@media (max-width: 768px) {
+    .x_rech .rech_hero {
+        text-align: center;
+    }
+}
+
+/* Recharge page End */

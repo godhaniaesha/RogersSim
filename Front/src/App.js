@@ -3,8 +3,6 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import { Provider, useSelector } from 'react-redux';
-import 'bootstrap/dist/css/bootstrap.min.css';
-
 
 // Styles
 import './style/theme.css';
@@ -30,9 +28,10 @@ import Cart from './pages/cart/Cart';
 import Checkout from './pages/checkout/Checkout';
 import Payment from './pages/checkout/Payment';
 import OrderConfirmation from './pages/checkout/OrderConfirmation';
-import AddBus from './pages/AddBus';
-import AdAbout from './pages/AdAbout';
 import ExplorB from './pages/ExplorB';
+import AdAbout from './pages/AdAbout';
+import AddBus from './pages/AddBus';
+import Recharge from './pages/Recharge';
 
 function App() {
   return (
@@ -69,6 +68,7 @@ const AppContent = () => {
             <Route path="/add" element={<AddBus />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
+            <Route path="/recharge" element={<Recharge />} />
             <Route path="/profile" element={
               <ProtectedRoute>
                 <Profile />
