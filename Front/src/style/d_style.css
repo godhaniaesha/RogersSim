@@ -226,3 +226,105 @@ body {
         gap: 0.5rem !important;
     }
 }
+/* Wrapper */
+.d_faq-wrapper {
+  background: var(--background-color);
+}
+
+/* Header */
+.d_faq-header {
+  background: var(--light-blue-bg);
+}
+
+.d_faq-title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--text-color);
+}
+
+.d_faq-subtitle {
+  font-size: 1rem;
+  color: var(--text-color-light);
+  margin-top: 0.5rem;
+}
+
+/* Search Bar */
+.d_faq-search {
+  max-width: 500px;
+}
+.d_faq-search input {
+  border-radius: 25px;
+  padding: 10px 15px;
+  border: 1px solid var(--border-color);
+}
+
+/* Accordion custom styles */
+.d_faq-accordion .accordion-item {
+  border: none;
+  margin-bottom: 1rem;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.d_faq-accordion .accordion-button {
+  font-size: 1rem;
+  font-weight: 600;
+  background: var(--secondary-color);
+  color: var(--text-color);
+  transition: all 0.3s ease;
+  box-shadow: none;
+}
+
+.d_faq-accordion .accordion-button:hover {
+  background: var(--light-gray);
+}
+
+.d_faq-accordion .accordion-button:not(.collapsed) {
+  background: var(--primary-color);
+  color: var(--secondary-color);
+}
+
+.d_faq-accordion .accordion-body {
+  background: var(--secondary-color);
+  color: var(--dark-gray);
+  line-height: 1.6;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .d_faq-title {
+    font-size: 1.5rem;
+  }
+  .d_faq-subtitle {
+    font-size: 0.9rem;
+  }
+  .d_faq-search {
+    max-width: 100%;
+  }
+}
+.rogers-logo {
+  width: 60%;
+}
+@media (max-width: 1024px) {
+  .rogers-logo {
+    width: 65%;
+  }
+}
+@media (max-width: 768px) {
+  .rogers-logo {
+    width: 24%;
+  }
+}
+
+@media (max-width: 576px) {
+  .rogers-logo {
+    width: 38%;
+  }
+  
+}
+@media (max-width: 420px) {
+  .rogers-logo {
+    width: 55%;
+  }
+}

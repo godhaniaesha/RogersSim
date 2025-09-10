@@ -58,10 +58,10 @@ export default function AddBus() {
   ];
 
   return (
-    <section className="social_proof_logo text-center light-blue-bg">
+    <section className="social_proof_logo py-5 text-center light-blue-bg">
       <div className="container">
         <h2 className="text-center">
-          <p className="p1">
+          <p className="p1 mb-md-4 mb-3">
             <span className='str'>1 million+</span> businesses trust Airtel Business
           </p>
         </h2>

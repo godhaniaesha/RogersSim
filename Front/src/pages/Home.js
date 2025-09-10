@@ -7,6 +7,7 @@ import ExplorB from './ExplorB';
 import Hero from './Hero';
 import NewHero from './NewHero';
 import TestSlider from './TestSlider';
+import '../style/theme.css'
 
 export default function Home() {
 
@@ -155,13 +156,13 @@ export default function Home() {
       </div> */}
 
         {/* SIM Categories Section */}
-        <section className="py-5 bg-light-custom">
+        <section className="py-md-5 py-4 bg-light-custom">
           <div className="container">
-            <h2 className="text-center mb-5 fw-bold">Choose Your SIM Type</h2>
+            <h2 className="text-center mb-md-5 mb-4 fw-bold">Choose Your SIM Type</h2>
             <div className="row g-4">
               {simCategories.map(category => (
                 <div key={category.id} className="col-md-6 col-lg-3">
-                  <div className="card h-100 border-0 shadow-sm">
+                  <div className="card h-100 border-0 shadow">
                     <div className="card-body text-center p-4">
                       {category.icon}
                       <h4 className="card-title">{category.name}</h4>
@@ -184,14 +185,14 @@ export default function Home() {
         <AdAbout></AdAbout>
 
         {/* Popular Plans Section */}
-        <section className="py-5">
+        <section className="py-md-5 py-4">
           <div className="container">
-            <h2 className="text-center mb-5 fw-bold">Popular Plans</h2>
+            <h2 className="text-center mb-md-5 mb-2 fw-bold">Popular Plans</h2>
             <div className="row g-4">
               {popularPlans.map(plan => (
                 <div key={plan.id} className="col-md-4">
-                  <div className="card h-100 border-0 shadow-sm">
-                    <div className="card-header bg-white border-0 pt-4 pb-0">
+                  <div className="card h-100 border-0 shadow">
+                    <div className="card-header bg-white border-0 pt-md-4 pt-3 pb-0">
                       <h3 className="text-center fw-bold">{plan.name}</h3>
                       <div className="text-center">
                         <span className="h1 fw-bold text-primary-custom">₹{plan.price}</span>
@@ -229,12 +230,12 @@ export default function Home() {
         <AddBus></AddBus>
 
         {/* Buy SIM CTA Section */}
-        <section className="py-5 bg-primary-custom">
+        <section className="py-md-5 py-3 bg-primary-custom">
           <div className="container py-4 text-center">
             <h2 className="text-white mb-4">Ready to Experience Rogers Network?</h2>
             <p className="lead text-white mb-4">Get started with a new SIM card or port your existing number today!</p>
-            <Link to="/products" className="btn btn-light btn-lg px-5">
-              Buy SIM Now <FaArrowRight className="ms-2" style={{ fontSize: "16px" }} />
+            <Link to="/products" className="btn btn-light btn-lg px-md-5 px-3">
+              <span className="fs-md-5 fs-6">Buy SIM Now</span> <FaArrowRight className="ms-2" style={{ fontSize: "16px" }} />
             </Link>
           </div>
         </section>

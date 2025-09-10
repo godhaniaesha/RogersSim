@@ -203,9 +203,9 @@ function Plans() {
                                 >
                                     <h6 className="fw-bold mb-0">{category.title}</h6>
                                     {activeIndex === index ? (
-                                        <FaMinus className="text-primary" />
+                                        <FaMinus className="text-danger" />
                                     ) : (
-                                        <FaPlus className="text-primary" />
+                                        <FaPlus className="text-danger" />
                                     )}
                                 </div>
 
@@ -228,7 +228,7 @@ function Plans() {
                                                     <div className="d-flex justify-content-between align-items-start">
                                                         <h4 className="fw-bold mb-0">₹{plan.price}</h4>
                                                         <FaChevronRight
-                                                            className="text-primary"
+                                                            className="text-danger"
                                                             style={{ cursor: "pointer" }}
                                                             onClick={() => handleShow(plan)}
                                                         />
@@ -502,7 +502,7 @@ function Plans() {
                 </div>
 
                 {/* Why Choose Us Section */}
-                <section className="z_benefits_section py-5 mt-4">
+                <section className="z_benefits_section py-md-5 mt-3">
                     <div className="container text-center">
                         <h3 className="fw-bold mb-2">Why Choose Us?</h3>
                         <p className="text-muted mb-5">
@@ -513,7 +513,7 @@ function Plans() {
                         <div className="row g-4">
                             <div className="col-md-3 col-sm-6">
                                 <div className="z_benefit_card p-4 rounded-4 shadow-sm h-100">
-                                    <FaBolt size={40} className="text-primary mb-3" />
+                                    <FaBolt size={40} className="text-danger mb-3" />
                                     <h6 className="fw-semibold">Fast Recharge</h6>
                                     <p className="text-muted small mb-0">
                                         Instantly recharge your mobile or fiber connection.

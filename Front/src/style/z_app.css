@@ -28,7 +28,10 @@ body {
   transform: translateY(-10px) scale(1.02);
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
 }
-
+.form-check-input:checked {
+    background-color: #b71414;
+    border-color: #b71414;
+}
 .z_prd_card .card-body {
   padding: 1.5rem;
   display: flex;
@@ -349,3 +352,49 @@ body {
 
 
 /* Plans end*/
+.form-check-input[type="radio"]:checked
+ {
+    background-color: #b71414 !important;
+    border-color: #b71414 !important;
+}
+.custom-dropdown {
+  position: relative;
+  cursor: pointer;
+}
+
+.custom-dropdown-header {
+  border: 1px solid #ccc;
+  padding: 0.5rem;
+  border-radius: 4px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.custom-dropdown-list {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background: white;
+  z-index: 10;
+  max-height: 200px;
+  overflow-y: auto;
+  margin-top: 0.25rem;
+}
+
+.custom-dropdown-item {
+  padding: 0.5rem;
+}
+
+.custom-dropdown-item:hover{
+  background-color: #dbd0d0;
+  color: #8b0f0f;
+}
+
+.custom-dropdown-item.active {
+  background-color: #8b0f0f;
+  color: white;
+}
