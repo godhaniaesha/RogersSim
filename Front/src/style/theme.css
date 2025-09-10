@@ -1,6 +1,6 @@
 :root {
   /* Theme Colors */
-  --primary-color: #e50000;
+  --primary-color: #b71414;
   /* Rogers Red */
   --primary-color-dark: #c00000;
   --primary-color-light: #ff3333;
@@ -304,17 +304,17 @@ body {
 /* Custom radio button  */
 /* Custom radio style */
 .form-check-input[type="radio"] {
-  accent-color: #e50000 !important;
+  accent-color: #b71414 !important;
   /* Modern browsers */
 }
 
 /* For better cross-browser styling */
 .form-check-input[type="radio"]:checked {
-  background-color: #e50000 !important;
-  border-color: #e50000 !important;
+  background-color: #b71414 !important;
+  border-color: #b71414 !important;
 }
 
 .form-check-input[type="radio"]:focus {
-  border-color: #e50000 !important;
+  border-color: #b71414 !important;
   box-shadow: 0 0 0 0.2rem rgba(229, 0, 0, 0.25) !important;
 }
