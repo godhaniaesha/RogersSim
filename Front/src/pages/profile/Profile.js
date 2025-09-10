@@ -7,6 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { updateProfileStart, updateProfileSuccess, updateProfileFailure, fetchProfileStart, fetchProfileSuccess, fetchProfileFailure } from '../../store/slices/authSlice';
 import authService from '../../services/authService';
+import { fetchUserProfile, updateUserProfile } from '../../store/slices/userSlice';
 
 const Profile = () => {
   const [activeTab, setActiveTab] = useState('personal');
@@ -17,45 +18,27 @@ const Profile = () => {
   const [cardActivated, setCardActivated] = useState(false);
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  
+
   // Get user profile from Redux
   const { user, loading, error, isAuthenticated } = useSelector(state => state.auth);
-  
+
   // Redirect if not authenticated
   useEffect(() => {
     if (!isAuthenticated) {
       navigate('/login');
       return;
     }
-    
-    // Fetch user profile
-    const fetchUserProfile = async () => {
-      try {
-        dispatch(fetchProfileStart());
-        const profileData = await authService.getUserProfile();
-        dispatch(fetchProfileSuccess(profileData));
-      } catch (error) {
-        dispatch(fetchProfileFailure(error.message || 'Failed to fetch profile'));
-        toast.error(error.message || 'Failed to fetch profile');
-      }
-    };
-    
-    fetchUserProfile();
+
+    dispatch(fetchUserProfile())
+      .unwrap()
+      .then(() => {
+        toast.success('Profile loaded successfully');
+      })
+      .catch((err) => {
+        toast.error(err);
+      });
   }, [isAuthenticated, navigate, dispatch]);
-  
-  // User data from Redux store
-  const [userData, setUserData] = useState({
-    name: user?.name || 'John Doe',
-    email: user?.email || 'john.doe@example.com',
-    mobile: user?.mobile || '9876543210',
-    address: user?.address || '123 Main Street, Mumbai, Maharashtra',
-    pincode: user?.pincode || '400001',
-    kycStatus: user?.kycStatus || 'pending', // 'pending', 'verified', 'rejected'
-    kycDocuments: user?.kycDocuments || {
-      idProof: null,
-      addressProof: null
-    }
-  });
+
 
   // Mock order history
   const [orders, setOrders] = useState([
@@ -101,54 +84,32 @@ const Profile = () => {
   // Handle personal details update
   const handlePersonalDetailsUpdate = async (values, { setSubmitting }) => {
     try {
-      dispatch(updateProfileStart());
-      const updatedProfile = await authService.updateUserProfile(values);
-      dispatch(updateProfileSuccess(updatedProfile));
-      setUserData(updatedProfile);
+      await dispatch(updateUserProfile(values)).unwrap();
       toast.success('Profile updated successfully!');
-    } catch (error) {
-      dispatch(updateProfileFailure(error.message || 'Failed to update profile'));
-      toast.error(error.message || 'Failed to update profile');
+    } catch (err) {
+      toast.error(err || 'Failed to update profile');
     } finally {
       setSubmitting(false);
     }
   };
 
+
   // Handle KYC document upload
   const handleDocumentUpload = async (type, e) => {
     const file = e.target.files[0];
-    if (file) {
-      try {
-        dispatch(updateProfileStart());
-        const formData = new FormData();
-        formData.append('documentType', type);
-        formData.append('document', file);
-        
-        const response = await authService.uploadKycDocument(formData);
-        
-        const updatedUser = {
-          ...user,
-          kycDocuments: {
-            ...user.kycDocuments,
-            [type]: file.name
-          }
-        };
-        
-        dispatch(updateProfileSuccess(updatedUser));
-        setUserData(prev => ({
-          ...prev,
-          kycDocuments: {
-            ...prev.kycDocuments,
-            [type]: file.name
-          }
-        }));
-        toast.success(`${type} document uploaded successfully!`);
-      } catch (error) {
-        dispatch(updateProfileFailure(error.message || 'Failed to upload document'));
-        toast.error(error.message || 'Failed to upload document');
-      }
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append(type, file);
+
+    try {
+      await dispatch(updateUserProfile(formData)).unwrap();
+      toast.success(`${type} uploaded successfully!`);
+    } catch (err) {
+      toast.error(err || 'Failed to upload document');
     }
   };
+
 
   return (
     <div className="container py-5">
@@ -161,24 +122,24 @@ const Profile = () => {
                 <div className="bg-light-custom rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center" style={{ width: '100px', height: '100px' }}>
                   <FaUser className="text-primary-custom" size={40} />
                 </div>
-                <h5 className="mb-0">{userData.name}</h5>
-                <p className="text-muted small">{userData.email}</p>
+                <h5 className="mb-0">{user.name}</h5>
+                <p className="text-muted small">{user.email}</p>
               </div>
-              
+
               <div className="list-group list-group-flush">
-                <button 
+                <button
                   className={`list-group-item list-group-item-action border-0 ${activeTab === 'personal' ? 'active bg-primary-custom text-white' : ''}`}
                   onClick={() => setActiveTab('personal')}
                 >
                   <FaUser className="me-2" /> Personal Details
                 </button>
-                <button 
+                <button
                   className={`list-group-item list-group-item-action border-0 ${activeTab === 'kyc' ? 'active bg-primary-custom text-white' : ''}`}
                   onClick={() => setActiveTab('kyc')}
                 >
                   <FaIdCard className="me-2" /> KYC Verification
                 </button>
-                <button 
+                <button
                   className={`list-group-item list-group-item-action border-0 ${activeTab === 'orders' ? 'active bg-primary-custom text-white' : ''}`}
                   onClick={() => setActiveTab('orders')}
                 >
@@ -194,7 +155,7 @@ const Profile = () => {
             </div>
           </div>
         </div>
-        
+
         {/* Profile Content */}
         <div className="col-md-9">
           <div className="card border-0 shadow-sm">
@@ -203,198 +164,64 @@ const Profile = () => {
               {activeTab === 'personal' && (
                 <div>
                   <h4 className="mb-4">Personal Details</h4>
-                  <Formik
-                    initialValues={userData}
-                    validationSchema={personalDetailsSchema}
-                    onSubmit={handlePersonalDetailsUpdate}
-                  >
+                  <Formik initialValues={user} validationSchema={personalDetailsSchema} onSubmit={handlePersonalDetailsUpdate} enableReinitialize>
                     {({ isSubmitting }) => (
                       <Form>
                         <div className="row">
                           <div className="col-md-6 mb-3">
                             <label htmlFor="name" className="form-label">Full Name</label>
-                            <Field 
-                              type="text" 
-                              name="name" 
-                              className="form-control" 
-                            />
-                            <ErrorMessage name="name" component="div" className="text-danger mt-1 small" />
+                            <Field name="name" className="form-control" />
+                            <ErrorMessage name="name" component="div" className="text-danger small" />
                           </div>
-                          
                           <div className="col-md-6 mb-3">
-                            <label htmlFor="email" className="form-label">Email Address</label>
-                            <Field 
-                              type="email" 
-                              name="email" 
-                              className="form-control" 
-                            />
-                            <ErrorMessage name="email" component="div" className="text-danger mt-1 small" />
+                            <label htmlFor="email" className="form-label">Email</label>
+                            <Field name="email" type="email" className="form-control" />
+                            <ErrorMessage name="email" component="div" className="text-danger small" />
                           </div>
                         </div>
-                        
                         <div className="row">
                           <div className="col-md-6 mb-3">
-                            <label htmlFor="mobile" className="form-label">Mobile Number</label>
-                            <div className="input-group">
-                              <span className="input-group-text">+91</span>
-                              <Field 
-                                type="text" 
-                                name="mobile" 
-                                className="form-control" 
-                              />
-                            </div>
-                            <ErrorMessage name="mobile" component="div" className="text-danger mt-1 small" />
+                            <label htmlFor="mobile" className="form-label">Mobile</label>
+                            <Field name="mobile" className="form-control" />
+                            <ErrorMessage name="mobile" component="div" className="text-danger small" />
                           </div>
-                          
                           <div className="col-md-6 mb-3">
                             <label htmlFor="pincode" className="form-label">Pincode</label>
-                            <Field 
-                              type="text" 
-                              name="pincode" 
-                              className="form-control" 
-                            />
-                            <ErrorMessage name="pincode" component="div" className="text-danger mt-1 small" />
+                            <Field name="pincode" className="form-control" />
+                            <ErrorMessage name="pincode" component="div" className="text-danger small" />
                           </div>
                         </div>
-                        
                         <div className="mb-3">
                           <label htmlFor="address" className="form-label">Address</label>
-                          <Field 
-                            as="textarea" 
-                            name="address" 
-                            className="form-control" 
-                            rows="3"
-                          />
-                          <ErrorMessage name="address" component="div" className="text-danger mt-1 small" />
+                          <Field name="address" as="textarea" className="form-control" rows={3} />
+                          <ErrorMessage name="address" component="div" className="text-danger small" />
                         </div>
-                        
-                        <div className="d-grid d-md-flex justify-content-md-end">
-                          <button 
-                            type="submit" 
-                            className="btn btn-primary" 
-                            disabled={isSubmitting}
-                          >
-                            {isSubmitting ? 'Saving...' : <><FaSave className="me-2" /> Save Changes</>}
-                          </button>
-                        </div>
+                        <button type="submit" className="btn btn-primary" disabled={isSubmitting}>
+                          {isSubmitting ? 'Saving...' : <><FaSave className="me-2" /> Save Changes</>}
+                        </button>
                       </Form>
                     )}
                   </Formik>
                 </div>
               )}
-              
+
               {/* KYC Verification Tab */}
               {activeTab === 'kyc' && (
                 <div>
-                  <h4 className="mb-4">KYC Verification</h4>
-                  
-                  <div className="alert alert-info mb-4">
-                    <div className="d-flex align-items-center">
-                      <FaIdCard className="me-3 fs-4" />
-                      <div>
-                        <h5 className="mb-1">KYC Status: {userData.kycStatus === 'verified' ? 'Verified' : userData.kycStatus === 'rejected' ? 'Rejected' : 'Pending Verification'}</h5>
-                        <p className="mb-0">
-                          {userData.kycStatus === 'verified' 
-                            ? 'Your KYC verification is complete. You can enjoy all services.' 
-                            : userData.kycStatus === 'rejected'
-                            ? 'Your KYC verification was rejected. Please re-upload valid documents.'
-                            : 'Please upload your ID and address proof documents for verification.'}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <div className="row mb-4">
-                    <div className="col-md-6 mb-3 mb-md-0">
-                      <div className="card h-100">
-                        <div className="card-body">
-                          <h5 className="card-title">ID Proof</h5>
-                          <p className="card-text text-muted small">Upload your Aadhaar Card, PAN Card, Voter ID, or Driving License</p>
-                          
-                          {userData.kycDocuments.idProof ? (
-                            <div className="d-flex align-items-center justify-content-between">
-                              <span>{userData.kycDocuments.idProof}</span>
-                              <button 
-                                type="button" 
-                                className="btn btn-sm btn-outline-primary"
-                                onClick={() => document.getElementById('idProofUpload').click()}
-                              >
-                                <FaEdit /> Change
-                              </button>
-                            </div>
-                          ) : (
-                            <div className="d-grid">
-                              <button 
-                                type="button" 
-                                className="btn btn-outline-primary"
-                                onClick={() => document.getElementById('idProofUpload').click()}
-                              >
-                                Upload ID Proof
-                              </button>
-                            </div>
-                          )}
-                          
-                          <input 
-                            type="file" 
-                            id="idProofUpload" 
-                            className="d-none" 
-                            accept="image/*, application/pdf"
-                            onChange={(e) => handleDocumentUpload('idProof', e)}
-                          />
-                        </div>
-                      </div>
-                    </div>
-                    
+                  <h4>KYC Status: {user.kycStatus}</h4>
+                  <div className="row">
                     <div className="col-md-6">
-                      <div className="card h-100">
-                        <div className="card-body">
-                          <h5 className="card-title">Address Proof</h5>
-                          <p className="card-text text-muted small">Upload your Utility Bill, Rental Agreement, or Passport</p>
-                          
-                          {userData.kycDocuments.addressProof ? (
-                            <div className="d-flex align-items-center justify-content-between">
-                              <span>{userData.kycDocuments.addressProof}</span>
-                              <button 
-                                type="button" 
-                                className="btn btn-sm btn-outline-primary"
-                                onClick={() => document.getElementById('addressProofUpload').click()}
-                              >
-                                <FaEdit /> Change
-                              </button>
-                            </div>
-                          ) : (
-                            <div className="d-grid">
-                              <button 
-                                type="button" 
-                                className="btn btn-outline-primary"
-                                onClick={() => document.getElementById('addressProofUpload').click()}
-                              >
-                                Upload Address Proof
-                              </button>
-                            </div>
-                          )}
-                          
-                          <input 
-                            type="file" 
-                            id="addressProofUpload" 
-                            className="d-none" 
-                            accept="image/*, application/pdf"
-                            onChange={(e) => handleDocumentUpload('addressProof', e)}
-                          />
-                        </div>
-                      </div>
+                      <input type="file" onChange={(e) => handleDocumentUpload('idProof', e)} />
+                      <p>ID Proof: {user.kycDocuments?.idProof || 'Not uploaded'}</p>
                     </div>
-                  </div>
-                  
-                  <div className="alert alert-warning">
-                    <small>
-                      <strong>Note:</strong> Please ensure that the documents are clear and all details are visible. 
-                      Verification may take up to 24-48 hours after submission.
-                    </small>
+                    <div className="col-md-6">
+                      <input type="file" onChange={(e) => handleDocumentUpload('addressProof', e)} />
+                      <p>Address Proof: {user.kycDocuments?.addressProof || 'Not uploaded'}</p>
+                    </div>
                   </div>
                 </div>
               )}
-              
+
               {/* Activate Card Tab */}
               {activeTab === 'activate' && (
                 <div>
@@ -474,7 +301,7 @@ const Profile = () => {
               {activeTab === 'orders' && (
                 <div>
                   <h4 className="mb-4">Order History</h4>
-                  
+
                   {orders.length > 0 ? (
                     <div className="table-responsive">
                       <table className="table table-hover">

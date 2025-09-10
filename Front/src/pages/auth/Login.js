@@ -4,7 +4,7 @@ import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import { toast } from "react-toastify";
 import { useDispatch, useSelector } from "react-redux";
-import { loginStart, loginSuccess, loginFailure, clearError } from "../../store/slices/authSlice";
+import { loginStart, loginSuccess, loginFailure, clearError, loginUser, sendOtp, verifyOtp, resetPassword } from "../../store/slices/authSlice";
 import authService from "../../services/authService";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import '../../style/theme.css';
@@ -38,13 +38,17 @@ const Login = () => {
 
   const handleSubmit = async (values, { setSubmitting }) => {
     try {
-      dispatch(loginStart());
-      const userData = await authService.loginWithEmail(values.email, values.password);
-      dispatch(loginSuccess(userData));
-      toast.success("Login successful!");
-      navigate("/");
+      const resultAction = await dispatch(loginUser(values));
+
+      if (loginUser.fulfilled.match(resultAction)) {
+        console.log("Login success:", resultAction.payload);
+        toast.success("Login successful!");
+        navigate("/");
+      } else {
+        console.log("Login error:", resultAction.payload);
+        toast.error(resultAction.payload || "Login failed");
+      }
     } catch (error) {
-      dispatch(loginFailure(error.message || "Login failed"));
       toast.error(error.message || "Login failed");
     } finally {
       setSubmitting(false);
@@ -54,6 +58,9 @@ const Login = () => {
   // Forgot Password → Mobile OTP
   const handleForgotSubmit = async (values, { setSubmitting }) => {
     try {
+      // ⬇️ dispatch karo
+      await dispatch(sendOtp(values.mobile)).unwrap();
+
       toast.success(`OTP sent to ${values.mobile}`);
       setMobileNumber(values.mobile);
       setShowForgotModal(false);
@@ -65,6 +72,7 @@ const Login = () => {
     }
   };
 
+
   // OTP verification
   const otpSchema = Yup.object({
     otp: Yup.string().matches(/^[0-9]{6}$/, "OTP must be 6 digits").required("OTP is required"),
@@ -72,6 +80,9 @@ const Login = () => {
 
   const handleOtpSubmit = async (values, { setSubmitting }) => {
     try {
+      // ⬇️ dispatch karo
+      await dispatch(verifyOtp({ mobile: mobileNumber, otp: values.otp })).unwrap();
+
       toast.success("OTP verified! You can now reset your password.");
       setShowOtpModal(false);
       setShowResetModal(true); // show reset password modal
@@ -92,6 +103,11 @@ const Login = () => {
 
   const handleResetSubmit = async (values, { setSubmitting }) => {
     try {
+      await dispatch(resetPassword({
+        newPassword: values.password,   // ✅ backend expects newPassword
+        confirmPassword: values.confirmPassword
+      }));
+
       toast.success("Password reset successful!");
       setShowResetModal(false);
       navigate("/login"); // redirect to login after reset
@@ -101,6 +117,7 @@ const Login = () => {
       setSubmitting(false);
     }
   };
+
 
   return (
     <div className="container py-5">
