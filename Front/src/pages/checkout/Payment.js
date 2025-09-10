@@ -25,9 +25,9 @@ const Payment = () => {
   
   // Redirect to login if not authenticated
   useEffect(() => {
-    if (!isAuthenticated) {
-      navigate('/login');
-    }
+  //   if (!isAuthenticated) {
+  //     navigate('/login');
+  //   }
     
     // Redirect to checkout if no payment details
     if (!paymentDetails) {

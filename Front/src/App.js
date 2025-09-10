@@ -33,6 +33,10 @@ import AdAbout from './pages/AdAbout';
 import AddBus from './pages/AddBus';
 import Recharge from './pages/Recharge';
 import Plans from './pages/Plans';
+import About from './pages/About';
+import Contact from './pages/Contact';
+import Privacy from './pages/Privacy';
+import Service from './pages/Service';
 
 function App() {
   return (
@@ -82,24 +86,16 @@ const AppContent = () => {
             } />
             <Route path="/products" element={<Products />} />
             <Route path="/plans" element={<Plans />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/contact" element={<Contact />} />
+            <Route path="/privacy" element={<Privacy />} />
+            <Route path="/service" element={<Service />} />
 
             <Route path="/products/:id" element={<ProductDetail />} />
             <Route path="/cart" element={<Cart />} />
-            <Route path="/checkout" element={
-              <ProtectedRoute>
-                <Checkout />
-              </ProtectedRoute>
-            } />
-            <Route path="/payment" element={
-              <ProtectedRoute>
-                <Payment />
-              </ProtectedRoute>
-            } />
-            <Route path="/order-confirmation" element={
-              <ProtectedRoute>
-                <OrderConfirmation />
-              </ProtectedRoute>
-            } />
+            <Route path="/checkout" element={<Checkout />} />
+            <Route path="/payment" element={<Payment />} />
+            <Route path="/order-confirmation" element={<OrderConfirmation />} />
           </Routes>
         </main>
         <Footer />

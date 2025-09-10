@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import "../style/x_app.css";
+import rech from "../image/rech.png";
 const faqData = [
     {
         q: "How to recharge your Rogers prepaid number online?",
@@ -38,7 +39,7 @@ const faqData = [
         q: "What are some popular Rogers prepaid recharge plans?",
         a: (
             <>
-               To find out more about popular Rogers prepaid recharge plans, please open this{" "}
+                To find out more about popular Rogers prepaid recharge plans, please open this{" "}
                 <a
                     href="/plans"
                     target="_blank"
@@ -54,9 +55,9 @@ const faqData = [
         q: "How to convert a prepaid number to a postpaid number?",
         a: (
             <>
-              Please visit the nearest{" "}
-                    Rogers store
-               to convert your existing Rogers prepaid connection to postpaid.
+                Please visit the nearest{" "}
+                Rogers store
+                to convert your existing Rogers prepaid connection to postpaid.
             </>
         )
     },
@@ -64,7 +65,7 @@ const faqData = [
         q: "How do I get free delivery of a new SIM card?",
         a: (
             <>
-               You can request a Rogers prepaid SIM home delivery by placing the request on the{" "}
+                You can request a Rogers prepaid SIM home delivery by placing the request on the{" "}
                 <a href="/products" target="_blank" rel="noopener noreferrer">
                     Get Rogers SIM
                 </a>{" "}
@@ -74,9 +75,145 @@ const faqData = [
     }
 ];
 
+const faqwifi = [
+    {
+        q: "How to recharge prepaid RogersFiber?",
+        a: (
+            <>
+                <p>Recharging your RogersFiber online is simple and easy. Follow these steps:</p>
+                <h4>Using MyRogers:</h4>
+                <ul>
+                    <li>Open the MyRogers app.</li>
+                    <li>Log in with your RogersFiber Service ID or Registered Mobile Number (RMN) and OTP.</li>
+                    <li>Click on <b>'Recharge'</b>.</li>
+                    <li>Select a plan and click on <b>'Buy'</b> (To view details of the plan, click on 'View details').</li>
+                    <li>You will receive a confirmation SMS and email on your registered mobile number and email ID.</li>
+                </ul>
+
+                <h4>Using Rogers Website:</h4>
+                <ul>
+                    <li>Go to <a href="/" target="_blank" rel="noopener noreferrer">www.rogers.com</a></li>
+                    <li>Select <b>'Recharge'</b> in the top right corner and choose <b>'RogersFiber'</b>.</li>
+                    <li>Enter your Service ID, RMN, or Landline Number.</li>
+                    <li>Click on <b>'Submit'</b>.</li>
+                    <li>Select a plan and click on <b>'Buy'</b> (To view details of the plan, click on 'View details').</li>
+                    <li>You will receive a confirmation SMS and email on your registered mobile number and email ID.</li>
+                </ul>
+            </>
+        )
+    },
+    {
+        q: "What are some popular RogersFiber prepaid recharge plans?",
+        a: (
+            <>
+                <p>RogersFiber offers several broadband plans tailored to different needs:</p>
+                <ul>
+                    <li>The ₹399 plan provides speeds up to 30 Mbps with unlimited data and voice calls.</li>
+                    <li>The ₹699 plan offers 100 Mbps speed with similar benefits.</li>
+                    <li>The ₹999 plan boosts speeds to 150 Mbps and includes a subscription to 14 popular OTT apps along with unlimited data and voice calls.</li>
+                </ul>
+                <p>
+                    These plans cater to a range of internet usage and entertainment preferences.
+                    For more details,{" "}
+                    <a href="/" target="_blank" rel="noopener noreferrer">click here</a>{" "}
+                    or check the MyRogers app.
+                </p>
+            </>
+        )
+    },
+    {
+        q: "Can I get a RogersFiber service with voice-only service?",
+        a: (
+            <>
+                <p>
+                    Voice service is available as an add-on feature with RogersFiber.
+                    However, you cannot avail of voice-only service without subscribing to RogersFiber broadband services.
+                </p>
+            </>
+        )
+    },
+    {
+        q: "Do you have both prepaid and postpaid options in RogersFiber services?",
+        a: (
+            <>
+                <p>Yes, RogersFiber offers both prepaid and postpaid plans.</p>
+            </>
+        )
+    },
+    {
+        q: "What is the current plan/offer in RogersFiber?",
+        a: (
+            <>
+                <p>
+                    RogersFiber offers ultra-high-speed internet up to 1 Gbps, accompanied by access to RogersTV+
+                    and over 16 premium OTT apps. Additionally, RogersFiber users get access to TV-to-TV video calling,
+                    Rogers Security, Home Networking, and many more features.
+                </p>
+                <p>
+                    For detailed information on RogersFiber recharge plans and current offers,{" "}
+                    <a href="/" target="_blank" rel="noopener noreferrer">please click here</a>.
+                </p>
+            </>
+        )
+    },
+    {
+        q: "Do I have to pay a security deposit for RogersFiber services?",
+        a: (
+            <>
+                <p>
+                    Yes, you have to pay a security deposit for the Rogers Home Gateway, but don't worry—it is refundable.
+                </p>
+                <h4>Here’s more details about it:</h4>
+                <ul>
+                    <li><b>Refundable nature:</b> The security deposit ensures that the Rogers Home Gateway is returned when you discontinue RogersFiber Broadband services.</li>
+                    <li><b>Condition of return:</b> To receive the security deposit refund, you must return both the internet box and the set-top box in good working condition.</li>
+                    <li><b>Refund process:</b> Refunds are processed through National Electronic Funds Transfer (NEFT) and may take up to 60 days from the date of your surrender.</li>
+                </ul>
+                <p>
+                    This deposit helps ensure that equipment is returned, maintaining the service quality
+                    and availability for all RogersFiber customers.
+                </p>
+            </>
+        )
+    }
+];
+
+
+
 export default function Recharge() {
     const [mode, setMode] = useState("rogershome");
     const [openIndex, setOpenIndex] = useState(0); // first panel open by default
+    const [number, setNumber] = useState("");
+    const [error, setError] = useState("");
+
+    const handleChange = (e) => {
+        const value = e.target.value;
+
+        // ✅ allow only numbers
+        if (!/^\d*$/.test(value)) return;
+
+        // ✅ update state
+        setNumber(value);
+
+        // ✅ validation check
+        if (value.length > 10) {
+            setError("Number cannot be more than 10 digits");
+        } else if (value.length < 10 && value.length > 0) {
+            setError("Number must be 10 digits");
+        } else {
+            setError("");
+        }
+    };
+
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        if (number.length !== 10) {
+            setError("Please enter a valid 10-digit number");
+            return;
+        }
+        alert("Form submitted with number: " + number);
+    };
+
 
     const toggle = (i) => {
         setOpenIndex(prev => (prev === i ? -1 : i));
@@ -90,7 +227,7 @@ export default function Recharge() {
                             <div className="text-center mb-3">
                                 <div className="rech_icon mb-2"><span className="rech_icon_span">₹</span></div>
                                 <h2 className="mb-2">
-                                    {mode === "rogershome" ? "Home Recharge" : "Mobile Recharge"}
+                                    {mode === "rogershome" ? "Fiber Recharge" : "Mobile Recharge"}
                                 </h2>
                                 <p className="text-muted mb-0">
                                     Enter your details to find the best prepaid plans.
@@ -110,26 +247,46 @@ export default function Recharge() {
                                     onClick={() => setMode("rogershome")}
                                     type="button"
                                 >
-                                    Home
+                                    Fiber
                                 </button>
                             </div>
 
-                            <div className="mb-4">
+                            {/* <div className="mb-4">
                                 <label className="form-label small text-muted mb-1">
-                                    {mode === "rogershome" ? "Home Number" : "Mobile Number"}
+                                    {mode === "rogershome" ? "Fiber Number" : "Mobile Number"}
                                 </label>
                                 <input
                                     type="text"
                                     className="form-control form-control-lg rech_input"
                                     placeholder={
-                                        mode === "rogershome" ? "Enter RogersHome number" : "Enter mobile number"
+                                        mode === "rogershome" ? "Enter RogersFiber number" : "Enter mobile number"
                                     }
                                 />
                             </div>
 
                             <button type="button" className="btn x_rech_btn w-100 py-2 fw-semibold">
                                 Continue
-                            </button>
+                            </button> */}
+
+                            <form onSubmit={handleSubmit}>
+                                <div className="mb-4">
+                                    <label className="form-label small text-muted mb-1">
+                                        {mode === "rogershome" ? "Fiber Number" : "Mobile Number"}
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={number}
+                                        onChange={handleChange}
+                                        maxLength={10} // ✅ restrict typing more than 10 digits
+                                        className={`form-control form-control-lg rech_input ${error ? "is-invalid" : ""}`}
+                                        placeholder={
+                                            mode === "rogershome" ? "Enter RogersFiber number" : "Enter mobile number"
+                                        }
+                                    />
+                                    {error && <div className="invalid-feedback">{error}</div>}
+                                </div>
+                                <button type="submit" className="btn x_rech_btn w-100 py-2 fw-semibold">Continue</button>
+                            </form>
                         </div>
                     </div>
 
@@ -149,8 +306,8 @@ export default function Recharge() {
                   <span className="rech_chip">ISD plans</span>
                 </div>
               </div> */}
-                            <div className="rech_hero_img ms-md-auto">
-                                <div className="rech_img_1 rounded-4"></div>
+                            <div className="rech_hero_img m-auto">
+                                <img src={rech} className="rech_img_1 rounded-4"></img>
                             </div>
                         </div>
                     </div>
@@ -221,7 +378,7 @@ export default function Recharge() {
                                     </ul>
 
                                     <p className="X_last">
-                                        Moreover, RogersHome's <a href="https://www.rogers.com/selfcare/plans/fiber/fiber-prepaid-plans-home/" target="_blank" rel="noreferrer">broadband recharge plans</a> are affordable and provide
+                                        Moreover, RogersHome's <a href="/plans" target="_blank" rel="noreferrer">broadband recharge plans</a> are affordable and provide
                                         great value for your money. They are designed to meet all your digital needs and
                                         enhance your digital life.
                                     </p>
@@ -231,7 +388,7 @@ export default function Recharge() {
                     ) : (
                         <section className="X_jds_footerContent">
                             <div className="X_inner">
-                                <h2 className="x-heading">Online Mobile Recharge</h2>
+                                <h2 className="X_heading">Online Mobile Recharge</h2>
 
                                 <div className="X_body">
                                     <div className="x-paragraph">
@@ -262,7 +419,7 @@ export default function Recharge() {
                                             is a Rogers plan for your every calling and data need. You can explore
                                             our{" "}
                                             <a
-                                                href="https://www.rogers.com/selfcare/plans/mobility/prepaid-plans-home/"
+                                                href="/plans"
                                                 target="_blank"
                                                 rel="noopener noreferrer"
                                                 className="x-link"
@@ -290,71 +447,143 @@ export default function Recharge() {
 
 
                 <div style={{ paddingTop: "2.5rem" }}>
-                    <section className="X_faqContainer j-container">
-                        <h2 className="j-heading j-text-heading-l X_heading">FAQ on Rogers recharges online</h2>
+                    {mode === "rogershome" ? (
+                        <section className="X_faqContainer j-container">
+                            <h2 className="j-heading j-text-heading-l X_heading">FAQ on RogersFiber recharges online</h2>
 
-                        <div className="X_accordion j-accordion" role="tablist" aria-multiselectable="false">
-                            {faqData.map((item, i) => {
-                                const isOpen = i === openIndex;
-                                return (
-                                    <div
-                                        key={i}
-                                        className={`X_panel j-accordion-panel ${isOpen ? "active" : ""}`}
-                                        role="presentation"
-                                    >
-                                        <div className={`X_panelHeader j-accordion-panel__header-trigger ${isOpen ? "active" : ""}`}
-                                            tabIndex={0}
-                                            role="tab"
-                                            aria-expanded={isOpen}
-                                            onClick={() => toggle(i)}
-                                            onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") toggle(i); }}
+                            <div className="X_accordion j-accordion" role="tablist" aria-multiselectable="false">
+                                {faqwifi.map((item, i) => {
+                                    const isOpen = i === openIndex;
+                                    return (
+                                        <div
+                                            key={i}
+                                            className={`X_panel j-accordion-panel ${isOpen ? "active" : ""}`}
+                                            role="presentation"
                                         >
-                                            <div className="j-accordion-panel__header j-text-list-title j-listBlock align-middle">
-                                                <div className="j-listBlock__main">
-                                                    <div className="j-listBlock__block-root">
-                                                        <div className="j-listBlock__block j-listBlock__block-titleBlock">
-                                                            <div className="j-listBlock__block-text">
-                                                                <h3 className="j-text j-text-body-s-bold X_question">{item.q}</h3>
+                                            <div
+                                                className={`X_panelHeader j-accordion-panel__header-trigger ${isOpen ? "active" : ""}`}
+                                                tabIndex={0}
+                                                role="tab"
+                                                aria-expanded={isOpen}
+                                                onClick={() => toggle(i)}
+                                                onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") toggle(i); }}
+                                            >
+                                                <div className="j-accordion-panel__header j-text-list-title j-listBlock align-middle">
+                                                    <div className="j-listBlock__main">
+                                                        <div className="j-listBlock__block-root">
+                                                            <div className="j-listBlock__block j-listBlock__block-titleBlock">
+                                                                <div className="j-listBlock__block-text">
+                                                                    <h3 className="j-text j-text-body-s-bold X_question">{item.q}</h3>
+                                                                </div>
                                                             </div>
                                                         </div>
-                                                    </div>
-                                                    <div className="j-listBlock__suffix">
-                                                        <button
-                                                            className={`X_toggleBtn j-button j-button-size__medium tertiary icon-primary icon-only as-span ${isOpen ? "active" : ""}`}
-                                                            aria-label={isOpen ? "Collapse" : "Expand"}
-                                                        >
-                                                            <span className={`X_chev ${isOpen ? "open" : ""}`} aria-hidden="true">
-                                                                {/* simple chevron icon */}
-                                                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                                    <path d="M16 15a.998.998 0 01-.71-.29L12 11.41l-3.29 3.3a1.004 1.004 0 01-1.42-1.42l4-4a.999.999 0 011.42 0l4 4A1.001 1.001 0 0116 15z" fill="currentColor" />
-                                                                </svg>
-                                                            </span>
-                                                        </button>
+                                                        <div className="j-listBlock__suffix">
+                                                            <button
+                                                                className={`X_toggleBtn j-button j-button-size__medium tertiary icon-primary icon-only as-span ${isOpen ? "active" : ""}`}
+                                                                aria-label={isOpen ? "Collapse" : "Expand"}
+                                                            >
+                                                                <span className={`X_chev ${isOpen ? "open" : ""}`} aria-hidden="true">
+                                                                    {/* simple chevron icon */}
+                                                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                                        <path d="M16 15a.998.998 0 01-.71-.29L12 11.41l-3.29 3.3a1.004 1.004 0 01-1.42-1.42l4-4a.999.999 0 011.42 0l4 4A1.001 1.001 0 0116 15z" fill="currentColor" />
+                                                                    </svg>
+                                                                </span>
+                                                            </button>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
-                                        </div>
 
+                                            <div
+                                                className="X_panelInner j-accordion-panel__inner"
+                                                aria-hidden={!isOpen}
+                                                style={{ maxHeight: isOpen ? "1000px" : 0 }}
+                                            >
+                                                <div className="j-accordion-panel-content j-text-body-xs">
+                                                    <div className="X_accContent CustomFAQ_accContent__2cAVh">
+                                                        <div>{item.a}</div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div className="j-Divider_hr_container">
+                                                <div className="j-Divider_hr_container__hr" role="separator" />
+                                            </div>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        </section>
+                    ) : (
+                        <section className="X_faqContainer j-container">
+                            <h2 className="j-heading j-text-heading-l X_heading">FAQ on Rogers recharges online</h2>
+
+                            <div className="X_accordion j-accordion" role="tablist" aria-multiselectable="false">
+                                {faqData.map((item, i) => {
+                                    const isOpen = i === openIndex;
+                                    return (
                                         <div
-                                            className="X_panelInner j-accordion-panel__inner"
-                                            aria-hidden={!isOpen}
-                                            style={{ maxHeight: isOpen ? "1000px" : 0 }}
+                                            key={i}
+                                            className={`X_panel j-accordion-panel ${isOpen ? "active" : ""}`}
+                                            role="presentation"
                                         >
-                                            <div className="j-accordion-panel-content j-text-body-xs">
-                                                <div className="X_accContent CustomFAQ_accContent__2cAVh">
-                                                    <div>{item.a}</div>
+                                            <div className={`X_panelHeader j-accordion-panel__header-trigger ${isOpen ? "active" : ""}`}
+                                                tabIndex={0}
+                                                role="tab"
+                                                aria-expanded={isOpen}
+                                                onClick={() => toggle(i)}
+                                                onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") toggle(i); }}
+                                            >
+                                                <div className="j-accordion-panel__header j-text-list-title j-listBlock align-middle">
+                                                    <div className="j-listBlock__main">
+                                                        <div className="j-listBlock__block-root">
+                                                            <div className="j-listBlock__block j-listBlock__block-titleBlock">
+                                                                <div className="j-listBlock__block-text">
+                                                                    <h3 className="j-text j-text-body-s-bold X_question">{item.q}</h3>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div className="j-listBlock__suffix">
+                                                            <button
+                                                                className={`X_toggleBtn j-button j-button-size__medium tertiary icon-primary icon-only as-span ${isOpen ? "active" : ""}`}
+                                                                aria-label={isOpen ? "Collapse" : "Expand"}
+                                                            >
+                                                                <span className={`X_chev ${isOpen ? "open" : ""}`} aria-hidden="true">
+                                                                    {/* simple chevron icon */}
+                                                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                                        <path d="M16 15a.998.998 0 01-.71-.29L12 11.41l-3.29 3.3a1.004 1.004 0 01-1.42-1.42l4-4a.999.999 0 011.42 0l4 4A1.001 1.001 0 0116 15z" fill="currentColor" />
+                                                                    </svg>
+                                                                </span>
+                                                            </button>
+                                                        </div>
+                                                    </div>
                                                 </div>
                                             </div>
-                                        </div>
 
-                                        <div className="j-Divider_hr_container">
-                                            <div className="j-Divider_hr_container__hr" role="separator" />
+                                            <div
+                                                className="X_panelInner j-accordion-panel__inner"
+                                                aria-hidden={!isOpen}
+                                                style={{ maxHeight: isOpen ? "1000px" : 0 }}
+                                            >
+                                                <div className="j-accordion-panel-content j-text-body-xs">
+                                                    <div className="X_accContent CustomFAQ_accContent__2cAVh">
+                                                        <div>{item.a}</div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div className="j-Divider_hr_container">
+                                                <div className="j-Divider_hr_container__hr" role="separator" />
+                                            </div>
                                         </div>
-                                    </div>
-                                );
-                            })}
-                        </div>
-                    </section>
+                                    );
+                                })}
+                            </div>
+                        </section>
+                    )}
+
+
+
                 </div>
 
 

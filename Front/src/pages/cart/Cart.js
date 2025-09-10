@@ -95,7 +95,7 @@ const Cart = () => {
     
     try {
       // Validate cart before checkout
-      await cartService.validateCart();
+      // await cartService.validateCart();
       navigate('/checkout');
     } catch (err) {
       toast.error(err.message || 'Unable to proceed to checkout');

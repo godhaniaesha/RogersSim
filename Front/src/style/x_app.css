@@ -29,6 +29,10 @@ body {
     --info-color: #17a2b8;
 }
 
+.form-control:focus {
+    box-shadow: none;
+}
+
 /* AddBus start */
 
 .social_proof_logo {
@@ -730,12 +734,9 @@ body {
 }
 
 .x_rech .rech_hero_img .rech_img_1 {
-    width: 520px;
+    width: 525px;
     max-width: 100%;
-    height: 320px;
-    background-image: url("https://jep-asset.akamaized.net/cms/assets/jioapps/jiohome/home-desk.webp");
-    background-size: cover;
-    background-position: center;
+    height: 327px;
 }
 
 .x_rech .rech_info {
@@ -760,7 +761,7 @@ body {
 
 
 .X_heading {
-    font-size: 40px;
+    font-size: 34px;
     margin: 0 0 16px 0;
     line-height: 1.05;
     color: #141414;
@@ -834,46 +835,46 @@ body {
     margin: 0 auto;
     padding: 0 16px 3rem;
     color: #141414;
-  }
-  
-  /* Heading */
-  .X_heading {
+}
+
+/* Heading */
+/* .X_heading {
     font-size: 40px;
     margin-bottom: 1.25rem;
     color: #141414;
-  }
-  
-  /* Accordion base */
-  .X_accordion .X_panel {
+  } */
+
+/* Accordion base */
+.X_accordion .X_panel {
     background: #fff;
     border-radius: 0px;
     margin-bottom: 0.5rem;
     overflow: visible;
     transition: box-shadow .2s ease;
-  }
-  
-  .X_accordion .X_panel:hover {
-    box-shadow: 0 6px 20px rgba(0,0,0,0.06);
-  }
-  
-  /* Header */
-  .j-listBlock__main {
+}
+
+.X_accordion .X_panel:hover {
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
+}
+
+/* Header */
+.j-listBlock__main {
     cursor: pointer;
     padding: 14px 16px;
     display: flex;
     justify-content: space-between;
     align-items: center;
     outline: none;
-  }
-  
-  .X_question {
+}
+
+.X_question {
     margin: 0;
     font-size: 16px;
     color: var(--color-primary-grey-100, #6b6b6b);
-  }
-  
-  /* Toggle button / chevron */
-  .X_toggleBtn {
+}
+
+/* Toggle button / chevron */
+.X_toggleBtn {
     border: none;
     background: transparent;
     display: inline-flex;
@@ -882,59 +883,70 @@ body {
     padding: 6px;
     margin-left: 8px;
     cursor: pointer;
-  }
-  
-  .X_chev {
+}
+
+.X_chev {
     display: inline-block;
     transition: transform .25s ease;
     color: #333;
-  }
-  
-  .X_chev.open {
+}
+
+.X_chev.open {
     transform: rotate(180deg);
-  }
-  
-  /* Panel content animation */
-  .X_panelInner {
+}
+
+/* Panel content animation */
+.X_panelInner {
     overflow: hidden;
     transition: max-height .28s ease, opacity .22s ease;
     opacity: 1;
-  }
-  
-  .X_panelInner[aria-hidden="true"] {
+}
+
+.X_panelInner[aria-hidden="true"] {
     opacity: 0;
-  }
-  
-  /* Content */
-  .X_accContent {
+}
+
+/* Content */
+.X_accContent {
     padding: 12px 16px 20px;
     font-size: 14px;
     color: #555;
     line-height: 1.5;
-  }
-  
-  /* Links inside answers */
-  .X_accContent a {
+}
+
+/* Links inside answers */
+.X_accContent a {
     color: #007bff;
     text-decoration: none;
-  }
-  .X_accContent a:hover {
+}
+
+.X_accContent a:hover {
     text-decoration: underline;
-  }
-  
-  /* Divider (keeps parity with original structure) */
-  .j-Divider_hr_container__hr {
+}
+
+/* Divider (keeps parity with original structure) */
+.j-Divider_hr_container__hr {
     height: 1px;
     background: #eee;
     margin: 8px 0;
-  }
-  
-  /* Responsive tweaks */
-  @media (max-width: 575px) {
-    .X_faqContainer { padding-left: 12px; padding-right: 12px; }
-    .X_heading { font-size: 28px; }
-    .X_question { font-size: 15px; }
-  }
+}
+
+/* Responsive tweaks */
+@media (max-width: 575px) {
+    .X_faqContainer {
+        padding-left: 12px;
+        padding-right: 12px;
+    }
+
+    .X_heading {
+        font-size: 28px;
+    }
+
+    .X_question {
+        font-size: 15px;
+    }
+}
+
 /* responsive */
 @media (max-width: 768px) {
     .X_heading {
@@ -945,12 +957,178 @@ body {
     .X_jds_footerContent {
         padding: 24px 12px;
     }
-}
 
-@media (max-width: 768px) {
-    .x_rech .rech_hero {
+    .rech_card {
+        width: 80%;
+        margin: auto;
+    }
+     .x_rech .rech_hero {
         text-align: center;
     }
 }
 
+@media (max-width: 500px) {
+  
+    .x_rech .rech_hero_img .rech_img_1 {
+    height: 285px;}
+    }
+
+@media (max-width: 425px) {
+   .rech_card {
+        width: 100%;
+        margin: auto;
+    }
+    .x_rech .rech_hero_img .rech_img_1 {
+    height: 255px;}
+}
+
+@media (max-width: 375px) {
+  
+    .x_rech .rech_hero_img .rech_img_1 {
+    height: 231px;}
+}
+@media (max-width: 320px) {
+  
+    .x_rech .rech_hero_img .rech_img_1 {
+    height: 203px;}
+}
+
 /* Recharge page End */
+
+/* Info Pages Start */
+.x_info {
+    background: #fff;
+}
+
+.x_info .x_info__hero {
+    margin-bottom: 1rem;
+}
+
+.x_info .x_info__title {
+    color: var(--primary-color);
+    font-weight: 700;
+}
+
+.x_info .x_info__subtitle {
+    color: #6b7280;
+}
+
+.x_info .x_info__card {
+    background: #ffffff;
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+     box-shadow:  4px 8px 0 rgba(0, 0, 0, 0), 0 6px 20px 0 rgba(0, 0, 0, 0.19)
+}
+
+.x_info .x_info__h2 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #111827;
+    margin-bottom: .5rem;
+}
+
+.x_info .x_info__h3 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #1f2937;
+    margin-top: 1rem;
+}
+
+.x_info .x_info__list {
+    padding-left: 1.2rem;
+}
+
+.x_info .x_info__list li {
+    margin-bottom: .35rem;
+}
+
+.x_info .x_info__band {
+    background: var(--light-blue-bg);
+    padding: 1.25rem 0;
+}
+
+.x_info .x_info__stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+}
+
+.x_info .x_info__stat {
+    text-align: center;
+    background: #fff;
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    padding: 14px 10px;
+}
+
+.x_info .x_info__stat span {
+    display: block;
+    color: var(--primary-color);
+    font-weight: 800;
+    font-size: 1.25rem;
+}
+
+.x_info .x_info__stat small {
+    color: #6b7280;
+}
+
+@media (max-width: 991px) {
+    .x_info .x_info__stats { grid-template-columns: repeat(3, 1fr); }
+}
+
+@media (max-width: 575px) {
+    .x_info .x_info__stats { grid-template-columns: 1fr; }
+}
+/* Info Pages End */
+.x_info__sim-card {
+  max-width: 330px;
+  background: #fff;
+  border: 2px solid var(--border-color, #ddd);
+  border-radius: 30px 30px 20px 20px;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.08);
+  position: relative;
+}
+
+.x_info__sim-card::before {
+  content: "";
+  position: absolute;
+  top: -14px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60px;
+  height: 25px;
+  background: #fff;
+  border: 2px solid var(--border-color, #ddd);
+  border-radius: 14px;
+  z-index: 1;
+}
+
+.sim-logo {
+  width: 100px;
+  height: auto;
+  display: block;
+  margin: 0 auto;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 1024px) {
+.list-unstyled{
+    padding-left: 0;
+    padding-right: 0%;
+}
+}
+@media (max-width: 768px) {
+
+  .x_info__sim-card {
+   max-width: 96%;
+   margin: auto;
+  }
+
+  
+
+}
+@media (max-width: 576px) {
+.x_in_block{
+    display: block !important;
+  }
+}

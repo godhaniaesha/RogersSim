@@ -1,6 +1,6 @@
 :root {
   /* Theme Colors */
-  --primary-color: #e50000;
+  --primary-color: #b71414;
   /* Rogers Red */
   --primary-color-dark: #c00000;
   --primary-color-light: #ff3333;
@@ -39,6 +39,22 @@
 
   /* Transitions */
   --transition: all 0.3s ease;
+}
+
+.btn-danger {
+  background-color: var(--primary-color) !important;
+  border-color: #e50000;
+  color: #fff;
+}
+
+.btn-outline-danger{
+  border-color: var(--primary-color) !important;
+  color: var(--primary-color) !important;
+}
+.btn-outline-danger:hover{
+  border-color: var(--primary-color) !important;
+  background-color: var(--primary-color) !important;
+  color:#fff !important;
 }
 
 /* Global styles */
