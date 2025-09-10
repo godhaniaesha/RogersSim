@@ -37,6 +37,8 @@ import About from './pages/About';
 import Contact from './pages/Contact';
 import Privacy from './pages/Privacy';
 import Service from './pages/Service';
+import HelpCenter from './pages/HelpCenter';
+import ForgotPass from './pages/auth/ForgotPass';
 
 function App() {
   return (
@@ -65,7 +67,7 @@ const AppContent = () => {
       <Router>
         <ToastContainer position="top-right" autoClose={3000} hideProgressBar={false} />
         <Header />
-        <main className="min-vh-100">
+        <main className="h-100">
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/exb" element={<ExplorB />} />
@@ -93,9 +95,27 @@ const AppContent = () => {
 
             <Route path="/products/:id" element={<ProductDetail />} />
             <Route path="/cart" element={<Cart />} />
-            <Route path="/checkout" element={<Checkout />} />
-            <Route path="/payment" element={<Payment />} />
+            {/* <Route path="/checkout" element={<Checkout />} />
+            <Route path="/payment" element={<Payment />} /> */}
             <Route path="/order-confirmation" element={<OrderConfirmation />} />
+            <Route path="/forgot-password" element={<ForgotPass />} />
+            <Route path="/helpcenter" element={<HelpCenter />} />
+            <Route path="/checkout" element={
+              // <ProtectedRoute>
+                <Checkout />
+              // </ProtectedRoute>
+            } />
+            <Route path="/payment" element={
+              // <ProtectedRoute>
+                <Payment />
+              // </ProtectedRoute>
+            } />
+            <Route path="/order-confirmation" element={
+              <ProtectedRoute>
+                <OrderConfirmation />
+              </ProtectedRoute>
+            } />
+         
           </Routes>
         </main>
         <Footer />

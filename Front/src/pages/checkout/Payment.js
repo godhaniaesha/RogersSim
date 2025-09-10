@@ -25,9 +25,13 @@ const Payment = () => {
   
   // Redirect to login if not authenticated
   useEffect(() => {
-  //   if (!isAuthenticated) {
-  //     navigate('/login');
-  //   }
+    /* The code `if (!isAuthenticated) { navigate('/login'); }` is checking if the user is not
+    authenticated. If the user is not authenticated, it will redirect the user to the '/login' page
+    using the `navigate` function from the 'react-router-dom' library. This is a common practice to
+    ensure that certain routes or pages are only accessible to authenticated users. */
+    // if (!isAuthenticated) {
+    //   navigate('/login');
+    // }
     
     // Redirect to checkout if no payment details
     if (!paymentDetails) {

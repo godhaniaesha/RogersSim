@@ -1,6 +1,9 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { FaFacebook, FaTwitter, FaInstagram, FaYoutube, FaLinkedin, FaPhoneAlt, FaEnvelope, FaMapMarkerAlt } from 'react-icons/fa';
+import { 
+  FaFacebook, FaTwitter, FaInstagram, FaYoutube, FaLinkedin, 
+  FaPhoneAlt, FaEnvelope, FaMapMarkerAlt 
+} from 'react-icons/fa';
 import Logo from "../image/IMG_4025 (1).png";
 
 const Footer = () => {
@@ -12,27 +15,19 @@ const Footer = () => {
         <div className="row">
           {/* Company Info */}
           <div className="col-md-3 mb-4">
-            {/* <h5 className="text-primary-custom fw-bold mb-4">ROGERS</h5> */}
             <div className='mb-3'>
-            <img src={Logo} alt="" style={{width: "45%"}}/>
+              <img src={Logo} alt="Rogers Logo" style={{width: "45%"}}/>
             </div>
-            <p className="small">Rogers is a leading telecom provider offering innovative mobile solutions, high-speed internet, and cutting-edge technology services across India.</p>
+            <p className="small">
+              Rogers is a leading telecom provider offering innovative mobile solutions, 
+              high-speed internet, and cutting-edge technology services across India.
+            </p>
             <div className="d-flex gap-2 mt-3">
-              <a href="https://facebook.com" className="text-white" aria-label="Facebook">
-                <FaFacebook size={20} />
-              </a>
-              <a href="https://twitter.com" className="text-white" aria-label="Twitter">
-                <FaTwitter size={20} />
-              </a>
-              <a href="https://instagram.com" className="text-white" aria-label="Instagram">
-                <FaInstagram size={20} />
-              </a>
-              <a href="https://youtube.com" className="text-white" aria-label="Youtube">
-                <FaYoutube size={20} />
-              </a>
-              <a href="https://linkedin.com" className="text-white" aria-label="LinkedIn">
-                <FaLinkedin size={20} />
-              </a>
+              <a href="https://facebook.com" className="text-white" aria-label="Facebook"><FaFacebook size={20} /></a>
+              <a href="https://twitter.com" className="text-white" aria-label="Twitter"><FaTwitter size={20} /></a>
+              <a href="https://instagram.com" className="text-white" aria-label="Instagram"><FaInstagram size={20} /></a>
+              <a href="https://youtube.com" className="text-white" aria-label="Youtube"><FaYoutube size={20} /></a>
+              <a href="https://linkedin.com" className="text-white" aria-label="LinkedIn"><FaLinkedin size={20} /></a>
             </div>
           </div>
           
@@ -40,18 +35,10 @@ const Footer = () => {
           <div className="col-md-3 mb-4">
             <h5 className="text-white mb-4">Quick Links</h5>
             <ul className="list-unstyled">
-              <li className="mb-2">
-                <Link to="/" className="text-white text-decoration-none hover-primary">Home</Link>
-              </li>
-              <li className="mb-2">
-                <Link to="/products" className="text-white text-decoration-none hover-primary">SIM Cards</Link>
-              </li>
-              <li className="mb-2">
-                <Link to="/products" className="text-white text-decoration-none hover-primary">Plans</Link>
-              </li>
-              <li className="mb-2">
-                <Link to="/products?type=addon" className="text-white text-decoration-none hover-primary">Add-ons</Link>
-              </li>
+              <li className="mb-2"><Link to="/" className="text-white text-decoration-none hover-primary">Home</Link></li>
+              <li className="mb-2"><Link to="/recharge" className="text-white text-decoration-none hover-primary">Recharge</Link></li>
+              <li className="mb-2"><Link to="/products" className="text-white text-decoration-none hover-primary">SIM Cards</Link></li>
+              <li className="mb-2"><Link to="/plans" className="text-white text-decoration-none hover-primary">Plans</Link></li>
             </ul>
           </div>
           
@@ -59,18 +46,10 @@ const Footer = () => {
           <div className="col-md-3 mb-4">
             <h5 className="text-white mb-4">Support</h5>
             <ul className="list-unstyled">
-              <li className="mb-2">
-                <a href="#" className="text-white text-decoration-none hover-primary">Help Center</a>
-              </li>
-              <li className="mb-2">
-                <a href="#" className="text-white text-decoration-none hover-primary">Contact Us</a>
-              </li>
-              <li className="mb-2">
-                <a href="#" className="text-white text-decoration-none hover-primary">FAQs</a>
-              </li>
-              <li className="mb-2">
-                <a href="#" className="text-white text-decoration-none hover-primary">Network Coverage</a>
-              </li>
+              <li className="mb-2"><Link to="/faq" className="text-white text-decoration-none hover-primary">FAQ</Link></li>
+              <li className="mb-2"><Link to="/contact" className="text-white text-decoration-none hover-primary">Contact Us</Link></li>
+              <li className="mb-2"><Link to="/profile" className="text-white text-decoration-none hover-primary">My Account</Link></li>
+              <li className="mb-2"><Link to="/orderhistory" className="text-white text-decoration-none hover-primary">Order History</Link></li>
             </ul>
           </div>
           
@@ -100,13 +79,13 @@ const Footer = () => {
           <div className="col-md-6 text-md-end">
             <ul className="list-inline mb-0">
               <li className="list-inline-item">
-                <a href="#" className="text-white small text-decoration-none hover-primary">Privacy Policy</a>
+                <Link to="/privacy" className="text-white small text-decoration-none hover-primary">Privacy Policy</Link>
               </li>
               <li className="list-inline-item ms-3">
-                <a href="#" className="text-white small text-decoration-none hover-primary">Terms of Service</a>
+                <Link to="/service" className="text-white small text-decoration-none hover-primary">Service</Link>
               </li>
               <li className="list-inline-item ms-3">
-                <a href="#" className="text-white small text-decoration-none hover-primary">Sitemap</a>
+                <Link to="/helpcenter" className="text-white small text-decoration-none hover-primary">Help Center</Link>
               </li>
             </ul>
           </div>

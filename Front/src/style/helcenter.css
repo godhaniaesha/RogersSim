@@ -1,0 +1,202 @@
+:root {
+  /* Colors */
+  --d-primary: #ac2020;
+  --d-primary-dark: #c00000;
+  --d-primary-light: #ffebeb;
+  --d-secondary: #ffffff;
+  --d-text: #1f2937;
+  --d-text-light: #6b7280;
+  --d-border: #e5e7eb;
+  --d-light-gray: #f9fafb;
+
+  /* Radius */
+  --d-radius-md: 0.5rem;
+  --d-radius-lg: 0.75rem;
+
+  /* Shadow */
+  --d-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --d-shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+
+  /* Spacing */
+  --d-spacing-md: 1rem;
+  --d-spacing-lg: 1.5rem;
+
+  /* Transition */
+  --d-transition: all 0.3s ease;
+}
+
+/* Page */
+.d_help-center {
+  background: var(--d-light-gray);
+  color: var(--d-text);
+  font-family: "Segoe UI", sans-serif;
+}
+
+/* Hero */
+/* Hero Section */
+.d_help-hero {
+  background: var(--d-primary-light);
+  padding: 3rem 1rem;
+  text-align: center;
+  border-bottom: 1px solid var(--d-border);
+}
+
+.d_help-title {
+  font-size: 2.8rem;
+  font-weight: 700;
+  color: var(--d-primary);
+  margin-bottom: 0.5rem;
+}
+
+.d_help-subtitle {
+  font-size: 1.2rem;
+  color: var(--d-text-light);
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+/* Contact Section */
+/* Contact Section */
+.d_help-contact {
+  background: var(--d-primary-light);
+  padding: 3rem 1rem;
+  border-top: 1px solid var(--d-border);
+}
+
+/* Left Info */
+.d_contact-info {
+  padding-right: 1rem;
+}
+
+.d_contact-title {
+  font-size: 1.8rem;
+  font-weight: 600;
+  color: var(--d-primary);
+  margin-bottom: 0.5rem;
+}
+
+.d_help-contact-list {
+  list-style: none;
+  padding: 0;
+  margin-top: 1rem;
+}
+
+.d_help-contact-list li {
+  display: flex;
+  align-items: center;
+  margin-bottom: 0.75rem;
+  font-size: 1rem;
+  color: var(--d-text);
+}
+
+.d_contact-icon {
+  color: var(--d-primary);
+  font-size: 1.2rem;
+}
+
+/* Right CTA */
+.d_contact-cta {
+  background: var(--d-secondary);
+  border: 1px solid var(--d-border);
+  border-radius: var(--d-radius-lg);
+  box-shadow: var(--d-shadow-sm);
+  transition: var(--d-transition);
+}
+
+.d_contact-cta:hover {
+  box-shadow: var(--d-shadow-md);
+}
+
+
+/* Sections */
+.d_section {
+  /* margin: var(--d-spacing-lg) 0; */
+}
+
+.d_section-title {
+  text-align: center;
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: var(--d-spacing-md);
+  color: var(--d-text);
+}
+
+/* Cards */
+.d_help-card {
+  border: 1px solid var(--d-border);
+  border-radius: var(--d-radius-lg);
+  box-shadow: var(--d-shadow-sm);
+  background: var(--d-secondary);
+  transition: var(--d-transition);
+  height: 100%;
+  padding: 0.5rem;
+}
+
+.d_help-card:hover {
+  box-shadow: var(--d-shadow-md);
+  transform: translateY(-3px);
+}
+
+.d_help-icon {
+  font-size: 2rem;
+  color: var(--d-primary);
+  /* margin-top: var(--d-spacing-md); */
+}
+
+.d_card-title {
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+
+
+/* Buttons */
+.d_btn-primary {
+  background: var(--d-primary);
+  color: var(--d-secondary);
+  border: none;
+  border-radius: var(--d-radius-md);
+  padding: 0.5rem 1.2rem;
+  transition: var(--d-transition);
+}
+
+.d_btn-primary:hover {
+  background: var(--d-primary-dark);
+}
+
+/* Links */
+.d_link {
+  color: var(--d-primary);
+  text-decoration: none;
+  transition: var(--d-transition);
+}
+
+.d_link:hover {
+  text-decoration: underline;
+}
+
+/* Utilities */
+.d_text-light {
+  color: var(--d-text-light);
+}
+
+.d_text-right {
+  text-align: right;
+}
+@media (max-width: 768px) {
+    .d_help-hero,.d_help-contact{
+        padding: 1rem;
+    }
+    .d_help-title{
+        font-size: 27px !important;
+    }
+    .d_contact-title{
+        font-size: 22px ;
+    }
+    .d_help-subtitle{
+        font-size: 15px !important;
+    }
+    .d_help-contact .row>*:not(:first-child) {
+        margin-top: 8px !important;
+    }
+}
