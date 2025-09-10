@@ -10,11 +10,7 @@ const PlanSchema = new mongoose.Schema({
     type: String,
     required: [true, 'Please add a description']
   },
-  product: {
-    type: mongoose.Schema.ObjectId,
-    ref: 'Product',
-    required: [true, 'Please add a product reference']
-  },
+  // product reference removed; now linked from Product.plans[]
   price: {
     type: Number,
     required: [true, 'Please add a price'],

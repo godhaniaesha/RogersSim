@@ -13,7 +13,7 @@ const ProductSchema = new mongoose.Schema({
   category: {
     type: String,
     required: [true, 'Please add a category'],
-    enum: ['mobile', 'internet', 'cable', 'landline', 'other']
+    enum: ['prepaid', 'esim', 'postpaid', 'data', 'travel', 'other']
   },
   image: {
     type: String,
@@ -59,6 +59,10 @@ const ProductSchema = new mongoose.Schema({
     type: Number,
     default: 0
   },
+  plans: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Plan'
+  }],
   stock: {
     type: Number,
     default: 0,

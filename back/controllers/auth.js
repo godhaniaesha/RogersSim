@@ -195,6 +195,125 @@ exports.getMe = async (req, res, next) => {
   }
 };
 
+// @desc    Forgot password - Send OTP to mobile
+// @route   POST /api/auth/forgot-password
+// @access  Public
+exports.forgotPassword = async (req, res, next) => {
+  try {
+    const { mobile } = req.body;
+    console.log(mobile,"mmm");
+    
+
+    if (!mobile) {
+      return next(new ErrorResponse('Please provide a mobile number', 400));
+    }
+
+    // Find user by mobile
+    const user = await User.findOne({ mobile });
+
+    if (!user) {
+      return next(new ErrorResponse('No user found with this mobile number', 404));
+    }
+
+    // Generate OTP for password reset
+    const otp = user.generateOTP();
+    await user.save();
+
+    // In a real app, send OTP via SMS using Twilio
+    // For now, we'll just return it in the response (for testing)
+    res.status(200).json({
+      success: true,
+      message: 'OTP sent to your mobile number for password reset',
+      data: process.env.NODE_ENV === 'development' ? { otp } : {}
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+// @desc    Verify OTP for password reset
+// @route   POST /api/auth/verify-reset-otp
+// @access  Public
+exports.verifyResetOtp = async (req, res, next) => {
+  try {
+    const { mobile, otp } = req.body;
+
+    if (!mobile || !otp) {
+      return next(new ErrorResponse('Please provide mobile number and OTP', 400));
+    }
+
+    // Find user by mobile
+    const user = await User.findOne({ mobile });
+
+    if (!user) {
+      return next(new ErrorResponse('User not found', 404));
+    }
+
+    // Verify OTP
+    const isValid = user.verifyOTP(otp);
+
+    if (!isValid) {
+      return next(new ErrorResponse('Invalid or expired OTP', 400));
+    }
+
+    // Generate reset password token
+    const resetToken = user.getResetPasswordToken();
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      message: 'OTP verified successfully',
+      data: {
+        resetToken,
+        mobile: user.mobile
+      }
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+// @desc    Reset password
+// @route   POST /api/auth/reset-password
+// @access  Public
+exports.resetPassword = async (req, res, next) => {
+  try {
+    const {  newPassword, confirmPassword } = req.body;
+
+    if ( !newPassword || !confirmPassword) {
+      return next(new ErrorResponse('Please provide all required fields', 400));
+    }
+
+    // Check if passwords match
+    if (newPassword !== confirmPassword) {
+      return next(new ErrorResponse('Passwords do not match', 400));
+    }
+
+    // Find user by mobile and reset token
+    const user = await User.findOne({
+      // resetPasswordToken: resetToken,
+      resetPasswordExpire: { $gt: Date.now() }
+    });
+
+    if (!user) {
+      return next(new ErrorResponse('Invalid or expired reset token', 400));
+    }
+
+    // Set new password
+    user.password = newPassword;
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpire = undefined;
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      message: 'Password reset successfully'
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
 // @desc    Log user out / clear cookie
 // @route   GET /api/auth/logout
 // @access  Private

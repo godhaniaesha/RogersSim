@@ -11,15 +11,15 @@ exports.getAllPlans = async (req, res, next) => {
     
     let query = { isActive: true };
     
-    // Filter by product
-    if (productId) {
-      query.product = productId;
-    }
-    
-    // Filter by category through product
-    if (category) {
-      const products = await Product.find({ category, isActive: true }).select('_id');
-      query.product = { $in: products.map(p => p._id) };
+    // With new relation Product -> plans[], we fetch plan ids via products
+    let planIdsFilter = undefined;
+    if (productId || category) {
+      const prodQuery = { isActive: true };
+      if (productId) prodQuery._id = productId;
+      if (category) prodQuery.category = category;
+      const products = await Product.find(prodQuery).select('plans');
+      const planIds = products.flatMap(p => (p.plans || []));
+      planIdsFilter = planIds;
     }
     
     // Sort options
@@ -42,8 +42,11 @@ exports.getAllPlans = async (req, res, next) => {
       sortBy = { sortOrder: 1, price: 1 };
     }
     
+    if (planIdsFilter) {
+      query._id = { $in: planIdsFilter };
+    }
+
     const plans = await Plan.find(query)
-      .populate('product', 'name category image')
       .sort(sortBy)
       .limit(limit * 1)
       .skip((page - 1) * limit);
@@ -74,8 +77,8 @@ exports.getPlansByProductId = async (req, res, next) => {
     const { productId } = req.params;
     const { sort, page = 1, limit = 10 } = req.query;
     
-    // Check if product exists
-    const product = await Product.findById(productId);
+    // Check if product exists and get its plans
+    const product = await Product.findById(productId).select('plans');
     if (!product) {
       return next(new ErrorResponse('Product not found', 404));
     }
@@ -101,15 +104,14 @@ exports.getPlansByProductId = async (req, res, next) => {
     }
     
     const plans = await Plan.find({ 
-      product: productId, 
+      _id: { $in: product.plans || [] },
       isActive: true 
     })
-      .populate('product', 'name category image')
       .sort(sortBy)
       .limit(limit * 1)
       .skip((page - 1) * limit);
     
-    const total = await Plan.countDocuments({ product: productId, isActive: true });
+    const total = await Plan.countDocuments({ _id: { $in: product.plans || [] }, isActive: true });
     
     res.status(200).json({
       success: true,
@@ -132,14 +134,72 @@ exports.getPlansByProductId = async (req, res, next) => {
 // @access  Public
 exports.getPlanById = async (req, res, next) => {
   try {
-    const plan = await Plan.findById(req.params.id)
-      .populate('product', 'name category image description');
+    const plan = await Plan.findById(req.params.id);
     
     if (!plan) {
       return next(new ErrorResponse('Plan not found', 404));
     }
     
     res.status(200).json({
+      success: true,
+      data: plan
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+
+exports.createPlan = async (req, res, next) => {
+  try {
+    const {
+      name,
+      description,
+      price,
+      originalPrice,
+      discount,
+      validity,
+      dataLimit,
+      speed,
+      features,
+      isActive = true,
+      isPopular = false,
+      sortOrder = 0
+    } = req.body;
+
+    // Validate required fields
+    if (!name || !description || !price || !validity || !dataLimit || !speed) {
+      return next(
+        new ErrorResponse(
+          'Please provide name, description, price, validity, dataLimit, and speed',
+          400
+        )
+      );
+    }
+
+    // Calculate discount if originalPrice is provided
+    let calculatedDiscount = discount || 0;
+    if (originalPrice && originalPrice > price) {
+      calculatedDiscount = Math.round(((originalPrice - price) / originalPrice) * 100);
+    }
+
+    // Create plan
+    const plan = await Plan.create({
+      name,
+      description,
+      price,
+      originalPrice: originalPrice || price,
+      discount: calculatedDiscount,
+      validity,
+      dataLimit,
+      speed,
+      features: features || [],
+      isActive,
+      isPopular,
+      sortOrder
+    });
+
+    res.status(201).json({
       success: true,
       data: plan
     });

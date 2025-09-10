@@ -80,7 +80,7 @@ exports.getAllProducts = async (req, res, next) => {
 // @access  Public
 exports.getProductById = async (req, res, next) => {
   try {
-    const product = await Product.findById(req.params.id);
+    const product = await Product.findById(req.params.id).populate('plans');
     
     if (!product) {
       return next(new ErrorResponse('Product not found', 404));
@@ -274,6 +274,74 @@ exports.filterProducts = async (req, res, next) => {
         pages: Math.ceil(total / limit),
         limit: parseInt(limit)
       }
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+
+// @desc    Create new product
+// @route   POST /api/products
+// @access  Private (Admin only)
+exports.createProduct = async (req, res, next) => {
+  try {
+    const {
+      name,
+      description,
+      category,
+      image,
+      images,
+      price,
+      originalPrice,
+      discount,
+      features,
+      specifications,
+      isActive = true,
+      isPopular = false,
+      tags,
+      plans,
+      stock = 0
+    } = req.body;
+
+    // Validate required fields
+    if (!name || !description || !category || !price) {
+      return next(new ErrorResponse('Please provide name, description, category, and price', 400));
+    }
+
+    // Validate category
+    const validCategories = ['prepaid', 'esim', 'postpaid', 'data', 'travel' , 'other'];
+    if (!validCategories.includes(category)) {
+      return next(new ErrorResponse('Invalid category. Must be one of: ' + validCategories.join(', '), 400));
+    }
+
+    // Calculate discount if originalPrice is provided
+    let calculatedDiscount = discount || 0;
+    if (originalPrice && originalPrice > price) {
+      calculatedDiscount = Math.round(((originalPrice - price) / originalPrice) * 100);
+    }
+
+    const product = await Product.create({
+      name,
+      description,
+      category,
+      image: image || 'no-image.jpg',
+      images: images || [],
+      price,
+      originalPrice: originalPrice || price,
+      discount: calculatedDiscount,
+      features: features || [],
+      specifications: specifications || {},
+      isActive,
+      isPopular,
+      tags: tags || [],
+      plans: plans || [],
+      stock
+    });
+
+    res.status(201).json({
+      success: true,
+      data: product
     });
   } catch (err) {
     next(err);

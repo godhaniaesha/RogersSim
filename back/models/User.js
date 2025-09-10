@@ -52,6 +52,14 @@ const UserSchema = new mongoose.Schema({
     addressProof: String,
     photo: String
   },
+  address: {
+    type: String,
+    trim: true
+  },
+  pincode: {
+    type: String,
+    match: [/^[0-9]{6}$/, 'Pincode must be 6 digits']
+  },
   resetPasswordToken: String,
   resetPasswordExpire: Date,
   createdAt: {
@@ -65,7 +73,6 @@ UserSchema.pre('save', async function (next) {
   if (!this.isModified('password')) {
     next();
   }
-
   const salt = await bcrypt.genSalt(10);
   this.password = await bcrypt.hash(this.password, salt);
 });
@@ -74,8 +81,7 @@ UserSchema.pre('save', async function (next) {
 UserSchema.methods.getSignedJwtToken = function () {
   return jwt.sign(
     { id: this._id },
-    process.env.JWT_SECRET,
-    // { expiresIn: process.env.JWT_EXPIRE || "1d" }  // fallback if not set
+    process.env.JWT_SECRET
   );
 };
 
@@ -86,33 +92,32 @@ UserSchema.methods.matchPassword = async function (enteredPassword) {
 
 // Generate and hash OTP
 UserSchema.methods.generateOTP = function () {
-  // Generate a 6 digit OTP
   const otp = Math.floor(100000 + Math.random() * 900000).toString();
-
-  // Set OTP expiry to 10 minutes
   const expiresAt = new Date();
   expiresAt.setMinutes(expiresAt.getMinutes() + 10);
-
-  this.otp = {
-    code: otp,
-    expiresAt: expiresAt
-  };
-
+  this.otp = { code: otp, expiresAt };
   return otp;
 };
 
 // Verify OTP
 UserSchema.methods.verifyOTP = function (enteredOtp) {
-  const isValid = this.otp &&
+  const isValid =
+    this.otp &&
     this.otp.code === enteredOtp &&
     this.otp.expiresAt > new Date();
 
   if (isValid) {
-    // Clear OTP after successful verification
     this.otp = undefined;
   }
-
   return isValid;
+};
+
+// Generate and hash reset password token
+UserSchema.methods.getResetPasswordToken = function () {
+  const resetToken = Math.random().toString(36).slice(-32);
+  this.resetPasswordToken = resetToken;
+  this.resetPasswordExpire = Date.now() + 10 * 60 * 1000;
+  return resetToken;
 };
 
 module.exports = mongoose.model('User', UserSchema);

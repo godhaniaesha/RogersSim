@@ -20,12 +20,30 @@ exports.getProfile = async (req, res, next) => {
 // @desc    Update user profile
 // @route   PUT /api/users/profile
 // @access  Private
+exports.getProfile = async (req, res, next) => {
+  try {
+    const user = await User.findById(req.user.id);
+
+    res.status(200).json({
+      success: true,
+      data: user
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+// @desc    Update user profile
+// @route   PUT /api/users/profile
+// @access  Private
 exports.updateProfile = async (req, res, next) => {
   try {
     const fieldsToUpdate = {
       name: req.body.name,
       email: req.body.email,
-      mobile: req.body.mobile
+      mobile: req.body.mobile,
+      address: req.body.address,
+      pincode: req.body.pincode
     };
 
     // Remove undefined fields
@@ -58,9 +76,6 @@ exports.updateProfile = async (req, res, next) => {
 // @access  Private
 exports.uploadKyc = async (req, res, next) => {
   try {
-    // In a real app, you would handle file uploads here
-    // For now, we'll just update the KYC status
-    
     const kycDocuments = {
       idProof: req.body.idProof || 'id_proof_url',
       addressProof: req.body.addressProof || 'address_proof_url',
@@ -87,7 +102,6 @@ exports.uploadKyc = async (req, res, next) => {
     next(err);
   }
 };
-
 // @desc    Get KYC status
 // @route   GET /api/users/kyc
 // @access  Private
