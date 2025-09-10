@@ -39,6 +39,8 @@ import Privacy from './pages/Privacy';
 import Service from './pages/Service';
 import HelpCenter from './pages/HelpCenter';
 import ForgotPass from './pages/auth/ForgotPass';
+import FAQ from './pages/FAQ';
+import Termscondition from './pages/Terms&condition';
 
 function App() {
   return (
@@ -92,6 +94,8 @@ const AppContent = () => {
             <Route path="/contact" element={<Contact />} />
             <Route path="/privacy" element={<Privacy />} />
             <Route path="/service" element={<Service />} />
+            <Route path="/faq" element={<FAQ />} />
+            <Route path="/Termscondition" element={<Termscondition />} />
 
             <Route path="/products/:id" element={<ProductDetail />} />
             <Route path="/cart" element={<Cart />} />

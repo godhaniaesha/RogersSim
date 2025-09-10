@@ -3,7 +3,7 @@ import "../style/x_app.css";
 
 export default function ExplorB() {
   return (
-    <section className="explorb-section x_exp container">
+    <section className="explorb-section x_exp container py-4">
       {/* Section Heading */}
       <div className="section-title">
         <h2 className="section-heading">
@@ -15,8 +15,8 @@ export default function ExplorB() {
       </div>
 
       {/* Feature Cards */}
-      <div className="feature-cards">
-        <div className="card">
+      <div className="feature-cards ">
+        <div className="card py-4">
           <div className="icon">
             <svg viewBox="0 0 24 24" fill="currentColor">
               <path d="M9 19a1.002 1.002 0 01-.71-.29l-5-5a1.004 1.004 0 111.42-1.42L9 16.59l10.29-10.3a1.004 1.004 0 111.42 1.42l-11 11A1 1 0 019 19z" />

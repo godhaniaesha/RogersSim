@@ -112,7 +112,7 @@ const Cart = () => {
 
       {loading ? (
         <div className="text-center my-5">
-          <div className="spinner-border text-primary" role="status">
+          <div className="spinner-border text-danger" role="status">
             <span className="visually-hidden">Loading...</span>
           </div>
           <p className="mt-2">Loading your cart...</p>
@@ -131,18 +131,10 @@ const Cart = () => {
                 {cartItems.map(item => (
                   <div key={item.id} className="mb-4 pb-4 border-bottom">
                     <div className="row">
-                      {/* Product Image */}
-                      <div className="col-md-3 mb-3 mb-md-0">
-                        <img 
-                          src={item.product.image} 
-                          alt={item.product.name}
-                          className="img-fluid rounded"
-                          style={{ maxHeight: '120px', objectFit: 'cover' }}
-                        />
-                      </div>
+                     
                       
                       {/* Product Details */}
-                      <div className="col-md-6">
+                      <div className="col-9">
                         <h5>{item.product.name}</h5>
                         <div className="d-flex mb-2">
                           <span className="badge bg-light text-dark me-2">
@@ -179,13 +171,13 @@ const Cart = () => {
                       </div>
                       
                       {/* Price and Remove */}
-                      <div className="col-md-3 text-md-end mt-3 mt-md-0">
-                        <h5 className="text-primary mb-3">₹{item.total}</h5>
+                      <div className="col-3 text-md-end mt-3 mt-md-0">
+                        <h5 className="text-danger mb-3">₹{item.total}</h5>
                         <button 
                           className="btn btn-sm btn-outline-danger"
                           onClick={() => removeItem(item.id)}
                         >
-                          <FaTrash className="me-1" /> Remove
+                          <FaTrash className="me-1" /> <span className='d-sm-block d-none'>Remove</span>
                         </button>
                       </div>
                     </div>
@@ -223,7 +215,7 @@ const Cart = () => {
                 <hr />
                 <div className="d-flex justify-content-between fw-bold mb-3">
                   <span>Total</span>
-                  <span className="text-primary">₹{calculateTotal()}</span>
+                  <span className="text-danger">₹{calculateTotal()}</span>
                 </div>
                 <button 
                   className="btn btn-primary w-100 py-2" 

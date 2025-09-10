@@ -833,7 +833,7 @@ body {
 .X_faqContainer {
     /* max-width: 980px; */
     margin: 0 auto;
-    padding: 0 16px 3rem;
+    /* padding: 0 16px 3rem; */
     color: #141414;
 }
 
@@ -908,7 +908,7 @@ body {
 
 /* Content */
 .X_accContent {
-    padding: 12px 16px 20px;
+    padding: 12px 16px 2px;
     font-size: 14px;
     color: #555;
     line-height: 1.5;

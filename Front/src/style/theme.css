@@ -47,11 +47,11 @@
   color: #fff;
 }
 
-.btn-outline-danger{
+.btn-outline-danger,.btn-outline-primary{
   border-color: var(--primary-color) !important;
   color: var(--primary-color) !important;
 }
-.btn-outline-danger:hover{
+.btn-outline-danger:hover,.btn-outline-primary:hover{
   border-color: var(--primary-color) !important;
   background-color: var(--primary-color) !important;
   color:#fff !important;

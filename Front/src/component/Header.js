@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 import { FaUser, FaShoppingCart, FaBars, FaTimes } from "react-icons/fa";
 import { useSelector, useDispatch } from "react-redux";
 import { logout } from "../store/slices/authSlice";
@@ -14,13 +14,14 @@ export default function Header() {
 
   // Cart items
   const { items } = useSelector((state) => state.cart);
-  const cartItemsCount = items.reduce(
-    (total, item) => total + item.quantity,
-    0
-  );
+  const cartItemsCount = items.reduce((total, item) => total + item.quantity, 0);
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
+  };
+
+  const closeMenu = () => {
+    setIsMenuOpen(false);
   };
 
   return (
@@ -28,14 +29,14 @@ export default function Header() {
       <nav className="navbar navbar-expand-lg navbar-light bg-white">
         <div className="container">
           {/* Logo */}
-          <Link className="navbar-brand d-flex align-items-center" to="/">
+          <NavLink className="navbar-brand d-flex align-items-center" to="/" onClick={closeMenu}>
             <img
               src={Logo}
               alt="Rogers"
-              style={{ height: "40px", width: "auto" }}
-              className="me-2"
+              style={{ height: "35px", width: "auto" }}
+              className="rogers-nav"
             />
-          </Link>
+          </NavLink>
 
           {/* Mobile toggle */}
           <button
@@ -50,85 +51,59 @@ export default function Header() {
           </button>
 
           {/* Menu */}
-          <div
-            className={`collapse navbar-collapse ${isMenuOpen ? "show" : ""}`}
-            id="navbarNav"
-          >
+          <div className={`collapse navbar-collapse ${isMenuOpen ? "show" : ""}`} id="navbarNav">
             <ul className="navbar-nav ms-auto align-items-lg-center">
+
+              {/* Home */}
               <li className="nav-item">
-                <Link className="nav-link" to="/">
+                <NavLink
+                  to="/"
+                  className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}
+                  onClick={closeMenu}
+                >
                   Home
-                </Link>
+                </NavLink>
               </li>
 
-              {/* <li className="nav-item dropdown">
-                <a
-                  className="nav-link dropdown-toggle"
-                  href="#"
-                  role="button"
-                  data-bs-toggle="dropdown"
-                  aria-expanded="false"
+              {/* SIM Cards */}
+              <li className="nav-item">
+                <NavLink
+                  to="/products"
+                  className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}
+                  onClick={closeMenu}
                 >
                   SIM Cards
-                </a>
-                <ul className="dropdown-menu dropdown-menu-animate">
-                  <li>
-                    <Link className="dropdown-item" to="/products?type=prepaid">
-                      Prepaid
-                    </Link>
-                  </li>
-                  <li>
-                    <Link className="dropdown-item" to="/products?type=postpaid">
-                      Postpaid
-                    </Link>
-                  </li>
-                  <li>
-                    <Link className="dropdown-item" to="/products?type=data">
-                      Data Only
-                    </Link>
-                  </li>
-                  <li>
-                    <Link className="dropdown-item" to="/products?type=esim">
-                      eSIM
-                    </Link>
-                  </li>
-                </ul>
-              </li> */}
-              <li className="nav-item">
-                <Link className="nav-link" to="/products">
-                  SIM Cards
-                </Link>
+                </NavLink>
               </li>
 
+              {/* Recharge */}
               <li className="nav-item">
-                <Link className="nav-link" to="/recharge">
+                <NavLink
+                  to="/recharge"
+                  className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}
+                  onClick={closeMenu}
+                >
                   Recharge
-                </Link>
+                </NavLink>
               </li>
 
-
+              {/* Plans */}
               <li className="nav-item">
-                <Link className="nav-link" to="/plans">
+                <NavLink
+                  to="/plans"
+                  className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}
+                  onClick={closeMenu}
+                >
                   Plans
-                </Link>
+                </NavLink>
               </li>
 
-              {/* <li className="nav-item">
-                <Link className="nav-link" to="/">
-                  Plans
-                </Link>
-              </li> */}
-              {/* <li className="nav-item">
-                <Link className="nav-link" to="/products?type=addon">
-                  Add-ons
-                </Link>
-              </li>
-              <div className="d-flex align-items-center">
-                {/* Cart */}
-              <div className="nav-item ms-lg-3">
-                <Link
+              {/* Cart */}
+              <li className="nav-item ms-lg-3">
+                <NavLink
                   to="/cart"
                   className="btn btn-outline-danger position-relative"
+                  onClick={closeMenu}
                 >
                   <FaShoppingCart className="me-1" /> Cart
                   {cartItemsCount > 0 && (
@@ -136,11 +111,11 @@ export default function Header() {
                       {cartItemsCount}
                     </span>
                   )}
-                </Link>
-              </div>
+                </NavLink>
+              </li>
 
               {/* Login / Account */}
-              <div className="nav-item ms-2">
+              <li className="nav-item ms-2">
                 {isLoggedIn ? (
                   <div className="dropdown">
                     <button
@@ -152,14 +127,14 @@ export default function Header() {
                     </button>
                     <ul className="dropdown-menu dropdown-menu-end">
                       <li>
-                        <Link className="dropdown-item" to="/profile">
+                        <NavLink className="dropdown-item" to="/profile" onClick={closeMenu}>
                           My Profile
-                        </Link>
+                        </NavLink>
                       </li>
                       <li>
-                        <Link className="dropdown-item" to="/profile/orders">
+                        <NavLink className="dropdown-item" to="/profile/orders" onClick={closeMenu}>
                           Order History
-                        </Link>
+                        </NavLink>
                       </li>
                       <li>
                         <hr className="dropdown-divider" />
@@ -167,7 +142,10 @@ export default function Header() {
                       <li>
                         <button
                           className="dropdown-item"
-                          onClick={() => dispatch(logout())}
+                          onClick={() => {
+                            dispatch(logout());
+                            closeMenu();
+                          }}
                         >
                           Logout
                         </button>
@@ -175,15 +153,15 @@ export default function Header() {
                     </ul>
                   </div>
                 ) : (
-                  <Link to="/login" className="btn btn-danger">
+                  <NavLink to="/login" className="btn btn-danger" onClick={closeMenu}>
                     <FaUser className="me-1" /> Login
-                  </Link>
+                  </NavLink>
                 )}
-              </div>
+              </li>
             </ul>
           </div>
         </div>
-    </nav >
-    </header >
+      </nav>
+    </header>
   );
 }

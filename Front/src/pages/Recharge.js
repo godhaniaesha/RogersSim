@@ -92,7 +92,7 @@ const faqwifi = [
 
                 <h4>Using Rogers Website:</h4>
                 <ul>
-                    <li>Go to <a href="/" target="_blank" rel="noopener noreferrer">www.rogers.com</a></li>
+                    <li>Go to <a href="/" className="text-danger" target="_blank" rel="noopener noreferrer">www.rogers.com</a></li>
                     <li>Select <b>'Recharge'</b> in the top right corner and choose <b>'RogersFiber'</b>.</li>
                     <li>Enter your Service ID, RMN, or Landline Number.</li>
                     <li>Click on <b>'Submit'</b>.</li>
@@ -115,7 +115,7 @@ const faqwifi = [
                 <p>
                     These plans cater to a range of internet usage and entertainment preferences.
                     For more details,{" "}
-                    <a href="/" target="_blank" rel="noopener noreferrer">click here</a>{" "}
+                    <a href="/" className="text-danger" target="_blank" rel="noopener noreferrer">click here</a>{" "}
                     or check the MyRogers app.
                 </p>
             </>
@@ -151,7 +151,7 @@ const faqwifi = [
                 </p>
                 <p>
                     For detailed information on RogersFiber recharge plans and current offers,{" "}
-                    <a href="/" target="_blank" rel="noopener noreferrer">please click here</a>.
+                    <a href="/" className="text-danger" target="_blank" rel="noopener noreferrer">please click here</a>.
                 </p>
             </>
         )
@@ -223,7 +223,7 @@ export default function Recharge() {
             <div className="container">
                 <div className="row g-4 align-items-center">
                     <div className="col-lg-6">
-                        <div className="rech_card p-4 shadow-sm bg-white rounded-3">
+                        <div className="rech_card p-4 shadow bg-white rounded-3">
                             <div className="text-center mb-3">
                                 <div className="rech_icon mb-2"><span className="rech_icon_span">₹</span></div>
                                 <h2 className="mb-2">
@@ -378,7 +378,7 @@ export default function Recharge() {
                                     </ul>
 
                                     <p className="X_last">
-                                        Moreover, RogersHome's <a href="/plans" target="_blank" rel="noreferrer">broadband recharge plans</a> are affordable and provide
+                                        Moreover, RogersHome's <a href="/plans" className="text-danger" target="_blank" rel="noreferrer">broadband recharge plans</a> are affordable and provide
                                         great value for your money. They are designed to meet all your digital needs and
                                         enhance your digital life.
                                     </p>
@@ -446,7 +446,7 @@ export default function Recharge() {
                 </div>
 
 
-                <div style={{ paddingTop: "2.5rem" }}>
+                <div >
                     {mode === "rogershome" ? (
                         <section className="X_faqContainer j-container">
                             <h2 className="j-heading j-text-heading-l X_heading">FAQ on RogersFiber recharges online</h2>
