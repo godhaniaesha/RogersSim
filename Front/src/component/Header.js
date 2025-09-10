@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { FaUser, FaShoppingCart, FaBars, FaTimes } from "react-icons/fa";
 import { useSelector, useDispatch } from "react-redux";
-import { logout } from "../store/slices/authSlice";
+import { logout, logoutUser } from "../store/slices/authSlice";
 import Logo from "../image/IMG_4025 (1).png";
 
 export default function Header() {
@@ -167,7 +167,7 @@ export default function Header() {
                       <li>
                         <button
                           className="dropdown-item"
-                          onClick={() => dispatch(logout())}
+                          onClick={() => dispatch(logoutUser())}
                         >
                           Logout
                         </button>

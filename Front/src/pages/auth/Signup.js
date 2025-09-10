@@ -5,10 +5,11 @@ import * as Yup from "yup";
 import { toast } from "react-toastify";
 import { useDispatch, useSelector } from "react-redux";
 import {
-  signupStart,
-  signupSuccess,
-  signupFailure,
-  clearError,
+  // signupStart,
+  // signupSuccess,
+  // signupFailure,
+  // clearError,
+  signupUser,
 } from "../../store/slices/authSlice";
 import authService from "../../services/authService";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
@@ -28,9 +29,9 @@ const Signup = () => {
     if (isAuthenticated) navigate("/");
   }, [isAuthenticated, navigate]);
 
-  useEffect(() => {
-    dispatch(clearError());
-  }, [dispatch]);
+  // useEffect(() => {
+  //   dispatch(clearError());
+  // }, [dispatch]);
 
   // Validation schema
   const signupSchema = Yup.object({
@@ -61,19 +62,23 @@ const Signup = () => {
 
   const handleSubmit = async (values, { setSubmitting }) => {
     try {
-      dispatch(signupStart());
-      const userData = await authService.signupWithEmail({
+      const userData = {
         name: values.name,
         email: values.email,
         mobile: values.mobile,
         password: values.password,
         confirmPassword: values.confirmPassword,
-      });
-      dispatch(signupSuccess(userData));
-      toast.success("Signup successful! Please verify your email.");
-      navigate("/login");
+      };
+
+      const resultAction = await dispatch(signupUser(userData));
+
+      if (signupUser.fulfilled.match(resultAction)) {
+        toast.success("Signup successful! Please verify your email.");
+        navigate("/login");
+      } else {
+        toast.error(resultAction.payload || "Signup failed");
+      }
     } catch (error) {
-      dispatch(signupFailure(error.message || "Signup failed"));
       toast.error(error.message || "Signup failed");
     } finally {
       setSubmitting(false);
@@ -86,7 +91,7 @@ const Signup = () => {
         <div className="col-md-6 col-lg-5">
           <div className="card border-0 shadow">
             <div className="card-body p-4 p-md-5">
-              <h2 className="text-center mb-4 fw-bold" style={{color:'#ac2020'}}>
+              <h2 className="text-center mb-4 fw-bold" style={{ color: '#ac2020' }}>
                 Create Account
               </h2>
 
@@ -229,7 +234,7 @@ const Signup = () => {
                         htmlFor="termsAccepted"
                       >
                         I agree to the{" "}
-                        <Link to="/terms" className="" style={{color:'#e70000'}}>
+                        <Link to="/terms" className="" style={{ color: '#e70000' }}>
                           Terms & Conditions
                         </Link>
                       </label>
@@ -260,7 +265,7 @@ const Signup = () => {
               <div className="text-center mt-4">
                 <p className="mb-0">
                   Already have an account?{" "}
-                  <Link to="/login"  style={{color:'#e70000'}}>
+                  <Link to="/login" style={{ color: '#e70000' }}>
                     Login
                   </Link>
                 </p>
