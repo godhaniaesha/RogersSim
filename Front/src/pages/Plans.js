@@ -11,9 +11,11 @@ import {
   FaHeadset,
   FaUndoAlt,
   FaUsers,
+  FaPlus,
+  FaMinus,
+  FaCheckCircle,
 } from "react-icons/fa";
 import { Modal, Button, Form } from "react-bootstrap";
-import { FaPlus, FaMinus, FaCheckCircle } from "react-icons/fa";
 import { MdClose } from "react-icons/md";
 import "swiper/css";
 import "swiper/css/navigation";
@@ -25,13 +27,12 @@ function Plans() {
   const { plans, selectedPlan, loading, error } = useSelector(
     (state) => state.plan
   );
-
+  console.log(plans,'plans');
   
-
   const [show, setShow] = useState(false);
   const [showPayment, setShowPayment] = useState(false);
-  const [activeIndex, setActiveIndex] = useState(null);
-  const [isFiber, setIsFiber] = useState(false);
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [isFiber, setIsFiber] = useState(false); // still used for tab switch UI
   const [selectedMethod, setSelectedMethod] = useState("");
   const [showSuccess, setShowSuccess] = useState(false);
   const [localSelectedPlan, setLocalSelectedPlan] = useState(null);
@@ -62,29 +63,39 @@ function Plans() {
 
   const handleShow = (plan) => {
     setLocalSelectedPlan(plan);
-    // optional: if you want to fetch plan details from API
     dispatch(fetchPlanById(plan._id || plan.id));
     setShow(true);
   };
 
   const handleClose = () => setShow(false);
 
-  // Group plans dynamically by category (assuming your API returns category field)
-  // Example: { title: 'Mobile Plans', plans: [ ... ] }
-  const groupedPlans = Array.isArray(plans)
-    ? plans.reduce((acc, plan) => {
-        const cat = plan.category || (isFiber ? "Fiber Plans" : "Mobile Plans");
-        if (!acc[cat]) acc[cat] = [];
-        acc[cat].push(plan);
-        return acc;
-      }, {})
-    : {};
+  /**
+   * Filter plans first based on planType:
+   *  - fiber plans if isFiber === true
+   *  - mobile plans if isFiber === false
+   */
+  const filteredPlans = Array.isArray(plans)
+    ? plans.filter((p) =>
+        isFiber
+          ? p.planType?.toLowerCase() === "fiber"
+          : p.planType?.toLowerCase() === "mobile"
+      )
+    : [];
+
+  // Group filtered plans dynamically by category
+  const groupedPlans = filteredPlans.reduce((acc, plan) => {
+    const cat = plan.category || (isFiber ? "Fiber Plans" : "Mobile Plans");
+    if (!acc[cat]) acc[cat] = [];
+    acc[cat].push(plan);
+    return acc;
+  }, {});
 
   const planCategories = Object.keys(groupedPlans).map((key) => ({
     title: key,
     plans: groupedPlans[key],
   }));
 
+  
   return (
     <>
       <section className="z_addOns_section py-5">
@@ -121,7 +132,9 @@ function Plans() {
               <div
                 key={index}
                 className={
-                  isFiber ? "z_fiber_item border-bottom" : "z_plans_item border-bottom"
+                  isFiber
+                    ? "z_fiber_item border-bottom"
+                    : "z_plans_item border-bottom"
                 }
               >
                 <div

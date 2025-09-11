@@ -1,36 +1,20 @@
 const mongoose = require('mongoose');
 
 const CartItemSchema = new mongoose.Schema({
-  product: {
+  productId: {
     type: mongoose.Schema.ObjectId,
     ref: 'Product',
-    required: true
+    required: false, // can be null if only plan is chosen
   },
-  plan: {
+  planId: {
     type: mongoose.Schema.ObjectId,
     ref: 'Plan',
-    required: true
+    required: false, // can be null if only product is chosen
   },
-  addons: [{
-    addon: {
-      type: mongoose.Schema.ObjectId,
-      ref: 'Addon'
-    },
-    quantity: {
-      type: Number,
-      default: 1,
-      min: 1
-    }
-  }],
   quantity: {
     type: Number,
     default: 1,
     min: 1
-  },
-  price: {
-    type: Number,
-    required: true,
-    min: 0
   },
   totalPrice: {
     type: Number,
@@ -38,6 +22,7 @@ const CartItemSchema = new mongoose.Schema({
     min: 0
   }
 });
+
 
 const CartSchema = new mongoose.Schema({
   user: {
