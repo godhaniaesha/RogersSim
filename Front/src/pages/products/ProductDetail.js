@@ -6,21 +6,19 @@ import { addToCart } from '../../store/slices/cartSlice';
 import { toast } from 'react-toastify';
 import productService from '../../services/productService';
 import cartService from '../../services/cartService';
+import { fetchProductById } from '../../store/slices/productSlice';
 
 const ProductDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  
-  // State for product data
-  const [product, setProduct] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+
   const [selectedPlan, setSelectedPlan] = useState(null);
   const [numberType, setNumberType] = useState('new');
   const [portingNumber, setPortingNumber] = useState('');
   const [selectedAddons, setSelectedAddons] = useState([]);
-  
+  const { product, loading, error } = useSelector((state) => state.product);
+
   // Get cart state from Redux
   const { items, loading: cartLoading } = useSelector(state => state.cart);
 
@@ -110,43 +108,16 @@ const ProductDetail = () => {
 
   // Fetch product data
   useEffect(() => {
-    const fetchProductDetails = async () => {
-      try {
-        setLoading(true);
-        
-        // Fetch product details
-        const productData = await productService.getProductById(id);
-        setProduct(productData);
-        
-        // Fetch plans for this product
-        const plansData = await productService.getPlansByProductId(id);
-        
-        // Set default selected plan
-        if (plansData.length > 0) {
-          setSelectedPlan(plansData[0]);
-        }
-        
-        setError(null);
-      } catch (err) {
-        setError(err.message || 'Failed to fetch product details');
-        toast.error(err.message || 'Failed to fetch product details');
-        // Fallback to mock data
-        const foundProduct = products.find(p => p.id === parseInt(id));
-        if (foundProduct) {
-          setProduct(foundProduct);
-        }
-      } finally {
-        setLoading(false);
-      }
-    };
-    
-    fetchProductDetails();
-  }, [id]);
+    if (id) {
+      dispatch(fetchProductById(id));
+    }
+  }, [id, dispatch]);
+
 
   // Handle plan selection
   const handlePlanSelect = async (plan) => {
     setSelectedPlan(plan);
-    
+
     try {
       // Fetch addons for the selected plan
       const addonsData = await productService.getAddonsByPlanId(plan.id);
@@ -197,13 +168,13 @@ const ProductDetail = () => {
     try {
       // Dispatch to Redux
       dispatch(addToCart(cartItem));
-      
+
       // Add to cart via API
       await cartService.addToCart(cartItem);
-      
+
       // Show success message
       toast.success('Added to cart successfully!');
-      
+
       // Navigate to cart
       navigate('/cart');
     } catch (err) {
@@ -221,13 +192,13 @@ const ProductDetail = () => {
       </div>
     );
   }
-  
+
   if (error && !product) {
     return (
       <div className="container py-5">
         <div className="alert alert-danger">
           {error}
-          <button 
+          <button
             className="btn btn-outline-danger btn-sm ms-3"
             onClick={() => window.location.reload()}
           >
@@ -268,10 +239,10 @@ const ProductDetail = () => {
                   Popular
                 </div>
               )}
-              <img 
-                src={product.image} 
-                className="card-img-top" 
-                alt={product.name} 
+              <img
+                src={product.image}
+                className="card-img-top"
+                alt={product.name}
                 style={{ height: '250px', objectFit: 'cover' }}
               />
             </div>
@@ -281,8 +252,11 @@ const ProductDetail = () => {
                   <h2 className="card-title">{product.name}</h2>
                   <div className="d-flex align-items-center mb-2">
                     <span className="badge bg-light text-dark me-2">
-                      {product.type.charAt(0).toUpperCase() + product.type.slice(1)}
+                      {product?.type
+                        ? product.type.charAt(0).toUpperCase() + product.type.slice(1)
+                        : "N/A"}
                     </span>
+
                     <span className="badge bg-light text-dark">
                       {product.simType === 'esim' ? 'eSIM' : 'Physical SIM'}
                     </span>
@@ -290,18 +264,23 @@ const ProductDetail = () => {
                 </div>
                 <h3 className="text-primary mb-0">₹{product.price}</h3>
               </div>
-              
+
               <p className="card-text">{product.description}</p>
-              
+
               <h5 className="mt-4 mb-3">Features</h5>
               <ul className="list-unstyled">
-                {product.features.map((feature, index) => (
-                  <li key={index} className="d-flex align-items-center mb-2">
-                    <FaCheck className="text-primary me-2" />
-                    <span>{feature}</span>
-                  </li>
-                ))}
-              </ul>
+  {product?.features?.length > 0 ? (
+    product.features.map((feature, index) => (
+      <li key={index} className="d-flex align-items-center mb-2">
+        <FaCheck className="text-primary me-2" />
+        <span>{feature}</span>
+      </li>
+    ))
+  ) : (
+    <li className="text-muted">No features available</li>
+  )}
+</ul>
+
             </div>
           </div>
         </div>
@@ -316,7 +295,7 @@ const ProductDetail = () => {
               <div className="row row-cols-1 row-cols-md-3 g-3">
                 {plans.map(plan => (
                   <div className="col" key={plan.id}>
-                    <div 
+                    <div
                       className={`card h-100 ${selectedPlan && selectedPlan.id === plan.id ? 'border-primary' : 'border-light'}`}
                       onClick={() => handlePlanSelect(plan)}
                       style={{ cursor: 'pointer' }}
@@ -357,11 +336,11 @@ const ProductDetail = () => {
             <div className="card-body">
               <div className="mb-3">
                 <div className="form-check mb-2">
-                  <input 
-                    className="form-check-input" 
-                    type="radio" 
-                    name="numberType" 
-                    id="newNumber" 
+                  <input
+                    className="form-check-input"
+                    type="radio"
+                    name="numberType"
+                    id="newNumber"
                     checked={numberType === 'new'}
                     onChange={() => setNumberType('new')}
                   />
@@ -370,11 +349,11 @@ const ProductDetail = () => {
                   </label>
                 </div>
                 <div className="form-check">
-                  <input 
-                    className="form-check-input" 
-                    type="radio" 
-                    name="numberType" 
-                    id="portNumber" 
+                  <input
+                    className="form-check-input"
+                    type="radio"
+                    name="numberType"
+                    id="portNumber"
                     checked={numberType === 'port'}
                     onChange={() => setNumberType('port')}
                   />
@@ -387,10 +366,10 @@ const ProductDetail = () => {
               {numberType === 'port' && (
                 <div className="mt-3">
                   <label htmlFor="portingNumber" className="form-label">Enter your number to port</label>
-                  <input 
-                    type="tel" 
-                    className="form-control" 
-                    id="portingNumber" 
+                  <input
+                    type="tel"
+                    className="form-control"
+                    id="portingNumber"
                     placeholder="10-digit mobile number"
                     value={portingNumber}
                     onChange={(e) => setPortingNumber(e.target.value)}
@@ -413,9 +392,9 @@ const ProductDetail = () => {
             <div className="card-body">
               {addons.map(addon => (
                 <div className="form-check custom-checkbox mb-3" key={addon.id}>
-                  <input 
-                    className="form-check-input" 
-                    type="checkbox" 
+                  <input
+                    className="form-check-input"
+                    type="checkbox"
                     id={`addon-${addon.id}`}
                     checked={selectedAddons.some(a => a.id === addon.id)}
                     onChange={() => handleAddonToggle(addon)}
@@ -473,8 +452,8 @@ const ProductDetail = () => {
               </div>
             </div>
             <div className="card-footer bg-white border-0 pt-0">
-              <button 
-                className="btn btn-primary w-100 py-2" 
+              <button
+                className="btn btn-primary w-100 py-2"
                 onClick={handleAddToCart}
                 disabled={!selectedPlan}
               >

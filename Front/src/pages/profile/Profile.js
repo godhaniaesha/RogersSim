@@ -22,22 +22,29 @@ const Profile = () => {
   // Get user profile from Redux
   const { user, loading, error, isAuthenticated } = useSelector(state => state.auth);
 
-  // Redirect if not authenticated
   useEffect(() => {
     if (!isAuthenticated) {
       navigate('/login');
       return;
     }
 
+    const cachedProfile = localStorage.getItem("userProfile");
+    if (cachedProfile) {
+      // fallback redux ma set karo
+      dispatch(fetchProfileSuccess(JSON.parse(cachedProfile)));
+    }
+
     dispatch(fetchUserProfile())
       .unwrap()
-      .then(() => {
+      .then(profile => {
+        localStorage.setItem("userProfile", JSON.stringify(profile));
         toast.success('Profile loaded successfully');
       })
       .catch((err) => {
         toast.error(err);
       });
   }, [isAuthenticated, navigate, dispatch]);
+
 
 
   // Mock order history
@@ -86,12 +93,20 @@ const Profile = () => {
     try {
       await dispatch(updateUserProfile(values)).unwrap();
       toast.success('Profile updated successfully!');
+
+      // save profile to localStorage
+      localStorage.setItem("userProfile", JSON.stringify(values));
+
+      // 🔁 update success pachhi profile feri fetch karo
+      await dispatch(fetchUserProfile()).unwrap();
+
     } catch (err) {
       toast.error(err || 'Failed to update profile');
     } finally {
       setSubmitting(false);
     }
   };
+
 
 
   // Handle KYC document upload
@@ -164,7 +179,18 @@ const Profile = () => {
               {activeTab === 'personal' && (
                 <div>
                   <h4 className="mb-4">Personal Details</h4>
-                  <Formik initialValues={user} validationSchema={personalDetailsSchema} onSubmit={handlePersonalDetailsUpdate} enableReinitialize>
+                  <Formik
+                    initialValues={{
+                      name: user?.name || "",
+                      email: user?.email || "",
+                      mobile: user?.mobile || "",
+                      address: user?.address || "",
+                      pincode: user?.pincode || ""
+                    }}
+                    validationSchema={personalDetailsSchema}
+                    onSubmit={handlePersonalDetailsUpdate}
+                    enableReinitialize
+                  >
                     {({ isSubmitting }) => (
                       <Form>
                         <div className="row">
@@ -206,7 +232,7 @@ const Profile = () => {
               )}
 
               {/* KYC Verification Tab */}
-              {activeTab === 'kyc' && (
+              {/* {activeTab === 'kyc' && (
                 <div>
                   <h4>KYC Status: {user.kycStatus}</h4>
                   <div className="row">
@@ -220,7 +246,26 @@ const Profile = () => {
                     </div>
                   </div>
                 </div>
+              )} */}
+              {activeTab === 'kyc' && (
+                <div>
+                  <h4 className="mb-4">KYC Verification</h4>
+                  <p>Your KYC status is currently: <strong>{user.kycStatus}</strong></p>
+                  <div className="row">
+                    <div className="col-md-6 mb-3">
+                      <label className="form-label">Upload ID Proof</label>
+                      <input type="file" className="form-control" onChange={(e) => handleDocumentUpload('idProof', e)} />
+                      <small className="text-muted">{user.kycDocuments?.idProof ? 'ID Proof uploaded' : 'No ID Proof uploaded'}</small>
+                    </div>
+                    <div className="col-md-6 mb-3">
+                      <label className="form-label">Upload Address Proof</label>
+                      <input type="file" className="form-control" onChange={(e) => handleDocumentUpload('addressProof', e)} />
+                      <small className="text-muted">{user.kycDocuments?.addressProof ? 'Address Proof uploaded' : 'No Address Proof uploaded'}</small>
+                    </div>
+                  </div>
+                </div>
               )}
+
 
               {/* Activate Card Tab */}
               {activeTab === 'activate' && (
@@ -346,7 +391,7 @@ const Profile = () => {
           </div>
         </div>
       </div>
-    </div>
+    </div >
   );
 };
 
