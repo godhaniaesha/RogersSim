@@ -10,7 +10,6 @@ const PlanSchema = new mongoose.Schema({
     type: String,
     required: [true, 'Please add a description']
   },
-  // product reference removed; now linked from Product.plans[]
   price: {
     type: Number,
     required: [true, 'Please add a price'],
@@ -39,7 +38,7 @@ const PlanSchema = new mongoose.Schema({
   dataLimit: {
     type: String,
     required: [true, 'Please add data limit'],
-    enum: ['unlimited', '1GB', '2GB', '5GB', '10GB', '20GB', '50GB', '100GB', '200GB', '500GB', '1TB']
+    enum: ['unlimited', '1GB', '1.5GB', '2GB', '2.5GB', '3GB', '5GB', '10GB', '20GB', '50GB', '100GB', '200GB', '500GB', '1TB']
   },
   speed: {
     type: String,
