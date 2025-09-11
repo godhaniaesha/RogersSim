@@ -26,10 +26,15 @@ const PlanSchema = new mongoose.Schema({
     max: 100,
     default: 0
   },
+  planType: {
+    type: String,
+    required: [true, 'Please add a type'],
+    enum: ['mobile', 'fiber']
+  },
   validity: {
     type: String,
     required: [true, 'Please add validity period'],
-    enum: ['1_month', '3_months', '6_months', '1_year', '2_years', 'lifetime']
+    enum: ['1_day', '1_month', '3_months', '6_months', '1_year', '2_years', 'lifetime']
   },
   dataLimit: {
     type: String,
@@ -65,7 +70,7 @@ const PlanSchema = new mongoose.Schema({
 });
 
 // Update the updatedAt field before saving
-PlanSchema.pre('save', function(next) {
+PlanSchema.pre('save', function (next) {
   this.updatedAt = Date.now();
   next();
 });

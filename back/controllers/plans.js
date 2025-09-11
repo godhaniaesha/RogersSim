@@ -156,6 +156,7 @@ exports.createPlan = async (req, res, next) => {
       name,
       description,
       price,
+      planType,
       originalPrice,
       discount,
       validity,
@@ -167,11 +168,13 @@ exports.createPlan = async (req, res, next) => {
       sortOrder = 0
     } = req.body;
 
+    
+    
     // Validate required fields
-    if (!name || !description || !price || !validity || !dataLimit || !speed) {
+    if (!name || !description || !price || !planType || !validity || !dataLimit || !speed) {
       return next(
         new ErrorResponse(
-          'Please provide name, description, price, validity, dataLimit, and speed',
+          'Please provide name, description, price, planType, validity, dataLimit, and speed',
           400
         )
       );
@@ -188,6 +191,7 @@ exports.createPlan = async (req, res, next) => {
       name,
       description,
       price,
+      planType,
       originalPrice: originalPrice || price,
       discount: calculatedDiscount,
       validity,
