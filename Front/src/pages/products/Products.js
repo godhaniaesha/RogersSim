@@ -20,103 +20,15 @@ import productService from "../../services/productService";
 const Products = () => {
   const dispatch = useDispatch();
 
-  // Get products state from Redux
-  // const { products, loading, error } = useSelector(state => state.products);
   const {
     products = [],
     loading = false,
     error = null,
-  } = useSelector((state) => state.products || {});
+  } = useSelector((state) => state.product || {});
 
-  // Mock product data (would come from API in real app)
-  const [mockProducts, setMockProducts] = useState([
-    {
-      id: 1,
-      name: "Prepaid SIM Card",
-      type: "prepaid",
-      simType: "physical",
-      description: "Standard prepaid SIM card with flexible recharge options",
-      price: 99,
-      image: "https://via.placeholder.com/300x200?text=Prepaid+SIM",
-      popular: true,
-      features: [
-        "Nationwide coverage",
-        "Flexible recharge options",
-        "No contract",
-      ],
-    },
-    {
-      id: 2,
-      name: "Postpaid SIM Card",
-      type: "postpaid",
-      simType: "physical",
-      description: "Premium postpaid SIM with priority network access",
-      price: 149,
-      image: "https://via.placeholder.com/300x200?text=Postpaid+SIM",
-      popular: false,
-      features: [
-        "Priority network access",
-        "Monthly billing",
-        "Customer support",
-      ],
-    },
-    {
-      id: 3,
-      name: "Data Only SIM",
-      type: "data",
-      simType: "physical",
-      description: "High-speed data SIM for tablets and hotspots",
-      price: 79,
-      image: "https://via.placeholder.com/300x200?text=Data+SIM",
-      popular: false,
-      features: ["High-speed data", "No voice calls", "Perfect for tablets"],
-    },
-    {
-      id: 4,
-      name: "eSIM Card",
-      type: "prepaid",
-      simType: "esim",
-      description: "Digital SIM card for compatible devices",
-      price: 49,
-      image: "https://via.placeholder.com/300x200?text=eSIM",
-      popular: true,
-      features: [
-        "No physical SIM needed",
-        "Instant activation",
-        "Compatible with newer devices",
-      ],
-    },
-    {
-      id: 5,
-      name: "Premium Postpaid eSIM",
-      type: "postpaid",
-      simType: "esim",
-      description: "Digital postpaid SIM with premium benefits",
-      price: 199,
-      image: "https://via.placeholder.com/300x200?text=Premium+eSIM",
-      popular: false,
-      features: [
-        "Premium network priority",
-        "Digital activation",
-        "Enhanced customer support",
-      ],
-    },
-    {
-      id: 6,
-      name: "International Travel SIM",
-      type: "prepaid",
-      simType: "physical",
-      description: "Prepaid SIM with international roaming benefits",
-      price: 299,
-      image: "https://via.placeholder.com/300x200?text=Travel+SIM",
-      popular: true,
-      features: [
-        "Works in 100+ countries",
-        "Affordable roaming rates",
-        "Data and voice",
-      ],
-    },
-  ]);
+  useEffect(() => {
+    dispatch(fetchProducts());
+  }, [dispatch]);
 
   // Filter states
   const [filters, setLocalFilters] = useState({
@@ -147,7 +59,7 @@ const Products = () => {
 
   // Use products from Redux if available, otherwise use mock data
   const productsToUse =
-    products && products.length > 0 ? products : mockProducts;
+    products && products.length > 0 ? products : [];
 
   const sortOptions = [
     { value: "popularity", label: "Popularity" },
@@ -505,9 +417,8 @@ const Products = () => {
             {sortOptions.map((option) => (
               <div
                 key={option.value}
-                className={`custom-dropdown-item ${
-                  sortBy === option.value ? "active" : ""
-                }`}
+                className={`custom-dropdown-item ${sortBy === option.value ? "active" : ""
+                  }`}
                 onClick={() => {
                   setLocalSortBy(option.value);
                   setIsSortOpen(false);
@@ -535,7 +446,7 @@ const Products = () => {
   );
 
   return (
-    <div className="container py-5" style={{userSelect:'none'}}>
+    <div className="container py-5" style={{ userSelect: 'none' }}>
       <div className="row mb-4">
         <div className="col-12">
           <div className="d-flex justify-content-between align-items-center mb-4">
@@ -631,10 +542,7 @@ const Products = () => {
                       </div>
                       <div className="d-flex justify-content-between align-items-center mt-auto">
                         <h5 className="z_prd_price mb-0">₹{product.price}</h5>
-                        <Link
-                          to={`/products/${product.id}`}
-                          className="btn z_prd_btn"
-                        >
+                        <Link to={`/products/${product._id}`} className="btn z_prd_btn">
                           Select
                         </Link>
                       </div>

@@ -5,11 +5,17 @@ export const fetchUserProfile = createAsyncThunk(
     "auth/fetchUserProfile",
     async (_, { rejectWithValue }) => {
         try {
+            const token = localStorage.getItem("token"); // ✅ get token
+
+            if (!token) {
+                return rejectWithValue("No token found. Please log in again.");
+            }
+
             const response = await fetch("http://localhost:5000/api/users/profile", {
                 method: "GET",
-                credentials: "include", // important if using cookies/session
                 headers: {
                     "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`, // ✅ send token
                 },
             });
 
@@ -19,7 +25,7 @@ export const fetchUserProfile = createAsyncThunk(
             }
 
             const result = await response.json();
-            return result.data; // ✅ your controller returns { success, data }
+            return result.data; // { success, data }
         } catch (error) {
             return rejectWithValue(error.message || "Failed to fetch profile");
         }
@@ -31,24 +37,24 @@ export const updateUserProfile = createAsyncThunk(
     "auth/updateUserProfile",
     async (updatedData, { rejectWithValue }) => {
         try {
+            const token = localStorage.getItem("token");
             const isFormData = updatedData instanceof FormData;
 
             const response = await fetch("http://localhost:5000/api/users/profile", {
                 method: "PUT",
-                credentials: "include",
-                headers: isFormData
-                    ? {} // ✅ let browser set multipart/form-data with boundary
-                    : { "Content-Type": "application/json" },
+                headers: {
+                    ...(isFormData ? {} : { "Content-Type": "application/json" }),
+                    Authorization: `Bearer ${token}`,
+                },
                 body: isFormData ? updatedData : JSON.stringify(updatedData),
             });
 
+            const result = await response.json();
             if (!response.ok) {
-                const errorData = await response.json();
-                return rejectWithValue(errorData.message || "Failed to update profile");
+                return rejectWithValue(result.message || "Failed to update profile");
             }
 
-            const result = await response.json();
-            return result.data; // backend returns { success, data }
+            return result.data; // ✅ return updated user object
         } catch (error) {
             return rejectWithValue(error.message || "Failed to update profile");
         }
@@ -71,7 +77,6 @@ const authSlice = createSlice({
     },
     extraReducers: (builder) => {
         builder
-            // Fetch profile
             .addCase(fetchUserProfile.pending, (state) => {
                 state.loading = true;
                 state.error = null;
@@ -84,8 +89,8 @@ const authSlice = createSlice({
             .addCase(fetchUserProfile.rejected, (state, action) => {
                 state.loading = false;
                 state.error = action.payload;
+                state.isAuthenticated = false;
             })
-
             // Update profile
             .addCase(updateUserProfile.pending, (state) => {
                 state.loading = true;
@@ -93,7 +98,7 @@ const authSlice = createSlice({
             })
             .addCase(updateUserProfile.fulfilled, (state, action) => {
                 state.loading = false;
-                state.user = action.payload;
+                state.user = { ...state.user, ...action.payload }; // ✅ merge updates dynamically
             })
             .addCase(updateUserProfile.rejected, (state, action) => {
                 state.loading = false;
