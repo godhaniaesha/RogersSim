@@ -1,5 +1,7 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchAllPlans } from '../store/slices/planSlice';
 import { FaArrowRight, FaMobileAlt, FaSimCard, FaWifi } from 'react-icons/fa';
 import AddBus from './AddBus';
 import AdAbout from './AdAbout';
@@ -71,39 +73,13 @@ export default function Home() {
     }
   ];
 
-  // Mock data for popular plans
-  const popularPlans = [
-    {
-      id: 1,
-      name: 'Basic',
-      price: 199,
-      validity: '28 days',
-      data: '1.5GB/day',
-      calls: 'Unlimited',
-      sms: '100 SMS/day',
-      benefits: ['Free Rogers TV for 28 days', 'Weekend Data Rollover']
-    },
-    {
-      id: 2,
-      name: 'Value',
-      price: 399,
-      validity: '56 days',
-      data: '2GB/day',
-      calls: 'Unlimited',
-      sms: '100 SMS/day',
-      benefits: ['Free Rogers TV for 56 days', 'Weekend Data Rollover', '5G Access']
-    },
-    {
-      id: 3,
-      name: 'Premium',
-      price: 699,
-      validity: '84 days',
-      data: '2.5GB/day',
-      calls: 'Unlimited',
-      sms: 'Unlimited',
-      benefits: ['Free Rogers TV for 84 days', 'Weekend Data Rollover', '5G Access', 'International Roaming Pack']
-    }
-  ];
+  // Redux: fetch plans
+  const dispatch = useDispatch();
+  const { plans, loading, error } = useSelector(state => state.plan);
+
+  useEffect(() => {
+    dispatch(fetchAllPlans());
+  }, [dispatch]);
   return (
     <div className="home-page">
 
@@ -163,7 +139,8 @@ export default function Home() {
               {simCategories.map(category => (
                 <div key={category.id} className="col-md-6 col-lg-3">
                   <div className="card h-100 border-0 shadow">
-                    <div className="card-body text-center p-4">
+                    <div className="card-body text-ce
+                    nter p-4">
                       {category.icon}
                       <h4 className="card-title">{category.name}</h4>
                       <p className="card-text text-muted">{category.description}</p>
@@ -184,45 +161,57 @@ export default function Home() {
         {/* Add for About redirect */}
         <AdAbout></AdAbout>
 
-        {/* Popular Plans Section */}
+        {/* Popular Plans Section (Dynamic) */}
         <section className="py-md-5 py-4">
           <div className="container">
             <h2 className="text-center mb-md-5 mb-2 fw-bold">Popular Plans</h2>
-            <div className="row g-4">
-              {popularPlans.map(plan => (
-                <div key={plan.id} className="col-md-4">
-                  <div className="card h-100 border-0 shadow">
-                    <div className="card-header bg-white border-0 pt-md-4 pt-3 pb-0">
-                      <h3 className="text-center fw-bold">{plan.name}</h3>
-                      <div className="text-center">
-                        <span className="h1 fw-bold text-primary-custom">₹{plan.price}</span>
-                        <span className="text-muted">/{plan.validity}</span>
+            {loading ? (
+              <div className="text-center py-5">Loading plans...</div>
+            ) : error ? (
+              <div className="text-center text-danger py-5">{error}</div>
+            ) : (
+              <div className="row g-4">
+                {plans && plans.length > 0 ? (
+                  plans.slice(0, 3).map(plan => (
+                    <div key={plan._id || plan.id} className="col-md-4">
+                      <div className="card h-100 border-0 shadow">
+                        <div className="card-header bg-white border-0 pt-md-4 pt-3 pb-0">
+                          <h3 className="text-center fw-bold">{plan.name}</h3>
+                          <div className="text-center">
+                            <span className="h1 fw-bold text-primary-custom">₹{plan.price}</span>
+                            <span className="text-muted">/{plan.validity}</span>
+                          </div>
+                        </div>
+                        <div className="card-body">
+                          <ul className="list-unstyled">
+                            <li className="mb-2"><strong>Data:</strong> {plan.dataLimit}</li>
+                            <li className="mb-2"><strong>Speed:</strong> {plan.speed}</li>
+                            <li className="mb-2"><strong>Description:</strong> {plan.description}</li>
+                            {plan.features && plan.features.length > 0 && (
+                              <li className="mb-3">
+                                <strong>Features:</strong>
+                                <ul className="mt-2">
+                                  {plan.features.map((feature, index) => (
+                                    <li key={index}>{feature}</li>
+                                  ))}
+                                </ul>
+                              </li>
+                            )}
+                          </ul>
+                        </div>
+                        <div className="card-footer bg-white border-0 pb-4">
+                          <Link to={`/products/${plan._id || plan.id}`} className="btn btn-primary w-100">
+                            Select Plan
+                          </Link>
+                        </div>
                       </div>
                     </div>
-                    <div className="card-body">
-                      <ul className="list-unstyled">
-                        <li className="mb-2"><strong>Data:</strong> {plan.data}</li>
-                        <li className="mb-2"><strong>Calls:</strong> {plan.calls}</li>
-                        <li className="mb-2"><strong>SMS:</strong> {plan.sms}</li>
-                        <li className="mb-3">
-                          <strong>Benefits:</strong>
-                          <ul className="mt-2">
-                            {plan.benefits.map((benefit, index) => (
-                              <li key={index}>{benefit}</li>
-                            ))}
-                          </ul>
-                        </li>
-                      </ul>
-                    </div>
-                    <div className="card-footer bg-white border-0 pb-4">
-                      <Link to={`/products/${plan.id}`} className="btn btn-primary w-100">
-                        Select Plan
-                      </Link>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
+                  ))
+                ) : (
+                  <div className="text-center py-5">No plans available.</div>
+                )}
+              </div>
+            )}
           </div>
         </section>
 
