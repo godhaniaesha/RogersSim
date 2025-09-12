@@ -13,6 +13,7 @@ import {
   setFilters,
   setSort,
 } from "../../store/slices/productSlice";
+import { addToCart } from "../../store/slices/cartSlice";
 import "../../style/z_app.css";
 import { toast } from "react-toastify";
 import productService from "../../services/productService";
@@ -72,11 +73,19 @@ const Products = () => {
 
     // Apply filters
     if (filters.type) {
-      result = result.filter((product) => product.type === filters.type);
+      result = result.filter((product) => product.category === filters.type);
     }
 
     if (filters.simType) {
-      result = result.filter((product) => product.simType === filters.simType);
+      if (filters.simType === "esim") {
+        // Show only products where category is 'esim'
+        result = result.filter((product) => product.category === "esim");
+      } else if (filters.simType === "physical") {
+        // Show only products where category is NOT 'esim'
+        result = result.filter((product) => product.category !== "esim");
+      } else {
+        result = result.filter((product) => product.simType === filters.simType);
+      }
     }
 
     if (filters.popular) {
@@ -242,73 +251,52 @@ const Products = () => {
         </div>
       </div>
 
-      {/* Plan Type Filter */}
+      {/* Plan Type Filter (Dynamic by product categories) */}
       <div className="mb-4">
         <h6>Plan Type</h6>
-        <div className="form-check">
-          <input
-            className="form-check-input"
-            type="radio"
-            name={isMobile ? "mobilePlanType" : "planType"}
-            id={isMobile ? "mobilePlanTypeAll" : "planTypeAll"}
-            checked={filters.type === ""}
-            onChange={() => handleFilterChange("type", "")}
-          />
-          <label
-            className="form-check-label"
-            htmlFor={isMobile ? "mobilePlanTypeAll" : "planTypeAll"}
-          >
-            All
-          </label>
-        </div>
-        <div className="form-check">
-          <input
-            className="form-check-input"
-            type="radio"
-            name={isMobile ? "mobilePlanType" : "planType"}
-            id={isMobile ? "mobilePlanTypePrepaid" : "planTypePrepaid"}
-            checked={filters.type === "prepaid"}
-            onChange={() => handleFilterChange("type", "prepaid")}
-          />
-          <label
-            className="form-check-label"
-            htmlFor={isMobile ? "mobilePlanTypePrepaid" : "planTypePrepaid"}
-          >
-            Prepaid
-          </label>
-        </div>
-        <div className="form-check">
-          <input
-            className="form-check-input"
-            type="radio"
-            name={isMobile ? "mobilePlanType" : "planType"}
-            id={isMobile ? "mobilePlanTypePostpaid" : "planTypePostpaid"}
-            checked={filters.type === "postpaid"}
-            onChange={() => handleFilterChange("type", "postpaid")}
-          />
-          <label
-            className="form-check-label"
-            htmlFor={isMobile ? "mobilePlanTypePostpaid" : "planTypePostpaid"}
-          >
-            Postpaid
-          </label>
-        </div>
-        <div className="form-check">
-          <input
-            className="form-check-input"
-            type="radio"
-            name={isMobile ? "mobilePlanType" : "planType"}
-            id={isMobile ? "mobilePlanTypeData" : "planTypeData"}
-            checked={filters.type === "data"}
-            onChange={() => handleFilterChange("type", "data")}
-          />
-          <label
-            className="form-check-label"
-            htmlFor={isMobile ? "mobilePlanTypeData" : "planTypeData"}
-          >
-            Data Only
-          </label>
-        </div>
+        {(() => {
+          // Get unique categories from products
+          const categories = Array.from(new Set(productsToUse.map(p => p.category))).filter(Boolean);
+          // Always show 'All' option
+          return (
+            <>
+              <div className="form-check">
+                <input
+                  className="form-check-input"
+                  type="radio"
+                  name={isMobile ? "mobilePlanType" : "planType"}
+                  id={isMobile ? "mobilePlanTypeAll" : "planTypeAll"}
+                  checked={filters.type === ""}
+                  onChange={() => handleFilterChange("type", "")}
+                />
+                <label
+                  className="form-check-label"
+                  htmlFor={isMobile ? "mobilePlanTypeAll" : "planTypeAll"}
+                >
+                  All
+                </label>
+              </div>
+              {categories.map((cat) => (
+                <div className="form-check" key={cat}>
+                  <input
+                    className="form-check-input"
+                    type="radio"
+                    name={isMobile ? "mobilePlanType" : "planType"}
+                    id={isMobile ? `mobilePlanType_${cat}` : `planType_${cat}`}
+                    checked={filters.type === cat}
+                    onChange={() => handleFilterChange("type", cat)}
+                  />
+                  <label
+                    className="form-check-label"
+                    htmlFor={isMobile ? `mobilePlanType_${cat}` : `planType_${cat}`}
+                  >
+                    {cat.charAt(0).toUpperCase() + cat.slice(1)}
+                  </label>
+                </div>
+              ))}
+            </>
+          );
+        })()}
       </div>
 
       {/* Price Range Filter */}
@@ -384,24 +372,6 @@ const Products = () => {
         </div>
       </div>
 
-      {/* Popular Filter */}
-      <div className="mb-md-4 mb-3">
-        <div className="form-check">
-          <input
-            className="form-check-input"
-            type="checkbox"
-            id={isMobile ? "mobilePopularFilter" : "popularFilter"}
-            checked={filters.popular}
-            onChange={(e) => handleFilterChange("popular", e.target.checked)}
-          />
-          <label
-            className="form-check-label"
-            htmlFor={isMobile ? "mobilePopularFilter" : "popularFilter"}
-          >
-            Show only popular SIMs
-          </label>
-        </div>
-      </div>
 
       {/* Sort Options */}
       <div className="custom-dropdown mb-2">
@@ -521,10 +491,7 @@ const Products = () => {
                   <div className="card h-100 border-0 shadow-sm z_prd_card">
                     <div className="card-body d-flex flex-column">
                       <div className="d-flex justify-content-between align-items-start mb-2">
-                        <h5 className="card-title mb-0">{product.name}</h5>
-                        {/* {product.popular && (
-                          <span className="badge bg-success ms-2">Popular</span>
-                        )} */}
+                        <h5 className="card-title mb-0 z_prd_name">{product.name}</h5>
                       </div>
                       <p className="card-text text-muted small mb-3">
                         {product.description}
@@ -540,11 +507,25 @@ const Products = () => {
                           </div>
                         ))}
                       </div>
-                      <div className="d-flex justify-content-between align-items-center mt-auto">
-                        <h5 className="z_prd_price mb-0">₹{product.price}</h5>
-                        <Link to={`/products/${product._id}`} className="btn z_prd_btn">
-                          Select
-                        </Link>
+                      <div>
+                        <div className="d-flex justify-content-between align-items-center mt-auto">
+                          <h5 className="z_prd_price mb-0">₹{product.price}</h5>
+                          <button
+                            className="btn z_prd_btn"
+                            onClick={() => {
+                              if (product.category === "prepaid") {
+                                // Go to prepaid plan selection page
+                                window.location.href = `/products/${product._id}?type=prepaid`;
+                              } else {
+                                // Add to cart and go to cart page
+                                dispatch(addToCart( product )); // You may want to adjust the payload as per your cartSlice
+                                window.location.href = `/cart`;
+                              }
+                            }}
+                          >
+                            Select
+                          </button>
+                        </div>
                       </div>
                     </div>
                   </div>

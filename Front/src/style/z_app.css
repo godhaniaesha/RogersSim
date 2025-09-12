@@ -390,11 +390,19 @@ body {
 }
 
 .custom-dropdown-item:hover{
-  background-color: #dbd0d0;
+  background-color: #fff;
   color: #8b0f0f;
 }
 
 .custom-dropdown-item.active {
-  background-color: #8b0f0f;
-  color: white;
+  background-color: #f5919147;
+  color: #000;
+}
+
+ .z_prd_name {
+  word-break: break-word;     
+  overflow-wrap: anywhere;    
+  display: inline-block;
+  max-width: 20ch;           
+  white-space: normal;       
 }

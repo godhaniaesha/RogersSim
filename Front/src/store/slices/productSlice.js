@@ -34,14 +34,52 @@ export const fetchProductById = createAsyncThunk(
         throw new Error("Failed to fetch product details");
       }
       const data = await response.json();
-      return data; // API returns a single product object
+      console.log(data.data, "Fetched Product by ID");
+      return data.data; // API returns a single product object
     } catch (error) {
       return rejectWithValue(error.message);
     }
   }
 );
 
+// ✅ Fetch filtered products from API
+export const fetchFilteredProducts = createAsyncThunk(
+  "product/fetchFilteredProducts",
+  async (filters, { rejectWithValue }) => {
+    try {
+      const response = await fetch("http://localhost:5000/api/products/filter", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(filters),
+      });
 
+      if (!response.ok) throw new Error("Failed to fetch filtered products");
+
+      const data = await response.json();
+      return data.data || data;
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
+// Add this thunk
+export const fetchPlansByProductId = createAsyncThunk(
+  "product/fetchPlansByProductId",
+  async (productId, { rejectWithValue }) => {
+    try {
+      const response = await fetch(
+        `http://localhost:5000/api/plans/product/${productId}`
+      );
+      if (!response.ok) throw new Error("Failed to fetch plans");
+      const data = await response.json();
+      console.log(data, "Fetched Plans by Product ID");
+      return data.data || data; // Adjust if your API returns differently
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
 
 const initialState = {
   products: [],
@@ -96,11 +134,7 @@ const productSlice = createSlice({
     },
     clearFilters: (state) => {
       state.filters = initialState.filters;
-      state.filteredProducts = applyFiltersAndSort(
-        state.products,
-        state.filters,
-        state.sort
-      );
+      state.filteredProducts = [];
     },
     clearError: (state) => {
       state.error = null;
@@ -120,8 +154,35 @@ const productSlice = createSlice({
       .addCase(fetchProductById.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
+      })
+      // ✅ Filtered Products
+      .addCase(fetchFilteredProducts.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchFilteredProducts.fulfilled, (state, action) => {
+        state.loading = false;
+        state.filteredProducts = action.payload;
+      })
+      .addCase(fetchFilteredProducts.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      // Add cases for fetchPlansByProductId
+      .addCase(fetchPlansByProductId.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+        state.plans = [];
+      })
+      .addCase(fetchPlansByProductId.fulfilled, (state, action) => {
+        state.loading = false;
+        state.plans = action.payload;
+      })
+      .addCase(fetchPlansByProductId.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
       });
-  }
+  },
 });
 
 // Helper function for filters & sorting

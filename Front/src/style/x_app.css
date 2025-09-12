@@ -1132,3 +1132,21 @@ body {
     display: block !important;
   }
 }
+
+.x_btn_cart{
+    color: #b71414;
+    background-color: #fff;
+    border: 1px solid #b71414;
+}
+
+.x_btn_cart:hover{
+    background-color: #b71414;
+    color: #fff;
+    border: 1px solid #b71414;
+} 
+
+.x_btn_cart.active{
+    background-color: #b71414 !important;
+    color: #fff;
+    border: 1px solid #b71414;
+}
