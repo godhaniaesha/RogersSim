@@ -1,20 +1,16 @@
 const express = require('express');
-const {
-  getUserAddresses,
-  addAddress,
-  updateAddress,
-  deleteAddress,
-  setDefaultAddress
-} = require('../controllers/addresses');
-
 const router = express.Router();
-
+const {
+  addAddress,
+  getAddresses,
+  editAddress,
+  deleteAddress
+} = require('../controllers/addresses');
 const { protect } = require('../middleware/auth');
 
-router.get('/', protect, getUserAddresses);
-router.post('/', protect, addAddress);
-router.put('/:id', protect, updateAddress);
-router.put('/:id/default', protect, setDefaultAddress);
-router.delete('/:id', protect, deleteAddress);
+router.post('/', protect, addAddress);  
+router.get('/', protect, getAddresses);  
+router.put('/:addressIndex', protect, editAddress);  
+router.delete('/:addressIndex', protect, deleteAddress);  
 
 module.exports = router;

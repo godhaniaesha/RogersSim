@@ -195,241 +195,267 @@ const ProductDetail = () => {
 
         {/* Right side: Conditional Rendering */}
         <div className="col-lg-7">
-          {isPrepaid ? (
-            <>
-              {/* Plan Selection */}
-              <div className="card border-0 shadow-sm mb-4">
-                <div className="card-header bg-white py-3">
-                  <h4 className="mb-0">Select a Plan</h4>
-                </div>
-                <div className="card-body">
-                  <div className="row row-cols-1 row-cols-md-3 g-3">
-                    {plans.map((plan) => (
-                      <div className="col" key={plan.id}>
-                        <div
-                          className={`card h-100 ${selectedPlan &&
-                              selectedPlan.id === plan.id
-                              ? "border-primary"
-                              : "border-light"
-                            }`}
-                          onClick={() => handlePlanSelect(plan)}
-                          style={{ cursor: "pointer" }}
-                        >
-                          <div className="card-body">
-                            <h5 className="card-title">{plan.name}</h5>
-                            <h6 className="text-primary mb-3">
-                              ₹{plan.price}
-                            </h6>
-                            <div className="small mb-1">
-                              <strong>Data:</strong> {plan.data}
-                            </div>
-                            <div className="small mb-1">
-                              <strong>Validity:</strong>{" "}
-                              {plan.validity}
-                            </div>
-                            <div className="small mb-1">
-                              <strong>Calls:</strong> {plan.calls}
-                            </div>
-                            <div className="small mb-1">
-                              <strong>SMS:</strong> {plan.sms}
-                            </div>
-                          </div>
-                          {selectedPlan &&
-                            selectedPlan.id === plan.id && (
-                              <div className="card-footer bg-primary text-white text-center py-2">
-                                <small>Selected</small>
-                              </div>
-                            )}
+          <div className="card border-0 shadow-sm mb-4">
+            <div className="card-header bg-white py-3">
+              <h4 className="mb-0">Select a Plan</h4>
+            </div>
+            <div className="card-body">
+              <div className="row row-cols-1 row-cols-md-3 g-3">
+                {plans.map(plan => (
+                  <div className="col" key={plan.id}>
+                    <div
+                      className={`card h-100 ${selectedPlan && selectedPlan.id === plan.id ? 'border-primary' : 'border-light'}`}
+                      onClick={() => handlePlanSelect(plan)}
+                      style={{ cursor: 'pointer' }}
+                    >
+                      <div className="card-body">
+                        <h5 className="card-title">{plan.name}</h5>
+                        <h6 className="text-primary mb-3">₹{plan.price}</h6>
+                        <div className="small mb-1">
+                          <strong>Data:</strong> {plan.data}
                         </div>
+                        <div className="small mb-1">
+                          <strong>Validity:</strong> {plan.validity}
+                        </div>
+                        <div className="small mb-1">
+                          <strong>Calls:</strong> {plan.calls}
+                        </div>
+                        <div className="small mb-1">
+                          <strong>SMS:</strong> {plan.sms}
+                        </div>
+                      </div>
+                      {selectedPlan && selectedPlan.id === plan.id && (
+                        <div className="card-footer bg-primary text-white text-center py-2">
+                          <small>Selected</small>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+
+          {/* Summary */}
+          <div className="card border-0 shadow-sm mb-4">
+            <div className="card-header bg-white py-3">
+              <h4 className="mb-0">Summary</h4>
+            </div>
+            <div className="card-body">
+              <div className="d-flex justify-content-between mb-2">
+                <span>SIM Card ({product.name})</span>
+                <span>₹{product.price}</span>
+              </div>
+              {selectedPlan && (
+                <div className="d-flex justify-content-between mb-2">
+                  <span>Plan ({selectedPlan.name})</span>
+                  <span>₹{selectedPlan.price}</span>
+                </div>
+              )}
+              {selectedAddons.length > 0 ? (
+                <>
+                  <div className="d-flex justify-content-between mb-2">
+                    <span>Add-ons</span>
+                    <span>
+                      ₹{selectedAddons.reduce((sum, addon) => sum + addon.price, 0)}
+                    </span>
+                  </div>
+                  <div className="ps-3 small text-muted mb-2">
+                    {selectedAddons.map((addon, index) => (
+                      <div key={addon.id} className="d-flex justify-content-between">
+                        <span>{addon.name}</span>
+                        <span>₹{addon.price}</span>
                       </div>
                     ))}
                   </div>
-                </div>
-              </div>
 
-              {/* Number Selection */}
-              <div className="card border-0 shadow-sm mb-4">
-                <div className="card-header bg-white py-3">
-                  <h4 className="mb-0">Number Selection</h4>
-                </div>
-                <div className="card-body">
-                  <div className="mb-3">
-                    <div className="form-check mb-2">
-                      <input
-                        className="form-check-input"
-                        type="radio"
-                        name="numberType"
-                        id="newNumber"
-                        checked={numberType === "new"}
-                        onChange={() => setNumberType("new")}
-                      />
-                      <label
-                        className="form-check-label"
-                        htmlFor="newNumber"
-                      >
-                        Get a new number
-                      </label>
+
+                  {/* Number Selection */}
+                  <div className="card border-0 shadow-sm mb-4">
+                    <div className="card-header bg-white py-3">
+                      <h4 className="mb-0">Number Selection</h4>
                     </div>
-                    <div className="form-check">
-                      <input
-                        className="form-check-input"
-                        type="radio"
-                        name="numberType"
-                        id="portNumber"
-                        checked={numberType === "port"}
-                        onChange={() => setNumberType("port")}
-                      />
-                      <label
-                        className="form-check-label"
-                        htmlFor="portNumber"
-                      >
-                        Port my existing number
-                      </label>
-                    </div>
-                  </div>
-                  {numberType === "port" && (
-                    <div className="mt-3">
-                      <label
-                        htmlFor="portingNumber"
-                        className="form-label"
-                      >
-                        Enter your number to port
-                      </label>
-                      <input
-                        type="tel"
-                        className="form-control"
-                        id="portingNumber"
-                        placeholder="10-digit mobile number"
-                        value={portingNumber}
-                        onChange={(e) =>
-                          setPortingNumber(e.target.value)
-                        }
-                        maxLength="10"
-                      />
-                      <div className="form-text">
-                        <FaInfoCircle className="me-1" />
-                        Your current SIM will remain active during
-                        the porting process
+                    <div className="card-body">
+                      <div className="mb-3">
+                        <div className="form-check mb-2">
+                          <input
+                            className="form-check-input"
+                            type="radio"
+                            name="numberType"
+                            id="newNumber"
+                            checked={numberType === "new"}
+                            onChange={() => setNumberType("new")}
+                          />
+                          <label
+                            className="form-check-label"
+                            htmlFor="newNumber"
+                          >
+                            Get a new number
+                          </label>
+                        </div>
+                        <div className="form-check">
+                          <input
+                            className="form-check-input"
+                            type="radio"
+                            name="numberType"
+                            id="portNumber"
+                            checked={numberType === "port"}
+                            onChange={() => setNumberType("port")}
+                          />
+                          <label
+                            className="form-check-label"
+                            htmlFor="portNumber"
+                          >
+                            Port my existing number
+                          </label>
+                        </div>
                       </div>
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {/* Add-ons */}
-              <div className="card border-0 shadow-sm mb-4">
-                <div className="card-header bg-white py-3">
-                  <h4 className="mb-0">Optional Add-ons</h4>
-                </div>
-                <div className="card-body">
-                  {plans.map((plan) => (
-                    <div
-                      className="form-check custom-checkbox mb-3"
-                      key={plan.id}
-                    >
-                      <input
-                        className="form-check-input"
-                        type="checkbox"
-                        id={`addon-${plan.id}`}
-                        checked={selectedAddons.some(
-                          (a) => a.id === plan.id
-                        )}
-                        onChange={() => handleAddonToggle(plan)}
-                      />
-                      <label
-                        className="form-check-label d-flex justify-content-between"
-                        htmlFor={`addon-${plan.id}`}
-                      >
-                        <div>
-                          <div>{plan.name}</div>
-                          <small className="text-muted">
-                            {plan.description}
-                          </small>
+                      {numberType === "port" && (
+                        <div className="mt-3">
+                          <label
+                            htmlFor="portingNumber"
+                            className="form-label"
+                          >
+                            Enter your number to port
+                          </label>
+                          <input
+                            type="tel"
+                            className="form-control"
+                            id="portingNumber"
+                            placeholder="10-digit mobile number"
+                            value={portingNumber}
+                            onChange={(e) =>
+                              setPortingNumber(e.target.value)
+                            }
+                            maxLength="10"
+                          />
+                          <div className="form-text">
+                            <FaInfoCircle className="me-1" />
+                            Your current SIM will remain active during
+                            the porting process
+                          </div>
                         </div>
-                        <div className="text-primary">
-                          ₹{plan.price}
-                        </div>
-                      </label>
+                      )}
                     </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Summary */}
-              <div className="card border-0 shadow-sm mb-4">
-                <div className="card-header bg-white py-3">
-                  <h4 className="mb-0">Summary</h4>
-                </div>
-                <div className="card-body">
-                  <div className="d-flex justify-content-between mb-2">
-                    <span>SIM Card ({product.name})</span>
-                    <span>₹{product.price}</span>
                   </div>
-                  {selectedPlan && (
-                    <div className="d-flex justify-content-between mb-2">
-                      <span>Plan ({selectedPlan.name})</span>
-                      <span>₹{selectedPlan.price}</span>
+
+                  {/* Add-ons */}
+                  <div className="card border-0 shadow-sm mb-4">
+                    <div className="card-header bg-white py-3">
+                      <h4 className="mb-0">Optional Add-ons</h4>
                     </div>
-                  )}
-                  {selectedAddons.length > 0 && (
-                    <>
+                    <div className="card-body">
+                      {plans.map((plan) => (
+                        <div
+                          className="form-check custom-checkbox mb-3"
+                          key={plan.id}
+                        >
+                          <input
+                            className="form-check-input"
+                            type="checkbox"
+                            id={`addon-${plan.id}`}
+                            checked={selectedAddons.some(
+                              (a) => a.id === plan.id
+                            )}
+                            onChange={() => handleAddonToggle(plan)}
+                          />
+                          <label
+                            className="form-check-label d-flex justify-content-between"
+                            htmlFor={`addon-${plan.id}`}
+                          >
+                            <div>
+                              <div>{plan.name}</div>
+                              <small className="text-muted">
+                                {plan.description}
+                              </small>
+                            </div>
+                            <div className="text-primary">
+                              ₹{plan.price}
+                            </div>
+                          </label>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Summary */}
+                  <div className="card border-0 shadow-sm mb-4">
+                    <div className="card-header bg-white py-3">
+                      <h4 className="mb-0">Summary</h4>
+                    </div>
+                    <div className="card-body">
                       <div className="d-flex justify-content-between mb-2">
-                        <span>Add-ons</span>
-                        <span>
-                          ₹
-                          {selectedAddons.reduce(
-                            (sum, addon) => sum + addon.price,
-                            0
-                          )}
+                        <span>SIM Card ({product.name})</span>
+                        <span>₹{product.price}</span>
+                      </div>
+                      {selectedPlan && (
+                        <div className="d-flex justify-content-between mb-2">
+                          <span>Plan ({selectedPlan.name})</span>
+                          <span>₹{selectedPlan.price}</span>
+                        </div>
+                      )}
+                      {selectedAddons.length > 0 && (
+                        <>
+                          <div className="d-flex justify-content-between mb-2">
+                            <span>Add-ons</span>
+                            <span>
+                              ₹
+                              {selectedAddons.reduce(
+                                (sum, addon) => sum + addon.price,
+                                0
+                              )}
+                            </span>
+                          </div>
+                          <div className="ps-3 small text-muted mb-2">
+                            {selectedAddons.map((addon) => (
+                              <div
+                                key={addon.id}
+                                className="d-flex justify-content-between"
+                              >
+                                <span>{addon.name}</span>
+                                <span>₹{addon.price}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </>
+                      )}
+                      <hr />
+                      <div className="d-flex justify-content-between fw-bold">
+                        <span>Total</span>
+                        <span className="text-primary">
+                          ₹{calculateTotal()}
                         </span>
                       </div>
-                      <div className="ps-3 small text-muted mb-2">
-                        {selectedAddons.map((addon) => (
-                          <div
-                            key={addon.id}
-                            className="d-flex justify-content-between"
-                          >
-                            <span>{addon.name}</span>
-                            <span>₹{addon.price}</span>
-                          </div>
-                        ))}
-                      </div>
-                    </>
-                  )}
-                  <hr />
-                  <div className="d-flex justify-content-between fw-bold">
-                    <span>Total</span>
-                    <span className="text-primary">
-                      ₹{calculateTotal()}
-                    </span>
-                  </div>
-                </div>
-                <div className="card-footer bg-white border-0 pt-0">
-                  <button
-                    className="btn btn-primary w-100 py-2"
-                    onClick={handleAddToCart}
-                    disabled={!selectedPlan}
-                  >
-                    <FaShoppingCart className="me-2" />
-                    Add to Cart
-                  </button>
-                  {!selectedPlan && (
-                    <div className="text-center text-danger small mt-2">
-                      Please select a plan to continue
                     </div>
-                  )}
-                </div>
+                    <div className="card-footer bg-white border-0 pt-0">
+                      <button
+                        className="btn btn-primary w-100 py-2"
+                        onClick={handleAddToCart}
+                        disabled={!selectedPlan}
+                      >
+                        <FaShoppingCart className="me-2" />
+                        Add to Cart
+                      </button>
+                      {!selectedPlan && (
+                        <div className="text-center text-danger small mt-2">
+                          Please select a plan to continue
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </>
+              ) : (
+              <div className="alert alert-info">
+                This is not a prepaid SIM, so no plan selection required.
               </div>
-            </>
-          ) : (
-            <div className="alert alert-info">
-              This is not a prepaid SIM, so no plan selection required.
-            </div>
           )}
+            </div>
+          </div>
         </div>
       </div>
-    </div>
-  );
+      </div>
+        );
 };
 
-export default ProductDetail;
+        export default ProductDetail;
