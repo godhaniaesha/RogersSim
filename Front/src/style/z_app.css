@@ -95,7 +95,7 @@ body {
 /* Custom Navbar Toggle */
 .z_toggle_btn {
   border: none;
-  background-color: #ff1b1f; /* theme color */
+  background-color: #b71414; /* theme color */
   color: #fff; /* icon color */
   padding: 8px 12px;
   border-radius: 6px;
@@ -109,7 +109,7 @@ body {
 
 .z_toggle_btn:focus {
   outline: none;
-  box-shadow: 0 0 0 3px rgba(255, 27, 31, 0.4);
+  box-shadow: none;
 }
 
 /* angled cut like SIM */
