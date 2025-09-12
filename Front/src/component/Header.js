@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { NavLink } from "react-router-dom";
 import { FaUser, FaShoppingCart, FaBars, FaTimes } from "react-icons/fa";
 import { useSelector, useDispatch } from "react-redux";
@@ -11,6 +11,15 @@ export default function Header() {
 
   // Auth state
   const { isAuthenticated: isLoggedIn } = useSelector((state) => state.auth);
+
+  // On mount, if token exists but not logged in, update Redux state
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token && !isLoggedIn) {
+      // Dispatch a login success action or set isAuthenticated true in Redux
+      dispatch({ type: "auth/loginSuccess", payload: { token } });
+    }
+  }, [dispatch, isLoggedIn]);
 
   // Cart items
   const { items } = useSelector((state) => state.cart);
@@ -102,12 +111,12 @@ export default function Header() {
               <li className="nav-item ms-lg-3">
                 <NavLink
                   to="/cart"
-                  className="btn btn-outline-danger position-relative"
+                  className="btn x_btn_cart position-relative"
                   onClick={closeMenu}
                 >
                   <FaShoppingCart className="me-1" /> Cart
                   {cartItemsCount > 0 && (
-                    <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                    <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill x_num_count" style={{backgroundColor:"#b71414"}}>
                       {cartItemsCount}
                     </span>
                   )}
@@ -115,7 +124,7 @@ export default function Header() {
               </li>
 
               {/* Login / Account */}
-              <li className="nav-item ms-2">
+              <li className="nav-item ms-3">
                 {isLoggedIn ? (
                   <div className="dropdown">
                     <button

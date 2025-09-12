@@ -172,13 +172,13 @@ const Cart = () => {
                       
                       {/* Price and Remove */}
                       <div className="col-3 text-md-end mt-3 mt-md-0">
-                        <h5 className="text-danger mb-3">₹{item.total}</h5>
                         <button 
                           className="btn btn-sm btn-outline-danger"
                           onClick={() => removeItem(item.id)}
                         >
-                          <FaTrash className="me-1" /> <span className='d-sm-block d-none'>Remove</span>
+                          <FaTrash className="me-0" />
                         </button>
+                        <h5 className="mt-3">₹{item.total}</h5>
                       </div>
                     </div>
                   </div>

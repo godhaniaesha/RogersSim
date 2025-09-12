@@ -47,6 +47,10 @@
   color: #fff;
 }
 
+.btn.show:focus-visible {
+    box-shadow: none !important;
+}
+
 .btn-outline-danger,.btn-outline-primary{
   border-color: var(--primary-color) !important;
   color: var(--primary-color) !important;
