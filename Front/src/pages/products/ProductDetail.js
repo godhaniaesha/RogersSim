@@ -32,9 +32,8 @@ const ProductDetail = () => {
   const [numberType, setNumberType] = useState("new");
   const [portingNumber, setPortingNumber] = useState("");
   const [selectedAddons, setSelectedAddons] = useState([]);
-  const [addons, setAddons] = useState([]); // ✅ New state for addons
-
-  const { product, loading, error, plans } = useSelector((state) => state.product);
+  const [addons, setAddons] = useState([]);
+  const { product, loading, error } = useSelector((state) => state.product);
   const { items, loading: cartLoading } = useSelector((state) => state.cart);
 
   // Fetch product and plans
@@ -46,16 +45,16 @@ const ProductDetail = () => {
   }, [id, dispatch]);
 
   const handlePlanSelect = async (plan) => {
+    console.log("Selected Plan:", plan);
     setSelectedPlan(plan);
-    setSelectedAddons([]); // reset addons when plan changes
-    try {
-      const fetchedAddons = await productService.getAddonsByPlanId(plan.id);
-      setAddons(fetchedAddons || []);
-    } catch (err) {
-      toast.error("Failed to fetch addons for the selected plan");
-      setAddons([]);
-    }
+    // try {
+    //   const response = await productService.getAddonsByPlanId(plan.id);
+    //   setAddons(response); // store fetched addons here
+    // } catch (err) {
+    //   toast.error("Failed to fetch addons for the selected plan");
+    // }
   };
+
 
   const handleAddonToggle = (addon) => {
     if (selectedAddons.some((a) => a.id === addon.id)) {
@@ -202,137 +201,42 @@ const ProductDetail = () => {
                 </div>
                 <div className="card-body">
                   <div className="row row-cols-1 row-cols-md-3 g-3">
-                    {plans.map((plan) => (
-                      <div className="col" key={plan.id}>
-                        <div
-                          className={`card h-100 ${
-                            selectedPlan && selectedPlan.id === plan.id
-                              ? "border-danger"
-                              : "border-light"
-                          }`}
-                          onClick={() => handlePlanSelect(plan)}
-                          style={{ cursor: "pointer" }}
-                        >
-                          <div className="card-body">
-                            <h5 className="card-title">{plan.name}</h5>
-                            <h6 className="text-danger mb-3">₹{plan.price}</h6>
-                            <div className="small mb-1">
-                              <strong>Data:</strong> {plan.data}
+                    {plans.map((plan, index) => {
+                      const uniqueKey = `${plan.id}-${plan.planType || index}`;
+                      const isSelected =
+                        selectedPlan &&
+                        selectedPlan.id === plan.id &&
+                        selectedPlan.planType === plan.planType;
+
+                      return (
+                        <div className="col" key={uniqueKey}>
+                          <div
+                            className={`card h-100 ${isSelected ? "border-primary" : "border-light"}`}
+                            onClick={() => handlePlanSelect(plan)}
+                            style={{ cursor: "pointer" }}
+                          >
+                            <div className="card-body">
+                              <h5 className="card-title">{plan.name}</h5>
+                              <h6 className="text-primary mb-3">₹{plan.price}</h6>
+                              <div className="small mb-1"><strong>Data:</strong> {plan.dataLimit}</div>
+                              <div className="small mb-1"><strong>Validity:</strong> {plan.validity}</div>
+                              <div className="small mb-1"><strong>Speed:</strong> {plan.speed}</div>
+                              <div className="small mb-1"><strong>PlanType:</strong> {plan.planType}</div>
                             </div>
-                            <div className="small mb-1">
-                              <strong>Validity:</strong> {plan.validity}
-                            </div>
-                            <div className="small mb-1">
-                              <strong>Calls:</strong> {plan.calls}
-                            </div>
-                            <div className="small mb-1">
-                              <strong>SMS:</strong> {plan.sms}
-                            </div>
+                            {isSelected && (
+                              <div className="card-footer bg-primary text-white text-center py-2">
+                                <small>Selected</small>
+                              </div>
+                            )}
                           </div>
-                          {selectedPlan && selectedPlan.id === plan.id && (
-                            <div className="card-footer bg-danger text-white text-center py-2">
-                              <small>Selected</small>
-                            </div>
-                          )}
                         </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 </div>
               </div>
 
-              {/* Number Selection */}
-              <div className="card border-0 shadow-sm mb-4">
-                <div className="card-header bg-white py-3">
-                  <h4 className="mb-0">Number Selection</h4>
-                </div>
-                <div className="card-body">
-                  <div className="mb-3">
-                    <div className="form-check mb-2">
-                      <input
-                        className="form-check-input"
-                        type="radio"
-                        name="numberType"
-                        id="newNumber"
-                        checked={numberType === "new"}
-                        onChange={() => setNumberType("new")}
-                      />
-                      <label className="form-check-label" htmlFor="newNumber">
-                        Get a new number
-                      </label>
-                    </div>
-                    <div className="form-check">
-                      <input
-                        className="form-check-input"
-                        type="radio"
-                        name="numberType"
-                        id="portNumber"
-                        checked={numberType === "port"}
-                        onChange={() => setNumberType("port")}
-                      />
-                      <label className="form-check-label" htmlFor="portNumber">
-                        Port my existing number
-                      </label>
-                    </div>
-                  </div>
-                  {numberType === "port" && (
-                    <div className="mt-3">
-                      <label htmlFor="portingNumber" className="form-label">
-                        Enter your number to port
-                      </label>
-                      <input
-                        type="tel"
-                        className="form-control"
-                        id="portingNumber"
-                        placeholder="10-digit mobile number"
-                        value={portingNumber}
-                        onChange={(e) => setPortingNumber(e.target.value)}
-                        maxLength="10"
-                      />
-                      <div className="form-text">
-                        <FaInfoCircle className="me-1" />
-                        Your current SIM will remain active during the porting process
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {/* Add-ons */}
-              <div className="card border-0 shadow-sm mb-4">
-                <div className="card-header bg-white py-3">
-                  <h4 className="mb-0">Optional Add-ons</h4>
-                </div>
-                <div className="card-body">
-                  {addons.length > 0 ? (
-                    addons.map((addon) => (
-                      <div className="form-check custom-checkbox mb-3" key={addon.id}>
-                        <input
-                          className="form-check-input"
-                          type="checkbox"
-                          id={`addon-${addon.id}`}
-                          checked={selectedAddons.some((a) => a.id === addon.id)}
-                          onChange={() => handleAddonToggle(addon)}
-                        />
-                        <label
-                          className="form-check-label d-flex justify-content-between"
-                          htmlFor={`addon-${addon.id}`}
-                        >
-                          <div>
-                            <div>{addon.name}</div>
-                            <small className="text-muted">{addon.description}</small>
-                          </div>
-                          <div className="text-primary">₹{addon.price}</div>
-                        </label>
-                      </div>
-                    ))
-                  ) : (
-                    <p className="text-muted">No add-ons available for this plan.</p>
-                  )}
-                </div>
-              </div>
-
-              {/* Final Summary */}
+              {/* Summary */}
               <div className="card border-0 shadow-sm mb-4">
                 <div className="card-header bg-white py-3">
                   <h4 className="mb-0">Summary</h4>
