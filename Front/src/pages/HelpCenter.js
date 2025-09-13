@@ -10,8 +10,11 @@ import {
   FaQuestionCircle,
 } from "react-icons/fa";
 import "../style/helcenter.css";
+import { useNavigate } from "react-router-dom";
 
 export default function HelpCenter() {
+    const navigate = useNavigate();
+
   return (
     <div className="d_help-center">
       {/* Hero Section */}
@@ -40,7 +43,7 @@ export default function HelpCenter() {
             {
               icon: <FaSimCard />,
               title: "SIM & Activation",
-              link: "/help/sim",
+              link: "/profile",
               text: "Get a new SIM or activate",
             },
             {
@@ -58,7 +61,7 @@ export default function HelpCenter() {
             {
               icon: <FaPhoneAlt />,
               title: "Contact Support",
-              link: "#contact",
+              link: "/contact",
               text: "Talk to our team",
             },
           ].map((item, idx) => (
@@ -215,7 +218,7 @@ export default function HelpCenter() {
       <Col md={5}>
         <div className="d_contact-cta text-center p-md-4 p-3">
           <h5 className="mb-3">Need urgent help?</h5>
-          <Button className="d_btn-primary w-100">
+          <Button className="d_btn-primary w-100"    onClick={() => navigate("/contact")} >
             <FaPhoneAlt className="me-2" /> Contact Support
           </Button>
         </div>

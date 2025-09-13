@@ -9,7 +9,10 @@ import simBg from "../image/z1.png";
 import simBg1 from "../image/z2.png";
 import simBg2 from "../image/z3.png";
 import simBg3 from "../image/z4.png";
+import { useNavigate } from "react-router-dom";
 export default function NewHero() {
+    const navigate = useNavigate();
+
   return (
     <section className="d_newhero-section-swiper">
       <Swiper
@@ -134,23 +137,25 @@ export default function NewHero() {
                     borderRadius: "0.7rem",
                     fontSize: "1.1rem",
                   }}
+                   onClick={() => navigate("/products")} // inline redirect
                 >
                   Buy SIM
                 </button>
-                <button
-                  className="d_btn d_btn-secondary"
-                  style={{
-                    background: "#fff",
-                    color: "#374150",
-                    border: "none",
-                    fontWeight: 600,
-                    padding: "0.7rem 2.1rem",
-                    borderRadius: "0.7rem",
-                    fontSize: "1.1rem",
-                  }}
-                >
-                  View Plans
-                </button>
+                  <button
+      className="d_btn d_btn-secondary"
+      style={{
+        background: "#fff",
+        color: "#374150",
+        border: "none",
+        fontWeight: 600,
+        padding: "0.7rem 2.1rem",
+        borderRadius: "0.7rem",
+        fontSize: "1.1rem",
+      }}
+      onClick={() => navigate("/plans")} // inline redirect
+    >
+      View Plans
+    </button>
               </div>
             </div>
           </div>
@@ -214,6 +219,7 @@ export default function NewHero() {
                   borderRadius: "0.5rem",
                   fontSize: "1.1rem",
                 }}
+                 onClick={() => navigate("/products")} // inline redirect
               >
                 Get Started Now
               </button>
@@ -297,6 +303,7 @@ export default function NewHero() {
                   fontSize: "1.1rem",
                   cursor: "pointer",
                 }}
+                   onClick={() => navigate("/products")} // inline redirect
               >
                 Get Started Now
               </button>

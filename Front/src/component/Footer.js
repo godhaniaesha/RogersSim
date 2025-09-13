@@ -22,9 +22,11 @@ const Footer = () => {
         <div className="row">
           {/* Company Info */}
           <div className="col-md-3 mb-4">
-            <div className="mb-3">
-              <img src={Logo} alt="Rogers Logo" className="rogers-logo" />
-            </div>
+          <div className="mb-3">
+  <Link to="/">
+    <img src={Logo} alt="Rogers Logo" className="rogers-logo" />
+  </Link>
+</div>
             <p className="small">
               Rogers is a leading telecom provider offering innovative mobile
               solutions, high-speed internet, and cutting-edge technology

@@ -17,6 +17,7 @@ import { toast } from "react-toastify";
 import productService from "../../services/productService";
 import cartService from "../../services/cartService";
 import { fetchProductById, fetchPlansByProductId } from "../../store/slices/productSlice";
+import "../../App.css";
 
 const ProductDetail = () => {
   const { id } = useParams();
@@ -31,12 +32,10 @@ const ProductDetail = () => {
   const [numberType, setNumberType] = useState("new");
   const [portingNumber, setPortingNumber] = useState("");
   const [selectedAddons, setSelectedAddons] = useState([]);
+  const [addons, setAddons] = useState([]); // ✅ New state for addons
 
-  const { product, loading, error } = useSelector((state) => state.product);
+  const { product, loading, error, plans } = useSelector((state) => state.product);
   const { items, loading: cartLoading } = useSelector((state) => state.cart);
-
-  // Plans from redux
-  const { plans } = useSelector((state) => state.product);
 
   // Fetch product and plans
   useEffect(() => {
@@ -48,10 +47,13 @@ const ProductDetail = () => {
 
   const handlePlanSelect = async (plan) => {
     setSelectedPlan(plan);
+    setSelectedAddons([]); // reset addons when plan changes
     try {
-      await productService.getAddonsByPlanId(plan.id);
+      const fetchedAddons = await productService.getAddonsByPlanId(plan.id);
+      setAddons(fetchedAddons || []);
     } catch (err) {
       toast.error("Failed to fetch addons for the selected plan");
+      setAddons([]);
     }
   };
 
@@ -97,7 +99,7 @@ const ProductDetail = () => {
   if (loading) {
     return (
       <div className="container py-5 text-center">
-        <div className="spinner-border text-primary" role="status">
+        <div className="spinner-border text-danger" role="status">
           <span className="visually-hidden">Loading...</span>
         </div>
         <p className="mt-2">Loading product details...</p>
@@ -125,21 +127,20 @@ const ProductDetail = () => {
     return (
       <div className="container py-5 text-center">
         <h2>Product not found</h2>
-        <Link to="/products" className="btn btn-primary mt-3">
+        <Link to="/products" className="btn btn-danger mt-3">
           Back to Products
         </Link>
       </div>
     );
   }
 
-  const isPrepaid =
-    product.category === "prepaid" || type === "prepaid";
+  const isPrepaid = product.category === "prepaid" || type === "prepaid";
 
   return (
     <div className="container py-5">
       {/* Back button */}
       <div className="mb-4">
-        <Link to="/products" className="btn btn-outline-primary">
+        <Link to="/products" className="btn btn-outline-danger">
           <FaArrowLeft className="me-2" /> Back to Products
         </Link>
       </div>
@@ -150,7 +151,7 @@ const ProductDetail = () => {
           <div className="card border-0 shadow-sm">
             <div className="position-relative">
               {product.popular && (
-                <div className="position-absolute top-0 end-0 bg-primary text-white px-3 py-2 m-3 rounded-pill">
+                <div className="position-absolute top-0 end-0 bg-danger text-white px-3 py-2 m-3 rounded-pill">
                   Popular
                 </div>
               )}
@@ -162,18 +163,15 @@ const ProductDetail = () => {
                   <div className="d-flex align-items-center mb-2">
                     <span className="badge bg-light text-dark me-2">
                       {product?.type
-                        ? product.type.charAt(0).toUpperCase() +
-                        product.type.slice(1)
+                        ? product.type.charAt(0).toUpperCase() + product.type.slice(1)
                         : "N/A"}
                     </span>
                     <span className="badge bg-light text-dark">
-                      {product.simType === "esim"
-                        ? "eSIM"
-                        : "Physical SIM"}
+                      {product.simType === "esim" ? "eSIM" : "Physical SIM"}
                     </span>
                   </div>
                 </div>
-                <h3 className="text-primary mb-0">₹{product.price}</h3>
+                <h3 className="text-danger mb-0">₹{product.price}</h3>
               </div>
               <p className="card-text">{product.description}</p>
               <h5 className="mt-4 mb-3">Features</h5>
@@ -181,7 +179,7 @@ const ProductDetail = () => {
                 {product?.features?.length > 0 ? (
                   product.features.map((feature, index) => (
                     <li key={index} className="d-flex align-items-center mb-2">
-                      <FaCheck className="text-primary me-2" />
+                      <FaCheck className="text-danger me-2" />
                       <span>{feature}</span>
                     </li>
                   ))
@@ -193,269 +191,216 @@ const ProductDetail = () => {
           </div>
         </div>
 
-        {/* Right side: Conditional Rendering */}
+        {/* Right side */}
         <div className="col-lg-7">
-          <div className="card border-0 shadow-sm mb-4">
-            <div className="card-header bg-white py-3">
-              <h4 className="mb-0">Select a Plan</h4>
-            </div>
-            <div className="card-body">
-              <div className="row row-cols-1 row-cols-md-3 g-3">
-                {plans.map(plan => (
-                  <div className="col" key={plan.id}>
-                    <div
-                      className={`card h-100 ${selectedPlan && selectedPlan.id === plan.id ? 'border-primary' : 'border-light'}`}
-                      onClick={() => handlePlanSelect(plan)}
-                      style={{ cursor: 'pointer' }}
-                    >
-                      <div className="card-body">
-                        <h5 className="card-title">{plan.name}</h5>
-                        <h6 className="text-primary mb-3">₹{plan.price}</h6>
-                        <div className="small mb-1">
-                          <strong>Data:</strong> {plan.data}
-                        </div>
-                        <div className="small mb-1">
-                          <strong>Validity:</strong> {plan.validity}
-                        </div>
-                        <div className="small mb-1">
-                          <strong>Calls:</strong> {plan.calls}
-                        </div>
-                        <div className="small mb-1">
-                          <strong>SMS:</strong> {plan.sms}
-                        </div>
-                      </div>
-                      {selectedPlan && selectedPlan.id === plan.id && (
-                        <div className="card-footer bg-primary text-white text-center py-2">
-                          <small>Selected</small>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-
-
-          {/* Summary */}
-          <div className="card border-0 shadow-sm mb-4">
-            <div className="card-header bg-white py-3">
-              <h4 className="mb-0">Summary</h4>
-            </div>
-            <div className="card-body">
-              <div className="d-flex justify-content-between mb-2">
-                <span>SIM Card ({product.name})</span>
-                <span>₹{product.price}</span>
-              </div>
-              {selectedPlan && (
-                <div className="d-flex justify-content-between mb-2">
-                  <span>Plan ({selectedPlan.name})</span>
-                  <span>₹{selectedPlan.price}</span>
+          {isPrepaid ? (
+            <>
+              {/* Plan Selection */}
+              <div className="card border-0 shadow-sm mb-4">
+                <div className="card-header bg-white py-3">
+                  <h4 className="mb-0">Select a Plan</h4>
                 </div>
-              )}
-              {selectedAddons.length > 0 ? (
-                <>
-                  <div className="d-flex justify-content-between mb-2">
-                    <span>Add-ons</span>
-                    <span>
-                      ₹{selectedAddons.reduce((sum, addon) => sum + addon.price, 0)}
-                    </span>
-                  </div>
-                  <div className="ps-3 small text-muted mb-2">
-                    {selectedAddons.map((addon, index) => (
-                      <div key={addon.id} className="d-flex justify-content-between">
-                        <span>{addon.name}</span>
-                        <span>₹{addon.price}</span>
+                <div className="card-body">
+                  <div className="row row-cols-1 row-cols-md-3 g-3">
+                    {plans.map((plan) => (
+                      <div className="col" key={plan.id}>
+                        <div
+                          className={`card h-100 ${
+                            selectedPlan && selectedPlan.id === plan.id
+                              ? "border-danger"
+                              : "border-light"
+                          }`}
+                          onClick={() => handlePlanSelect(plan)}
+                          style={{ cursor: "pointer" }}
+                        >
+                          <div className="card-body">
+                            <h5 className="card-title">{plan.name}</h5>
+                            <h6 className="text-danger mb-3">₹{plan.price}</h6>
+                            <div className="small mb-1">
+                              <strong>Data:</strong> {plan.data}
+                            </div>
+                            <div className="small mb-1">
+                              <strong>Validity:</strong> {plan.validity}
+                            </div>
+                            <div className="small mb-1">
+                              <strong>Calls:</strong> {plan.calls}
+                            </div>
+                            <div className="small mb-1">
+                              <strong>SMS:</strong> {plan.sms}
+                            </div>
+                          </div>
+                          {selectedPlan && selectedPlan.id === plan.id && (
+                            <div className="card-footer bg-danger text-white text-center py-2">
+                              <small>Selected</small>
+                            </div>
+                          )}
+                        </div>
                       </div>
                     ))}
                   </div>
+                </div>
+              </div>
 
-
-                  {/* Number Selection */}
-                  <div className="card border-0 shadow-sm mb-4">
-                    <div className="card-header bg-white py-3">
-                      <h4 className="mb-0">Number Selection</h4>
+              {/* Number Selection */}
+              <div className="card border-0 shadow-sm mb-4">
+                <div className="card-header bg-white py-3">
+                  <h4 className="mb-0">Number Selection</h4>
+                </div>
+                <div className="card-body">
+                  <div className="mb-3">
+                    <div className="form-check mb-2">
+                      <input
+                        className="form-check-input"
+                        type="radio"
+                        name="numberType"
+                        id="newNumber"
+                        checked={numberType === "new"}
+                        onChange={() => setNumberType("new")}
+                      />
+                      <label className="form-check-label" htmlFor="newNumber">
+                        Get a new number
+                      </label>
                     </div>
-                    <div className="card-body">
-                      <div className="mb-3">
-                        <div className="form-check mb-2">
-                          <input
-                            className="form-check-input"
-                            type="radio"
-                            name="numberType"
-                            id="newNumber"
-                            checked={numberType === "new"}
-                            onChange={() => setNumberType("new")}
-                          />
-                          <label
-                            className="form-check-label"
-                            htmlFor="newNumber"
-                          >
-                            Get a new number
-                          </label>
-                        </div>
-                        <div className="form-check">
-                          <input
-                            className="form-check-input"
-                            type="radio"
-                            name="numberType"
-                            id="portNumber"
-                            checked={numberType === "port"}
-                            onChange={() => setNumberType("port")}
-                          />
-                          <label
-                            className="form-check-label"
-                            htmlFor="portNumber"
-                          >
-                            Port my existing number
-                          </label>
-                        </div>
-                      </div>
-                      {numberType === "port" && (
-                        <div className="mt-3">
-                          <label
-                            htmlFor="portingNumber"
-                            className="form-label"
-                          >
-                            Enter your number to port
-                          </label>
-                          <input
-                            type="tel"
-                            className="form-control"
-                            id="portingNumber"
-                            placeholder="10-digit mobile number"
-                            value={portingNumber}
-                            onChange={(e) =>
-                              setPortingNumber(e.target.value)
-                            }
-                            maxLength="10"
-                          />
-                          <div className="form-text">
-                            <FaInfoCircle className="me-1" />
-                            Your current SIM will remain active during
-                            the porting process
-                          </div>
-                        </div>
-                      )}
+                    <div className="form-check">
+                      <input
+                        className="form-check-input"
+                        type="radio"
+                        name="numberType"
+                        id="portNumber"
+                        checked={numberType === "port"}
+                        onChange={() => setNumberType("port")}
+                      />
+                      <label className="form-check-label" htmlFor="portNumber">
+                        Port my existing number
+                      </label>
                     </div>
                   </div>
-
-                  {/* Add-ons */}
-                  <div className="card border-0 shadow-sm mb-4">
-                    <div className="card-header bg-white py-3">
-                      <h4 className="mb-0">Optional Add-ons</h4>
+                  {numberType === "port" && (
+                    <div className="mt-3">
+                      <label htmlFor="portingNumber" className="form-label">
+                        Enter your number to port
+                      </label>
+                      <input
+                        type="tel"
+                        className="form-control"
+                        id="portingNumber"
+                        placeholder="10-digit mobile number"
+                        value={portingNumber}
+                        onChange={(e) => setPortingNumber(e.target.value)}
+                        maxLength="10"
+                      />
+                      <div className="form-text">
+                        <FaInfoCircle className="me-1" />
+                        Your current SIM will remain active during the porting process
+                      </div>
                     </div>
-                    <div className="card-body">
-                      {plans.map((plan) => (
-                        <div
-                          className="form-check custom-checkbox mb-3"
-                          key={plan.id}
+                  )}
+                </div>
+              </div>
+
+              {/* Add-ons */}
+              <div className="card border-0 shadow-sm mb-4">
+                <div className="card-header bg-white py-3">
+                  <h4 className="mb-0">Optional Add-ons</h4>
+                </div>
+                <div className="card-body">
+                  {addons.length > 0 ? (
+                    addons.map((addon) => (
+                      <div className="form-check custom-checkbox mb-3" key={addon.id}>
+                        <input
+                          className="form-check-input"
+                          type="checkbox"
+                          id={`addon-${addon.id}`}
+                          checked={selectedAddons.some((a) => a.id === addon.id)}
+                          onChange={() => handleAddonToggle(addon)}
+                        />
+                        <label
+                          className="form-check-label d-flex justify-content-between"
+                          htmlFor={`addon-${addon.id}`}
                         >
-                          <input
-                            className="form-check-input"
-                            type="checkbox"
-                            id={`addon-${plan.id}`}
-                            checked={selectedAddons.some(
-                              (a) => a.id === plan.id
-                            )}
-                            onChange={() => handleAddonToggle(plan)}
-                          />
-                          <label
-                            className="form-check-label d-flex justify-content-between"
-                            htmlFor={`addon-${plan.id}`}
-                          >
-                            <div>
-                              <div>{plan.name}</div>
-                              <small className="text-muted">
-                                {plan.description}
-                              </small>
-                            </div>
-                            <div className="text-primary">
-                              ₹{plan.price}
-                            </div>
-                          </label>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Summary */}
-                  <div className="card border-0 shadow-sm mb-4">
-                    <div className="card-header bg-white py-3">
-                      <h4 className="mb-0">Summary</h4>
-                    </div>
-                    <div className="card-body">
-                      <div className="d-flex justify-content-between mb-2">
-                        <span>SIM Card ({product.name})</span>
-                        <span>₹{product.price}</span>
+                          <div>
+                            <div>{addon.name}</div>
+                            <small className="text-muted">{addon.description}</small>
+                          </div>
+                          <div className="text-primary">₹{addon.price}</div>
+                        </label>
                       </div>
-                      {selectedPlan && (
-                        <div className="d-flex justify-content-between mb-2">
-                          <span>Plan ({selectedPlan.name})</span>
-                          <span>₹{selectedPlan.price}</span>
-                        </div>
-                      )}
-                      {selectedAddons.length > 0 && (
-                        <>
-                          <div className="d-flex justify-content-between mb-2">
-                            <span>Add-ons</span>
-                            <span>
-                              ₹
-                              {selectedAddons.reduce(
-                                (sum, addon) => sum + addon.price,
-                                0
-                              )}
-                            </span>
-                          </div>
-                          <div className="ps-3 small text-muted mb-2">
-                            {selectedAddons.map((addon) => (
-                              <div
-                                key={addon.id}
-                                className="d-flex justify-content-between"
-                              >
-                                <span>{addon.name}</span>
-                                <span>₹{addon.price}</span>
-                              </div>
-                            ))}
-                          </div>
-                        </>
-                      )}
-                      <hr />
-                      <div className="d-flex justify-content-between fw-bold">
-                        <span>Total</span>
-                        <span className="text-primary">
-                          ₹{calculateTotal()}
+                    ))
+                  ) : (
+                    <p className="text-muted">No add-ons available for this plan.</p>
+                  )}
+                </div>
+              </div>
+
+              {/* Final Summary */}
+              <div className="card border-0 shadow-sm mb-4">
+                <div className="card-header bg-white py-3">
+                  <h4 className="mb-0">Summary</h4>
+                </div>
+                <div className="card-body">
+                  <div className="d-flex justify-content-between mb-2">
+                    <span>SIM Card ({product.name})</span>
+                    <span>₹{product.price}</span>
+                  </div>
+                  {selectedPlan && (
+                    <div className="d-flex justify-content-between mb-2">
+                      <span>Plan ({selectedPlan.name})</span>
+                      <span>₹{selectedPlan.price}</span>
+                    </div>
+                  )}
+                  {selectedAddons.length > 0 && (
+                    <>
+                      <div className="d-flex justify-content-between mb-2">
+                        <span>Add-ons</span>
+                        <span>
+                          ₹{selectedAddons.reduce((sum, addon) => sum + addon.price, 0)}
                         </span>
                       </div>
-                    </div>
-                    <div className="card-footer bg-white border-0 pt-0">
-                      <button
-                        className="btn btn-primary w-100 py-2"
-                        onClick={handleAddToCart}
-                        disabled={!selectedPlan}
-                      >
-                        <FaShoppingCart className="me-2" />
-                        Add to Cart
-                      </button>
-                      {!selectedPlan && (
-                        <div className="text-center text-danger small mt-2">
-                          Please select a plan to continue
-                        </div>
-                      )}
-                    </div>
+                      <div className="ps-3 small text-muted mb-2">
+                        {selectedAddons.map((addon) => (
+                          <div
+                            key={addon.id}
+                            className="d-flex justify-content-between"
+                          >
+                            <span>{addon.name}</span>
+                            <span>₹{addon.price}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </>
+                  )}
+                  <hr />
+                  <div className="d-flex justify-content-between fw-bold">
+                    <span>Total</span>
+                    <span className="text-primary">₹{calculateTotal()}</span>
                   </div>
-                </>
-              ) : (
-              <div className="alert alert-info">
-                This is not a prepaid SIM, so no plan selection required.
+                </div>
+                <div className="card-footer bg-white border-0 pt-0">
+                  <button
+                    className="btn btn-primary w-100 py-2"
+                    onClick={handleAddToCart}
+                    disabled={!selectedPlan}
+                  >
+                    <FaShoppingCart className="me-2" />
+                    Add to Cart
+                  </button>
+                  {!selectedPlan && (
+                    <div className="text-center text-danger small mt-2">
+                      Please select a plan to continue
+                    </div>
+                  )}
+                </div>
               </div>
-          )}
+            </>
+          ) : (
+            <div className="alert alert-info">
+              This is not a prepaid SIM, so no plan selection required.
             </div>
-          </div>
+          )}
         </div>
       </div>
-      </div>
-        );
+    </div>
+  );
 };
 
-        export default ProductDetail;
+export default ProductDetail;
