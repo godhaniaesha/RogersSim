@@ -35,6 +35,7 @@ app.use('/api/orders', require('./routes/orders'));
 app.use('/api/address', require('./routes/addresses'));
 app.use('/api/checkout', require('./routes/checkout'));
 app.use('/api/recharge', require('./routes/recharge'));
+app.use('/api/cards', require('./routes/cards'));
 
 
 // Default route

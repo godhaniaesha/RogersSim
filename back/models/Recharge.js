@@ -22,6 +22,11 @@ const rechargeSchema = new mongoose.Schema(
         ref: "Plan",
       },
     ],
+    // 👇 added expiry date field
+    expireDate: {
+      type: Date,
+      required: false, // make true if you always need it
+    },
   },
   { timestamps: true }
 );
