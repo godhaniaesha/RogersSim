@@ -17,7 +17,7 @@ import { toast } from "react-toastify";
 import productService from "../../services/productService";
 import cartService from "../../services/cartService";
 import { fetchProductById, fetchPlansByProductId } from "../../store/slices/productSlice";
-
+import '../../App.css'
 const ProductDetail = () => {
   const { id } = useParams();
   const location = useLocation();
@@ -97,7 +97,7 @@ const ProductDetail = () => {
   if (loading) {
     return (
       <div className="container py-5 text-center">
-        <div className="spinner-border text-primary" role="status">
+        <div className="spinner-border text-danger" role="status">
           <span className="visually-hidden">Loading...</span>
         </div>
         <p className="mt-2">Loading product details...</p>
@@ -125,7 +125,7 @@ const ProductDetail = () => {
     return (
       <div className="container py-5 text-center">
         <h2>Product not found</h2>
-        <Link to="/products" className="btn btn-primary mt-3">
+        <Link to="/products" className="btn btn-danger mt-3">
           Back to Products
         </Link>
       </div>
@@ -139,7 +139,7 @@ const ProductDetail = () => {
     <div className="container py-5">
       {/* Back button */}
       <div className="mb-4">
-        <Link to="/products" className="btn btn-outline-primary">
+        <Link to="/products" className="btn btn-outline-danger">
           <FaArrowLeft className="me-2" /> Back to Products
         </Link>
       </div>
@@ -150,7 +150,7 @@ const ProductDetail = () => {
           <div className="card border-0 shadow-sm">
             <div className="position-relative">
               {product.popular && (
-                <div className="position-absolute top-0 end-0 bg-primary text-white px-3 py-2 m-3 rounded-pill">
+                <div className="position-absolute top-0 end-0 bg-danger text-white px-3 py-2 m-3 rounded-pill">
                   Popular
                 </div>
               )}
@@ -173,7 +173,7 @@ const ProductDetail = () => {
                     </span>
                   </div>
                 </div>
-                <h3 className="text-primary mb-0">₹{product.price}</h3>
+                <h3 className="text-danger mb-0">₹{product.price}</h3>
               </div>
               <p className="card-text">{product.description}</p>
               <h5 className="mt-4 mb-3">Features</h5>
@@ -181,7 +181,7 @@ const ProductDetail = () => {
                 {product?.features?.length > 0 ? (
                   product.features.map((feature, index) => (
                     <li key={index} className="d-flex align-items-center mb-2">
-                      <FaCheck className="text-primary me-2" />
+                      <FaCheck className="text-danger me-2" />
                       <span>{feature}</span>
                     </li>
                   ))
@@ -209,7 +209,7 @@ const ProductDetail = () => {
                         <div
                           className={`card h-100 ${selectedPlan &&
                               selectedPlan.id === plan.id
-                              ? "border-primary"
+                              ? "border-danger"
                               : "border-light"
                             }`}
                           onClick={() => handlePlanSelect(plan)}
@@ -217,7 +217,7 @@ const ProductDetail = () => {
                         >
                           <div className="card-body">
                             <h5 className="card-title">{plan.name}</h5>
-                            <h6 className="text-primary mb-3">
+                            <h6 className="text-danger mb-3">
                               ₹{plan.price}
                             </h6>
                             <div className="small mb-1">
@@ -236,7 +236,7 @@ const ProductDetail = () => {
                           </div>
                           {selectedPlan &&
                             selectedPlan.id === plan.id && (
-                              <div className="card-footer bg-primary text-white text-center py-2">
+                              <div className="card-footer bg-danger text-white text-center py-2">
                                 <small>Selected</small>
                               </div>
                             )}
@@ -346,7 +346,7 @@ const ProductDetail = () => {
                             {plan.description}
                           </small>
                         </div>
-                        <div className="text-primary">
+                        <div className="text-danger">
                           ₹{plan.price}
                         </div>
                       </label>
@@ -399,14 +399,14 @@ const ProductDetail = () => {
                   <hr />
                   <div className="d-flex justify-content-between fw-bold">
                     <span>Total</span>
-                    <span className="text-primary">
+                    <span className="text-danger">
                       ₹{calculateTotal()}
                     </span>
                   </div>
                 </div>
                 <div className="card-footer bg-white border-0 pt-0">
                   <button
-                    className="btn btn-primary w-100 py-2"
+                    className="btn btn-danger w-100 py-2"
                     onClick={handleAddToCart}
                     disabled={!selectedPlan}
                   >

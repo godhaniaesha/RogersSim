@@ -1,131 +1,89 @@
 const Address = require('../models/Address');
-const ErrorResponse = require('../utils/errorResponse');
 
-// @desc    Get user addresses
-// @route   GET /api/users/addresses
-// @access  Private
-exports.getUserAddresses = async (req, res, next) => {
+// 📌 Add new address for a user (user ID from token)
+exports.addAddress = async (req, res) => {
   try {
-    const addresses = await Address.find({ user: req.user.id })
-      .sort({ isDefault: -1, createdAt: -1 });
-
-    res.status(200).json({
-      success: true,
-      count: addresses.length,
-      data: addresses
-    });
-  } catch (err) {
-    next(err);
-  }
-};
-
-// @desc    Add new address
-// @route   POST /api/users/addresses
-// @access  Private
-exports.addAddress = async (req, res, next) => {
-  try {
-    const addressData = {
-      ...req.body,
-      user: req.user.id
-    };
-
-    const address = await Address.create(addressData);
-
-    res.status(201).json({
-      success: true,
-      data: address
-    });
-  } catch (err) {
-    next(err);
-  }
-};
-
-// @desc    Update address
-// @route   PUT /api/users/addresses/:id
-// @access  Private
-exports.updateAddress = async (req, res, next) => {
-  try {
-    const { id } = req.params;
+    const userId = req.user._id;  // ✅ from token
+    console.log(userId,'user');
     
-    let address = await Address.findById(id);
-    if (!address) {
-      return next(new ErrorResponse('Address not found', 404));
+    const { fullName, mobileNumber, address, city, state, pincode } = req.body;
+
+    let userAddress = await Address.findOne({ user: userId });
+
+    if (!userAddress) {
+      userAddress = new Address({
+        user: userId,
+        addresses: [{ fullName, mobileNumber, address, city, state, pincode }]
+      });
+    } else {
+      userAddress.addresses.push({ fullName, mobileNumber, address, city, state, pincode });
     }
 
-    // Check if address belongs to user
-    if (address.user.toString() !== req.user.id) {
-      return next(new ErrorResponse('Not authorized to update this address', 403));
-    }
-
-    address = await Address.findByIdAndUpdate(id, req.body, {
-      new: true,
-      runValidators: true
-    });
-
-    res.status(200).json({
-      success: true,
-      data: address
-    });
-  } catch (err) {
-    next(err);
+    await userAddress.save();
+    res.status(201).json({ success: true, data: userAddress });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
   }
 };
 
-// @desc    Delete address
-// @route   DELETE /api/users/addresses/:id
-// @access  Private
-exports.deleteAddress = async (req, res, next) => {
+// 📌 Get all addresses for a user (user ID from token)
+exports.getAddresses = async (req, res) => {
   try {
-    const { id } = req.params;
-    
-    const address = await Address.findById(id);
-    if (!address) {
-      return next(new ErrorResponse('Address not found', 404));
+    const userId = req.user._id;  // ✅ from token
+    const userAddress = await Address.findOne({ user: userId }).populate('user');
+
+    if (!userAddress) {
+      return res.status(404).json({ success: false, message: 'No addresses found for this user' });
     }
 
-    // Check if address belongs to user
-    if (address.user.toString() !== req.user.id) {
-      return next(new ErrorResponse('Not authorized to delete this address', 403));
-    }
-
-    await Address.findByIdAndDelete(id);
-
-    res.status(200).json({
-      success: true,
-      data: {}
-    });
-  } catch (err) {
-    next(err);
+    res.status(200).json({ success: true, data: userAddress });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
   }
 };
 
-// @desc    Set default address
-// @route   PUT /api/users/addresses/:id/default
-// @access  Private
-exports.setDefaultAddress = async (req, res, next) => {
+// 📌 Edit a specific address by index
+exports.editAddress = async (req, res) => {
   try {
-    const { id } = req.params;
-    
-    const address = await Address.findById(id);
-    if (!address) {
-      return next(new ErrorResponse('Address not found', 404));
+    const userId = req.user._id; // ✅ from token
+    const { addressIndex } = req.params;
+    const { fullName, mobileNumber, address, city, state, pincode } = req.body;
+
+    const userAddress = await Address.findOne({ user: userId });
+    if (!userAddress) return res.status(404).json({ success: false, message: 'User not found' });
+
+    if (!userAddress.addresses[addressIndex]) {
+      return res.status(404).json({ success: false, message: 'Address not found' });
     }
 
-    // Check if address belongs to user
-    if (address.user.toString() !== req.user.id) {
-      return next(new ErrorResponse('Not authorized to update this address', 403));
+    userAddress.addresses[addressIndex] = { fullName, mobileNumber, address, city, state, pincode };
+
+    await userAddress.save();
+    res.status(200).json({ success: true, data: userAddress });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// 📌 Delete a specific address by index
+exports.deleteAddress = async (req, res) => {
+  try {
+    const userId = req.user._id; // ✅ from token
+    const { addressIndex } = req.params;
+
+    const userAddress = await Address.findOne({ user: userId });
+    if (!userAddress) return res.status(404).json({ success: false, message: 'User not found' });
+
+    if (!userAddress.addresses[addressIndex]) {
+      return res.status(404).json({ success: false, message: 'Address not found' });
     }
 
-    // Set this address as default (the pre-save hook will handle removing default from others)
-    address.isDefault = true;
-    await address.save();
+    userAddress.addresses.splice(addressIndex, 1);
 
-    res.status(200).json({
-      success: true,
-      data: address
-    });
-  } catch (err) {
-    next(err);
+    await userAddress.save();
+    res.status(200).json({ success: true, data: userAddress });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
   }
 };
              

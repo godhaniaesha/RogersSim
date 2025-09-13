@@ -1,10 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  fetchAllPlans,
-  fetchPlanById,
-} from "../store/slices/planSlice"; // adjust path if needed
-
+import { fetchAllPlans, fetchPlanById } from "../store/slices/planSlice"; // adjust path if needed
+import { fetchUserProfile } from "../store/slices/userSlice";
+import {  toast } from "react-toastify";
 import {
   FaBolt,
   FaChevronRight,
@@ -22,40 +20,39 @@ import "swiper/css/navigation";
 import "swiper/css/pagination";
 import "../style/z_app.css";
 
+import { loadStripe } from "@stripe/stripe-js";
+
+// initialise Stripe with your public key
+const stripePromise = loadStripe(
+  process.env.REACT_APP_STRIPE_KEY ||
+    "pk_test_51R8wmeQ0DPGsMRTSHTci2XmwYmaDLRqeSSRS2hNUCU3xU7ikSAvXzSI555Rxpyf9SsTIgI83PXvaaQE3pJAlkMaM00g9BdsrOB"
+);
+
 function Plans() {
   const dispatch = useDispatch();
   const { plans, selectedPlan, loading, error } = useSelector(
     (state) => state.plan
   );
-  console.log(plans,'plans');
-  
+  const { profile: userProfile } = useSelector((state) => state.user || {});
+
   const [show, setShow] = useState(false);
   const [showPayment, setShowPayment] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
-  const [isFiber, setIsFiber] = useState(false); // still used for tab switch UI
-  const [selectedMethod, setSelectedMethod] = useState("");
+  const [isFiber, setIsFiber] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [localSelectedPlan, setLocalSelectedPlan] = useState(null);
+  const [phoneNumber, setPhoneNumber] = useState("");
 
   useEffect(() => {
-    // fetch all plans on load
     dispatch(fetchAllPlans());
+    dispatch(fetchUserProfile());
   }, [dispatch]);
 
-  const handlePaymentShow = () => setShowPayment(true);
-  const handlePaymentClose = () => setShowPayment(false);
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (!selectedMethod) {
-      alert("Please select a UPI payment method before proceeding.");
-      return;
+  useEffect(() => {
+    if (userProfile?.phone) {
+      setPhoneNumber(userProfile.phone);
     }
-    alert(`Payment method selected: ${selectedMethod}`);
-
-    setShowPayment(false);
-    setShowSuccess(true);
-  };
+  }, [userProfile]);
 
   const toggleAccordion = (index) => {
     setActiveIndex(activeIndex === index ? null : index);
@@ -69,11 +66,48 @@ function Plans() {
 
   const handleClose = () => setShow(false);
 
-  /**
-   * Filter plans first based on planType:
-   *  - fiber plans if isFiber === true
-   *  - mobile plans if isFiber === false
-   */
+  const handleRechargeClick = (plan) => {
+    setLocalSelectedPlan(plan);
+    setShowPayment(true);
+  };
+
+  const handlePaymentClose = () => setShowPayment(false);
+
+ const handleProceedToStripe = async () => {
+  // Validate phone number
+  const phoneRegex = /^[0-9]{10}$/;
+  if (!phoneRegex.test(phoneNumber)) {
+    toast.error("Please enter a valid 10-digit phone number.");
+    return;
+  }
+
+  if (!localSelectedPlan) return;
+
+  const amount = Math.round(localSelectedPlan.price * 100); // paise
+  try {
+    const res = await fetch(
+      "http://localhost:5000/api/payments/create-checkout-session",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          amount,
+          planId: localSelectedPlan._id,
+          phone: phoneNumber,
+        }),
+      }
+    );
+    if (!res.ok) throw new Error(await res.text());
+    const { sessionId } = await res.json();
+    const stripe = await stripePromise;
+    await stripe.redirectToCheckout({ sessionId });
+  } catch (err) {
+    console.error("Stripe checkout error:", err);
+    alert("Payment could not be started: " + err.message);
+  }
+};
+
+  // filter and group plans
   const filteredPlans = Array.isArray(plans)
     ? plans.filter((p) =>
         isFiber
@@ -82,20 +116,17 @@ function Plans() {
       )
     : [];
 
-  // Group filtered plans dynamically by category
   const groupedPlans = filteredPlans.reduce((acc, plan) => {
     const cat = plan.category || (isFiber ? "Fiber Plans" : "Mobile Plans");
     if (!acc[cat]) acc[cat] = [];
     acc[cat].push(plan);
     return acc;
   }, {});
-
   const planCategories = Object.keys(groupedPlans).map((key) => ({
     title: key,
     plans: groupedPlans[key],
   }));
 
-  
   return (
     <>
       <section className="z_addOns_section py-5">
@@ -113,10 +144,7 @@ function Plans() {
                   checked={isFiber}
                   onChange={() => setIsFiber(!isFiber)}
                 />
-                <label
-                  htmlFor="z_switch_checkbox"
-                  className="z_switch_label"
-                >
+                <label htmlFor="z_switch_checkbox" className="z_switch_label">
                   <span className={!isFiber ? "active" : ""}>Mobile Plans</span>
                   <span className={isFiber ? "active" : ""}>Fiber Plans</span>
                 </label>
@@ -163,7 +191,10 @@ function Plans() {
                     }
                   >
                     {category.plans.map((plan, i) => (
-                      <div key={i} className="col-lg-3 col-md-4 col-sm-6 col-12">
+                      <div
+                        key={i}
+                        className="col-lg-3 col-md-4 col-sm-6 col-12"
+                      >
                         <div
                           className={
                             isFiber
@@ -182,19 +213,20 @@ function Plans() {
 
                           <div className="mt-2">
                             <p className="mb-1">
-                              <small className="text-muted">Validity</small> <br />
+                              <small className="text-muted">Validity</small>{" "}
+                              <br />
                               <span className="fw-bold">{plan.validity}</span>
                             </p>
                             {isFiber ? (
-                              <>
-                                <p className="mb-1">
-                                  <small className="text-muted">Speed</small> <br />
-                                  <span className="fw-bold">{plan.speed}</span>
-                                </p>
-                              </>
+                              <p className="mb-1">
+                                <small className="text-muted">Speed</small>{" "}
+                                <br />
+                                <span className="fw-bold">{plan.speed}</span>
+                              </p>
                             ) : (
                               <p className="mb-1">
-                                <small className="text-muted">Data</small> <br />
+                                <small className="text-muted">Data</small>{" "}
+                                <br />
                                 <span className="fw-bold">{plan.data}</span>
                               </p>
                             )}
@@ -202,7 +234,7 @@ function Plans() {
 
                           <button
                             className="z_prd_btn w-100"
-                            onClick={handlePaymentShow}
+                            onClick={() => handleRechargeClick(plan)}
                           >
                             Recharge
                           </button>
@@ -215,7 +247,7 @@ function Plans() {
             ))}
           </section>
 
-          {/* Modal Plan Details */}
+          {/* Plan Details Modal */}
           <Modal show={show} onHide={handleClose} centered size="md">
             {(localSelectedPlan || selectedPlan) && (
               <>
@@ -244,7 +276,9 @@ function Plans() {
                           </tr>
                           <tr>
                             <td>Benefits</td>
-                            <td>{(localSelectedPlan || selectedPlan).benefits}</td>
+                            <td>
+                              {(localSelectedPlan || selectedPlan).benefits}
+                            </td>
                           </tr>
                         </>
                       ) : (
@@ -269,7 +303,14 @@ function Plans() {
                   </table>
                 </Modal.Body>
                 <Modal.Footer className="border-0">
-                  <Button className="w-100 rounded-pill" variant="primary">
+                  <Button
+                    className="w-100 rounded-pill"
+                    variant="primary"
+                    onClick={() => {
+                      setShow(false);
+                      setShowPayment(true);
+                    }}
+                  >
                     Recharge
                   </Button>
                 </Modal.Footer>
@@ -286,9 +327,11 @@ function Plans() {
             dialogClassName="z_payment_modal"
           >
             <div className="z_payment_header d-flex justify-content-between align-items-center px-3 py-2">
-              <h6 className="mb-0 ">
+              <h6 className="mb-0">
                 Payment <br />
-                <small>Amount payable: ₹799.00</small>
+                <small>
+                  Amount payable: ₹{localSelectedPlan?.price || 799}.00
+                </small>
               </h6>
               <button
                 className="btn btn-sm btn-light rounded-pill px-3"
@@ -299,124 +342,35 @@ function Plans() {
             </div>
 
             <Modal.Body className="z_payment_body">
-              <Form onSubmit={handleSubmit}>
-                <div className="text-center mt-2">
-                  <h4>UPI Payment Options</h4>
-                </div>
-
-                {/* Google Pay */}
-                <div
-                  className={`z_payment_card d-flex align-items-center justify-content-between p-3 mb-2 rounded-3 shadow-sm ${
-                    selectedMethod === "Google Pay" ? "active" : ""
-                  }`}
-                  onClick={() => setSelectedMethod("Google Pay")}
-                  style={{ cursor: "pointer" }}
-                >
-                  <div className="d-flex align-items-center gap-2">
-                    <img
-                      src="https://cdn.shopify.com/s/files/1/0452/5984/9880/files/Google-Pay-Logo-01.png?v=1719301940"
-                      alt="Google Pay"
-                      width="40"
-                      height="40"
-                    />
-                    <span className="fw-semibold">Google Pay</span>
-                  </div>
-                  <Form.Check
-                    type="radio"
-                    name="payment"
-                    value="Google Pay"
-                    checked={selectedMethod === "Google Pay"}
-                    onChange={(e) => setSelectedMethod(e.target.value)}
+              <Form>
+                <div className="mb-3">
+                  <Form.Label>Mobile / Recharge Number</Form.Label>
+                  <Form.Control
+                    type="text"
+                    value={phoneNumber}
+                    onChange={(e) => {
+                      // Allow only numbers
+                      const onlyNums = e.target.value.replace(/\D/g, "");
+                      setPhoneNumber(onlyNums);
+                    }}
+                    placeholder="Enter 10-digit phone number"
+                    maxLength={10} // limit input to 10 digits
                     required
+                    isInvalid={
+                      phoneNumber.length > 0 && phoneNumber.length !== 10
+                    }
                   />
+                  <Form.Control.Feedback type="invalid">
+                    Please enter a valid 10-digit phone number.
+                  </Form.Control.Feedback>
                 </div>
-                {selectedMethod === "Google Pay" && (
-                  <div className="mb-3">
-                    <Form.Label>Google Pay UPI ID</Form.Label>
-                    <Form.Control
-                      type="text"
-                      placeholder="example@okicici"
-                      required
-                    />
-                  </div>
-                )}
 
-                {/* Paytm */}
-                <div
-                  className={`z_payment_card d-flex align-items-center justify-content-between p-3 mb-2 rounded-3 shadow-sm ${
-                    selectedMethod === "Paytm" ? "active" : ""
-                  }`}
-                  onClick={() => setSelectedMethod("Paytm")}
-                  style={{ cursor: "pointer" }}
+                <Button
+                  type="button"
+                  className="w-100 z_prd_btn mt-3"
+                  onClick={handleProceedToStripe}
                 >
-                  <div className="d-flex align-items-center gap-2">
-                    <img
-                      src="https://miro.medium.com/v2/resize:fit:1358/1*-Uuj69x4V4BH9Ioba1vT5Q.png"
-                      alt="Paytm"
-                      width="40"
-                      height="40"
-                    />
-                    <span className="fw-semibold">Paytm</span>
-                  </div>
-                  <Form.Check
-                    type="radio"
-                    name="payment"
-                    value="Paytm"
-                    checked={selectedMethod === "Paytm"}
-                    onChange={(e) => setSelectedMethod(e.target.value)}
-                    required
-                  />
-                </div>
-                {selectedMethod === "Paytm" && (
-                  <div className="mb-3">
-                    <Form.Label>Paytm Mobile Number</Form.Label>
-                    <Form.Control
-                      type="tel"
-                      placeholder="Enter Paytm number"
-                      required
-                    />
-                  </div>
-                )}
-
-                {/* Other UPI */}
-                <div
-                  className={`z_payment_card d-flex align-items-center justify-content-between p-3 mb-2 rounded-3 shadow-sm ${
-                    selectedMethod === "Other UPI" ? "active" : ""
-                  }`}
-                  onClick={() => setSelectedMethod("Other UPI")}
-                  style={{ cursor: "pointer" }}
-                >
-                  <div className="d-flex align-items-center gap-2">
-                    <img
-                      src="https://upload.wikimedia.org/wikipedia/commons/f/f0/UPI-Logo-vector.svg"
-                      alt="UPI"
-                      width="40"
-                      height="40"
-                    />
-                    <span className="fw-semibold">Other UPI</span>
-                  </div>
-                  <Form.Check
-                    type="radio"
-                    name="payment"
-                    value="Other UPI"
-                    checked={selectedMethod === "Other UPI"}
-                    onChange={(e) => setSelectedMethod(e.target.value)}
-                    required
-                  />
-                </div>
-                {selectedMethod === "Other UPI" && (
-                  <div className="mb-3">
-                    <Form.Label>Enter UPI ID</Form.Label>
-                    <Form.Control
-                      type="text"
-                      placeholder="yourname@upi"
-                      required
-                    />
-                  </div>
-                )}
-
-                <Button type="submit" className="w-100 z_prd_btn">
-                  Proceed to Pay
+                  Continue to Pay (Stripe)
                 </Button>
               </Form>
             </Modal.Body>

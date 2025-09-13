@@ -1,120 +1,36 @@
 const mongoose = require('mongoose');
 
-const OrderItemSchema = new mongoose.Schema({
-  product: {
-    type: mongoose.Schema.ObjectId,
-    ref: 'Product',
-    required: true
-  },
-  plan: {
-    type: mongoose.Schema.ObjectId,
-    ref: 'Plan',
-    required: true
-  },
-  addons: [{
-    addon: {
-      type: mongoose.Schema.ObjectId,
-      ref: 'Addon'
-    },
-    quantity: {
-      type: Number,
-      default: 1,
-      min: 1
-    }
-  }],
-  quantity: {
-    type: Number,
-    default: 1,
-    min: 1
-  },
-  price: {
-    type: Number,
-    required: true,
-    min: 0
-  },
-  totalPrice: {
-    type: Number,
-    required: true,
-    min: 0
-  }
-});
-
+// Main order schema
 const OrderSchema = new mongoose.Schema({
   user: {
     type: mongoose.Schema.ObjectId,
     ref: 'User',
     required: true
   },
-  orderNumber: {
-    type: String,
-    required: true,
-    unique: true
+
+  checkout: {
+    type: mongoose.Schema.ObjectId,
+    ref: 'Checkout',
+    required: true
   },
-  items: [OrderItemSchema],
+
+orderNumber: { type: String, unique: true },
+barcode: { type: String, unique: true },
+newNumber: { type: String, unique: true },
+
   shippingAddress: {
     type: mongoose.Schema.ObjectId,
     ref: 'Address',
     required: true
   },
-  billingAddress: {
-    type: mongoose.Schema.ObjectId,
-    ref: 'Address',
-    required: true
-  },
-  subtotal: {
-    type: Number,
-    required: true,
-    min: 0
-  },
-  tax: {
-    type: Number,
-    required: true,
-    min: 0
-  },
-  shipping: {
-    type: Number,
-    default: 0,
-    min: 0
-  },
-  total: {
-    type: Number,
-    required: true,
-    min: 0
-  },
+
+
   status: {
     type: String,
     enum: ['pending', 'confirmed', 'processing', 'shipped', 'delivered', 'cancelled', 'refunded'],
     default: 'pending'
   },
-  paymentStatus: {
-    type: String,
-    enum: ['pending', 'paid', 'failed', 'refunded'],
-    default: 'pending'
-  },
-  paymentMethod: {
-    type: String,
-    enum: ['cod', 'online', 'emi'],
-    required: true
-  },
-  paymentId: {
-    type: String
-  },
-  deliverySlot: {
-    date: Date,
-    timeSlot: String
-  },
-  notes: {
-    type: String
-  },
-  trackingNumber: {
-    type: String
-  },
-  estimatedDelivery: {
-    type: Date
-  },
-  actualDelivery: {
-    type: Date
-  },
+
   createdAt: {
     type: Date,
     default: Date.now
@@ -126,17 +42,43 @@ const OrderSchema = new mongoose.Schema({
 });
 
 // Update the updatedAt field before saving
-OrderSchema.pre('save', function(next) {
+OrderSchema.pre('save', function (next) {
   this.updatedAt = Date.now();
   next();
 });
 
-// Generate order number before saving
-OrderSchema.pre('save', async function(next) {
+// Generate order number, barcode & newNumber before saving
+OrderSchema.pre('save', async function (next) {
+  // 👇 order number
   if (!this.orderNumber) {
     const count = await this.constructor.countDocuments();
     this.orderNumber = `ORD${String(count + 1).padStart(6, '0')}`;
   }
+
+  // 👇 generate an 8-digit barcode if not present
+  if (!this.barcode) {
+    let uniqueBarcode = false;
+    let barcode;
+    while (!uniqueBarcode) {
+      barcode = Math.floor(10000000 + Math.random() * 90000000).toString(); // 8 digits
+      const exists = await this.constructor.findOne({ barcode });
+      if (!exists) uniqueBarcode = true;
+    }
+    this.barcode = barcode;
+  }
+
+  // 👇 generate a 10-digit newNumber if not present
+  if (!this.newNumber) {
+    let uniqueNewNumber = false;
+    let newNumber;
+    while (!uniqueNewNumber) {
+      newNumber = Math.floor(1000000000 + Math.random() * 9000000000).toString(); // 10 digits
+      const exists = await this.constructor.findOne({ newNumber });
+      if (!exists) uniqueNewNumber = true;
+    }
+    this.newNumber = newNumber;
+  }
+
   next();
 });
 

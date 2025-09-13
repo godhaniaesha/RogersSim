@@ -65,11 +65,11 @@ const AppContent = () => {
   };
 
   return (
-    <Provider store={store}>
-      <Router>
+    <Provider store={store} >
+      <Router >
         <ToastContainer position="top-right" autoClose={3000} hideProgressBar={false} />
-        <Header />
-        <main className="h-100">
+        <Header/>
+        <main className="h-100" style={{userSelect:"none"}} >
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/exb" element={<ExplorB />} />
