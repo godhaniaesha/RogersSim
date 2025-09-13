@@ -33,7 +33,7 @@ const ProductDetail = () => {
   const [portingNumber, setPortingNumber] = useState("");
   const [selectedAddons, setSelectedAddons] = useState([]);
   const [addons, setAddons] = useState([]);
-  const { product, loading, error } = useSelector((state) => state.product);
+  const { product, loading, error,plans } = useSelector((state) => state.product);
   const { items, loading: cartLoading } = useSelector((state) => state.cart);
 
   // Fetch product and plans
