@@ -18,6 +18,7 @@ import {
 import { toast } from "react-toastify";
 import cartService from "../../services/cartService";
 import "../../style/checkout.css";
+import { addAddress, fetchAddresses, updateAddress } from "../../store/slices/checkOutSlice";
 
 const Checkout = () => {
   const navigate = useNavigate();
@@ -35,19 +36,11 @@ const Checkout = () => {
   // Calculate cart total from Redux
   const cartTotal = cartItems
     ? cartItems.reduce((total, item) => total + item.price * item.quantity, 0)
-    : 547;
-
-  // Fetch cart items when component mounts
-  // useEffect(() => {
-  //   dispatch(fetchCart());
-  // }, [dispatch]);
+    : 547;  
 
   // Redirect to login if not authenticated
   useEffect(() => {
-    // if (!isAuthenticated) {
-    //   navigate('/login');
-    //   return;
-    // }
+    
     // If cart is empty, redirect to products
     if (cartItems && cartItems.length === 0 && !loading) {
       toast.error("Your cart is empty");
@@ -58,35 +51,36 @@ const Checkout = () => {
   }, [isAuthenticated, cartItems, loading, navigate]);
 
   // Fetch addresses from API
-  const [addresses, setAddresses] = useState([
-    {
-      id: 1,
-      name: "John Doe",
-      mobile: "9876543210",
-      address: "123 Main Street, Apartment 4B",
-      city: "Mumbai",
-      state: "Maharashtra",
-      pincode: "400001",
-      isDefault: true,
-    },
-    {
-      id: 2,
-      name: "John Doe",
-      mobile: "9876543210",
-      address: "456 Park Avenue, Floor 2",
-      city: "Delhi",
-      state: "Delhi",
-      pincode: "110001",
-      isDefault: false,
-    },
-  ]);
+
 
   const [selectedAddress, setSelectedAddress] = useState(1);
   const [showAddressForm, setShowAddressForm] = useState(false);
   const [editingAddress, setEditingAddress] = useState(null);
   const [paymentMethod, setPaymentMethod] = useState("full");
   const [emiMonths, setEmiMonths] = useState(3);
+  const { addresses = [] } = useSelector((state) => state.checkout || {});
+  console.log(addresses,'addressessss');
+  
+  const mappedAddresses = addresses.map((address, idx) => ({
+    id: idx, // use index as id since backend doesn't provide one
+    name: address.fullName,
+    mobile: address.mobileNumber,
+    address: address.address,
+    city: address.city,
+    state: address.state,
+    pincode: address.pincode,
+    isDefault: address.isDefault || false, // if you have this field
+  }));
 
+
+  useEffect(() => {
+    dispatch(fetchAddresses());
+  }, [dispatch]);
+  useEffect(() => {
+    if (addresses && addresses.length > 0) {
+      console.log("Fetched addresses:", addresses);
+    }
+  }, [addresses]);
   // Calculate EMI details
   const calculateEMI = () => {
     if (!cartTotal || cartTotal <= 0) {
@@ -130,44 +124,39 @@ const Checkout = () => {
     setSelectedAddress(addressId);
   };
 
-  // Handle add/edit address form submission
   const handleAddressSubmit = async (values, { resetForm }) => {
     try {
       if (editingAddress) {
-        // Update existing address via API
-        await cartService.updateAddress({ ...values, id: editingAddress.id });
+        // Use editingAddress.index for backend index
+        const result = await dispatch(updateAddress({ index: editingAddress.index, ...values }));
 
-        // Update local state
-        setAddresses(
-          addresses.map((addr) =>
-            addr.id === editingAddress.id ? { ...values, id: addr.id } : addr
-          )
-        );
-        setEditingAddress(null);
-        toast.success("Address updated successfully");
+        if (updateAddress.fulfilled.match(result)) {
+          toast.success("Address updated successfully");
+        } else {
+          toast.error(result.payload || "Failed to update address");
+        }
       } else {
-        // Add new address via API
-        const newAddress = {
-          ...values,
-          id: addresses.length + 1,
-        };
-        const savedAddress = await cartService.addAddress(newAddress);
-
-        // Update local state with the saved address
-        setAddresses([...addresses, savedAddress || newAddress]);
-        toast.success("Address added successfully");
+        // Add new
+        const result = await dispatch(addAddress(values));
+        if (addAddress.fulfilled.match(result)) {
+          toast.success("Address added successfully");
+        } else {
+          toast.error(result.payload || "Failed to add address");
+        }
       }
 
-      setShowAddressForm(false);
       resetForm();
+      setShowAddressForm(false);
+      setEditingAddress(null);
     } catch (err) {
-      toast.error(err.message || "Failed to save address");
+      toast.error(err.message || "Something went wrong");
     }
   };
 
   // Edit address
-  const handleEditAddress = (address) => {
-    setEditingAddress(address);
+  const handleEditAddress = (address, idx) => {
+    setEditingAddress({ ...address, index: idx });
+    localStorage.setItem("editingAddressIndex", idx);
     setShowAddressForm(true);
   };
 
@@ -179,12 +168,7 @@ const Checkout = () => {
     }
 
     try {
-      // Create order in the backend
-      // const orderData = await cartService.createOrder({
-      //   addressId: selectedAddress,
-      //   paymentMethod,
-      //   emiMonths: paymentMethod === "emi" ? emiMonths : null,
-      // });
+     
 
       // // Navigate to payment page with payment details and order ID
       navigate("/payment", {
@@ -238,12 +222,10 @@ const Checkout = () => {
                 <div className="d_card-body">
                   {!showAddressForm ? (
                     <div className="d_address-list">
-                      {addresses.map((address) => (
+                      {mappedAddresses.map((address, idx) => (
                         <div
                           key={address.id}
-                          className={`d_address-card ${
-                            selectedAddress === address.id ? "selected" : ""
-                          }`}
+                          className={`d_address-card ${selectedAddress === address.id ? "selected" : ""}`}
                           onClick={() => handleAddressSelect(address.id)}
                         >
                           <div className="d_address-card-body">
@@ -255,9 +237,7 @@ const Checkout = () => {
                                   name="addressSelection"
                                   id={`address-${address.id}`}
                                   checked={selectedAddress === address.id}
-                                  onChange={() =>
-                                    handleAddressSelect(address.id)
-                                  }
+                                  onChange={() => handleAddressSelect(address.id)}
                                 />
                                 <label
                                   className="form-check-label"
@@ -275,7 +255,7 @@ const Checkout = () => {
                                 className="d_edit-btn"
                                 onClick={(e) => {
                                   e.stopPropagation();
-                                  handleEditAddress(address);
+                                  handleEditAddress(address, idx); // Pass idx here
                                 }}
                               >
                                 <FaEdit /> Edit
@@ -285,8 +265,7 @@ const Checkout = () => {
                               <div>{address.mobile}</div>
                               <div>{address.address}</div>
                               <div>
-                                {address.city}, {address.state} -{" "}
-                                {address.pincode}
+                                {address.city}, {address.state} - {address.pincode}
                               </div>
                             </div>
                           </div>
@@ -493,9 +472,8 @@ const Checkout = () => {
                   <div className="d_card-body">
                     <div className="d_payment-options">
                       <div
-                        className={`d_payment-option ${
-                          paymentMethod === "full" ? "selected" : ""
-                        }`}
+                        className={`d_payment-option ${paymentMethod === "full" ? "selected" : ""
+                          }`}
                         onClick={() => setPaymentMethod("full")}
                       >
                         <FaCreditCard className="d_payment-icon" />
@@ -510,9 +488,8 @@ const Checkout = () => {
                       </div>
 
                       <div
-                        className={`d_payment-option ${
-                          paymentMethod === "emi" ? "selected" : ""
-                        }`}
+                        className={`d_payment-option ${paymentMethod === "emi" ? "selected" : ""
+                          }`}
                         onClick={() => setPaymentMethod("emi")}
                       >
                         <FaMoneyBill className="d_payment-icon" />
@@ -537,9 +514,8 @@ const Checkout = () => {
                             {[3, 6, 9, 12].map((month) => (
                               <div
                                 key={month}
-                                className={`d_emi-option ${
-                                  emiMonths === month ? "selected" : ""
-                                }`}
+                                className={`d_emi-option ${emiMonths === month ? "selected" : ""
+                                  }`}
                                 onClick={() => setEmiMonths(month)}
                               >
                                 {month} Months

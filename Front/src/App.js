@@ -69,7 +69,7 @@ const AppContent = () => {
       <Router >
         <ToastContainer position="top-right" autoClose={3000} hideProgressBar={false} />
         <Header/>
-        <main className="h-100" style={{userSelect:"none"}} >
+        <main className="h-100" >
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/exb" element={<ExplorB />} />
