@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   FaFilter,
   FaSort,
@@ -20,6 +20,7 @@ import productService from "../../services/productService";
 
 const Products = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const {
     products = [],
@@ -515,11 +516,11 @@ const Products = () => {
                             onClick={() => {
                               if (product.category === "prepaid") {
                                 // Go to prepaid plan selection page
-                                window.location.href = `/products/${product._id}?type=prepaid`;
+                                navigate(`/products/${product._id}?type=prepaid`);
                               } else {
                                 // Add to cart and go to cart page
-                                dispatch(addToCart( product )); // You may want to adjust the payload as per your cartSlice
-                                window.location.href = `/cart`;
+                                dispatch(addToCart({ productId: product._id, quantity: 1 })); // You may want to adjust the payload as per your cartSlice
+                                navigate("/cart");
                               }
                             }}
                           >

@@ -106,12 +106,12 @@ const AppContent = () => {
             <Route path="/helpcenter" element={<HelpCenter />} />
             <Route path="/checkout" element={
               // <ProtectedRoute>
-                <Checkout />
+              <Checkout />
               // </ProtectedRoute>
             } />
             <Route path="/payment" element={
               // <ProtectedRoute>
-                <Payment />
+              <Payment />
               // </ProtectedRoute>
             } />
             <Route path="/order-confirmation" element={
@@ -119,7 +119,7 @@ const AppContent = () => {
                 <OrderConfirmation />
               </ProtectedRoute>
             } />
-         
+
           </Routes>
         </main>
         <Footer />
