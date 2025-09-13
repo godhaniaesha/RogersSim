@@ -12,7 +12,7 @@ const {
 
 const { protect } = require('../middleware/auth'); // your auth middleware
 
-const router = express.Router();
+const router = express.Router();  
 
 /**
  * @route   POST /api/checkout

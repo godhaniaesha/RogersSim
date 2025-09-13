@@ -34,8 +34,8 @@ app.use('/api/cart', require('./routes/cart'));
 app.use('/api/orders', require('./routes/orders'));
 app.use('/api/address', require('./routes/addresses'));
 app.use('/api/checkout', require('./routes/checkout'));
-app.use('/api/payments', require('./routes/payments'));
-app.use('/api/cards', require('./routes/cards'));
+app.use('/api/recharge', require('./routes/recharge'));
+
 
 // Default route
 app.get('/', (req, res) => {
