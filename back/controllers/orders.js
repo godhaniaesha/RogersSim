@@ -36,6 +36,31 @@ exports.getOrders = async (req, res, next) => {
   }
 };
 
+// @desc    Get current user's orders
+// @route   GET /api/orders/my
+// @access  Private
+exports.getMyOrders = async (req,res,next) => {
+  try {
+    const userId = req.user && req.user.id;
+    if (!userId) {
+      return res.status(401).json({success:false, error:'Unauthorized'});
+    }
+
+    const orders = await Order.find({ user:userId })
+      .sort({ createdAt:-1 })
+      .populate('checkout shippingAddress');
+
+    return res.status(200).json({
+      success:true,
+      count:orders.length,
+      data:orders
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+
 // @desc    Get single order
 // @route   GET /api/orders/:id
 // @access  Private

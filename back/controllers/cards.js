@@ -20,12 +20,17 @@ exports.checkoutComplete = async (req, res, next) => {
     const { barcode } = req.body;
     if (!barcode) return next(new ErrorResponse("Barcode is required", 400));
 
+    // Debug log
+    console.log("Barcode from request:", barcode);
+
     // 1️⃣ Find the order with this barcode
-    const order = await Order.findOne({ barcode });
-    if (!order)
+    const order = await Order.findOne({ barcode: barcode.toString() });
+    if (!order) {
+      console.log("No order found for barcode:", barcode);
       return next(
         new ErrorResponse("Order not found for this barcode", 404)
       );
+    }
 
     // 2️⃣ Ensure the logged-in user owns this order
     if (!order.user || order.user.toString() !== req.user.id) {
@@ -34,13 +39,25 @@ exports.checkoutComplete = async (req, res, next) => {
       );
     }
 
-    // 3️⃣ Now find the actual card by barcode
-    const card = await Card.findOne({ barcode });
-    if (!card) return next(new ErrorResponse("Card not found", 404));
-    if (card.status === "active")
+    // 3️⃣ Find or create the card by barcode
+    console.log("Looking for card with barcode:", barcode.toString().trim());
+    let card = await Card.findOne({ barcode: barcode.toString().trim() });
+    
+    // If card doesn't exist, create it
+    if (!card) {
+      console.log("Card not found, creating new card with barcode:", barcode.toString().trim());
+      card = await Card.create({
+        barcode: barcode.toString().trim(),
+        status: 'unassigned'
+      });
+    }
+    
+    // Check if card is already active
+    if (card.status === "active") {
       return next(new ErrorResponse("Card already active", 400));
+    }
+    
     // 4️⃣ Mark card as sold & assign owner
-
     card.status = "sold";
     card.owner = req.user.id;
     await card.save();
@@ -62,7 +79,14 @@ exports.requestOtp = async (req, res, next) => {
     const card = await Card.findOne({ barcode });
     if (!card) return next(new ErrorResponse("Card not found", 404));
 
-    if (!card.owner || card.owner.toString() !== req.user.id) {
+    // Debug logs to see the actual values
+    console.log("Card owner:", card.owner, "Type:", typeof card.owner);
+    console.log("User ID:", req.user.id, "Type:", typeof req.user.id);
+    console.log("Owner toString:", card.owner?.toString());
+    console.log("User ID toString:", req.user.id?.toString());
+
+    // Convert both to strings for comparison
+    if (!card.owner || card.owner.toString() !== req.user.id.toString()) {
       return next(new ErrorResponse("You do not own this card", 403));
     }
 
