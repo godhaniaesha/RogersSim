@@ -1,20 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { FaHistory, FaDownload, FaEye } from 'react-icons/fa';
-import { useDispatch, useSelector } from 'react-redux';
-import { toast } from 'react-toastify';
-import cartService from '../../services/cartService';
 
 const OrderHistory = () => {
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const navigate = useNavigate();
-  const dispatch = useDispatch();
-  
-  // Get auth state from Redux
-  const { isAuthenticated } = useSelector(state => state.auth);
-  
-  // State for orders
+  // Mock order history data (would come from API in real app)
   const [orders, setOrders] = useState([
     {
       id: 'ORD123456',
@@ -56,40 +45,11 @@ const OrderHistory = () => {
     setSelectedOrder(order);
   };
 
-  // Download invoice function
-  const downloadInvoice = async (orderId) => {
-    try {
-      await cartService.generateInvoice(orderId);
-      toast.success('Invoice downloaded successfully!');
-    } catch (err) {
-      toast.error(err.message || 'Failed to download invoice');
-    }
+  // Download invoice (mock function)
+  const downloadInvoice = (orderId) => {
+    console.log(`Downloading invoice for order ${orderId}`);
+    alert(`Invoice for order ${orderId} would be downloaded here`);
   };
-  
-  // Fetch orders when component mounts
-  useEffect(() => {
-    // Redirect if not authenticated
-    if (!isAuthenticated) {
-      navigate('/login');
-      return;
-    }
-    
-    const fetchOrders = async () => {
-      try {
-        setLoading(true);
-        const ordersData = await cartService.getUserOrders();
-        setOrders(ordersData);
-        setError(null);
-      } catch (err) {
-        setError(err.message || 'Failed to fetch orders');
-        toast.error(err.message || 'Failed to fetch orders');
-      } finally {
-        setLoading(false);
-      }
-    };
-    
-    fetchOrders();
-  }, [isAuthenticated, navigate]);
 
   return (
     <div className="container py-5">
@@ -102,24 +62,7 @@ const OrderHistory = () => {
             </Link>
           </div>
 
-          {loading ? (
-            <div className="text-center my-5">
-              <div className="spinner-border text-primary" role="status">
-                <span className="visually-hidden">Loading...</span>
-              </div>
-              <p className="mt-2">Loading your orders...</p>
-            </div>
-          ) : error ? (
-            <div className="alert alert-danger my-4" role="alert">
-              {error}
-              <button 
-                className="btn btn-outline-danger btn-sm ms-3"
-                onClick={() => window.location.reload()}
-              >
-                Retry
-              </button>
-            </div>
-          ) : orders.length > 0 ? (
+          {orders.length > 0 ? (
             <div className="card border-0 shadow-sm">
               <div className="card-body p-0">
                 <div className="table-responsive">

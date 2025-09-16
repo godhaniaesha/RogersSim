@@ -33,6 +33,14 @@ body {
     box-shadow: none;
 }
 
+.page-link:focus {
+    z-index: 3;
+    color: var(--bs-pagination-focus-color)#0a58ca;
+    background-color: var(--bs-pagination-focus-bg);
+    outline: 0;
+    box-shadow: none !important;
+}
+
 /* AddBus start */
 
 .social_proof_logo {
@@ -702,7 +710,7 @@ body {
 .x_rech .rech_input {
     /* border-width: 2px;
     border-color: var(--primary-color-light); */
-    font-size: 20px;
+    font-size: 18px;
     border: none;
     border-radius: 0px;
     border-bottom: black 1px solid;
@@ -962,35 +970,42 @@ body {
         width: 80%;
         margin: auto;
     }
-     .x_rech .rech_hero {
+
+    .x_rech .rech_hero {
         text-align: center;
     }
 }
 
 @media (max-width: 500px) {
-  
+
     .x_rech .rech_hero_img .rech_img_1 {
-    height: 285px;}
+        height: 285px;
     }
+}
 
 @media (max-width: 425px) {
-   .rech_card {
+    .rech_card {
         width: 100%;
         margin: auto;
     }
+
     .x_rech .rech_hero_img .rech_img_1 {
-    height: 255px;}
+        height: 255px;
+    }
 }
 
 @media (max-width: 375px) {
-  
+
     .x_rech .rech_hero_img .rech_img_1 {
-    height: 231px;}
+        height: 231px;
+    }
 }
+
 @media (max-width: 320px) {
-  
+
     .x_rech .rech_hero_img .rech_img_1 {
-    height: 203px;}
+        height: 203px;
+    }
 }
 
 /* Recharge page End */
@@ -1017,7 +1032,7 @@ body {
     background: #ffffff;
     border: 1px solid var(--border-color);
     border-radius: 12px;
-     box-shadow:  4px 8px 0 rgba(0, 0, 0, 0), 0 6px 20px 0 rgba(0, 0, 0, 0.19)
+    box-shadow: 4px 8px 0 rgba(0, 0, 0, 0), 0 6px 20px 0 rgba(0, 0, 0, 0.19)
 }
 
 .x_info .x_info__h2 {
@@ -1073,79 +1088,86 @@ body {
 }
 
 @media (max-width: 991px) {
-    .x_info .x_info__stats { grid-template-columns: repeat(3, 1fr); }
+    .x_info .x_info__stats {
+        grid-template-columns: repeat(3, 1fr);
+    }
 }
 
 @media (max-width: 575px) {
-    .x_info .x_info__stats { grid-template-columns: 1fr; }
+    .x_info .x_info__stats {
+        grid-template-columns: 1fr;
+    }
 }
+
 /* Info Pages End */
 .x_info__sim-card {
-  max-width: 330px;
-  background: #fff;
-  border: 2px solid var(--border-color, #ddd);
-  border-radius: 30px 30px 20px 20px;
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.08);
-  position: relative;
+    max-width: 330px;
+    background: #fff;
+    border: 2px solid var(--border-color, #ddd);
+    border-radius: 30px 30px 20px 20px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.08);
+    position: relative;
 }
 
 .x_info__sim-card::before {
-  content: "";
-  position: absolute;
-  top: -14px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 60px;
-  height: 25px;
-  background: #fff;
-  border: 2px solid var(--border-color, #ddd);
-  border-radius: 14px;
-  z-index: 1;
+    content: "";
+    position: absolute;
+    top: -14px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 25px;
+    background: #fff;
+    border: 2px solid var(--border-color, #ddd);
+    border-radius: 14px;
+    z-index: 1;
 }
 
 .sim-logo {
-  width: 100px;
-  height: auto;
-  display: block;
-  margin: 0 auto;
+    width: 100px;
+    height: auto;
+    display: block;
+    margin: 0 auto;
 }
 
 /* Responsive Adjustments */
 @media (max-width: 1024px) {
-.list-unstyled{
-    padding-left: 0;
-    padding-right: 0%;
+    .list-unstyled {
+        padding-left: 0;
+        padding-right: 0%;
+    }
 }
-}
+
 @media (max-width: 768px) {
 
-  .x_info__sim-card {
-   max-width: 96%;
-   margin: auto;
-  }
+    .x_info__sim-card {
+        max-width: 96%;
+        margin: auto;
+    }
 
-  
+
 
 }
+
 @media (max-width: 576px) {
-.x_in_block{
-    display: block !important;
-  }
+    .x_in_block {
+        display: block !important;
+    }
 }
 
-.x_btn_cart{
+.x_btn_cart {
     color: #b71414;
     background-color: #fff;
     border: 1px solid #b71414;
 }
 
-.x_btn_cart:hover{
+.x_btn_cart:hover {
     background-color: #b71414;
     color: #fff;
     border: 1px solid #b71414;
-} 
+}
 
-.x_btn_cart.active{
+.x_btn_cart.active {
     background-color: #b71414 !important;
     color: #fff;
     border: 1px solid #b71414;

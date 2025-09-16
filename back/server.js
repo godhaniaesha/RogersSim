@@ -28,7 +28,7 @@ if (process.env.NODE_ENV === 'development') {
 const paymentRoutes = require("./routes/payments");
 
 
-
+app.use('/api/payments/webhook', paymentRoutes);
 // Mount routes
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/users', require('./routes/users'));

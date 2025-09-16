@@ -1,6 +1,11 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
 import "../style/x_app.css";
 import rech from "../image/rech.png";
+import {jwtDecode} from "jwt-decode";
+import { createRecharge } from "../store/slices/rechargeSlice";
+
 const faqData = [
     {
         q: "How to recharge your Rogers prepaid number online?",
@@ -180,11 +185,16 @@ const faqwifi = [
 
 
 
+
 export default function Recharge() {
-    const [mode, setMode] = useState("rogershome");
+    // mode is either 'fiber' or 'mobile' only
+    const [mode, setMode] = useState("fiber");
+    const navigate = useNavigate();
     const [openIndex, setOpenIndex] = useState(0); // first panel open by default
     const [number, setNumber] = useState("");
     const [error, setError] = useState("");
+    const dispatch = useDispatch();
+    const [loading, setLoading] = useState(false);
 
     const handleChange = (e) => {
         const value = e.target.value;
@@ -205,14 +215,52 @@ export default function Recharge() {
         }
     };
 
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        if (number.length !== 10) {
-            setError("Please enter a valid 10-digit number");
-            return;
-        }
-        alert("Form submitted with number: " + number);
-    };
+        const handleRecharge = async (e) => {
+            e.preventDefault(); // Prevent form reset
+            if (error || number.length !== 10) {
+                setError("Please enter a valid 10-digit number");
+                return;
+            }
+            setLoading(true);
+            try {
+                // 1. Token fetch from localStorage
+                const token = localStorage.getItem("token");
+                if (!token) {
+                    setError("No token found. Please login.");
+                    setLoading(false);
+                    return;
+                }
+
+                // 2. Decode token to get userId
+                const decoded = jwtDecode(token);
+                const userId = decoded?.id || decoded?.userId || decoded?.sub;
+
+                // 3. Prepare recharge data
+                const rechargeData = {
+                    amount: 500,
+                    plan: "Gold",
+                    user: userId,
+                    number,
+                    serviceType: mode, // always 'fiber' or 'mobile'
+                };
+
+                // 4. Dispatch action
+                const resultAction = await dispatch(createRecharge(rechargeData));
+
+                if (createRecharge.fulfilled.match(resultAction)) {
+                    // Optionally reset form or show success
+                    // setNumber("");
+                    // setError("");
+                    // Show success message if needed
+                    navigate("/plans");
+                } else {
+                    setError("Recharge failed. Please try again.");
+                }
+            } catch (err) {
+                setError("Error in recharge: " + err.message);
+            }
+            setLoading(false);
+        };
 
 
     const toggle = (i) => {
@@ -227,51 +275,33 @@ export default function Recharge() {
                             <div className="text-center mb-3">
                                 <div className="rech_icon mb-2"><span className="rech_icon_span">₹</span></div>
                                 <h2 className="mb-2">
-                                    {mode === "rogershome" ? "Fiber Recharge" : "Mobile Recharge"}
+                                    {mode === "fiber" ? "Fiber Recharge" : "Mobile Recharge"}
                                 </h2>
                                 <p className="text-muted mb-0">
                                     Enter your details to find the best prepaid plans.
                                 </p>
                             </div>
+                            <form onSubmit={handleRecharge}>
+                                <div className="rech_toggle d-flex gap-2 mb-3">
+                                    <button
+                                        className={`toggle_btn ${mode === "mobile" ? "active" : ""}`}
+                                        onClick={() => setMode("mobile")}
+                                        type="button"
+                                    >
+                                        Mobile
+                                    </button>
+                                    <button
+                                        className={`toggle_btn ${mode === "fiber" ? "active" : ""}`}
+                                        onClick={() => setMode("fiber")}
+                                        type="button"
+                                    >
+                                        Fiber
+                                    </button>
+                                </div>
 
-                            <div className="rech_toggle d-flex gap-2 mb-3">
-                                <button
-                                    className={`toggle_btn ${mode === "mobile" ? "active" : ""}`}
-                                    onClick={() => setMode("mobile")}
-                                    type="button"
-                                >
-                                    Mobile
-                                </button>
-                                <button
-                                    className={`toggle_btn ${mode === "rogershome" ? "active" : ""}`}
-                                    onClick={() => setMode("rogershome")}
-                                    type="button"
-                                >
-                                    Fiber
-                                </button>
-                            </div>
-
-                            {/* <div className="mb-4">
-                                <label className="form-label small text-muted mb-1">
-                                    {mode === "rogershome" ? "Fiber Number" : "Mobile Number"}
-                                </label>
-                                <input
-                                    type="text"
-                                    className="form-control form-control-lg rech_input"
-                                    placeholder={
-                                        mode === "rogershome" ? "Enter RogersFiber number" : "Enter mobile number"
-                                    }
-                                />
-                            </div>
-
-                            <button type="button" className="btn x_rech_btn w-100 py-2 fw-semibold">
-                                Continue
-                            </button> */}
-
-                            <form onSubmit={handleSubmit}>
                                 <div className="mb-4">
                                     <label className="form-label small text-muted mb-1">
-                                        {mode === "rogershome" ? "Fiber Number" : "Mobile Number"}
+                                        {mode === "fiber" ? "Fiber Number" : "Mobile Number"}
                                     </label>
                                     <input
                                         type="text"
@@ -280,32 +310,20 @@ export default function Recharge() {
                                         maxLength={10} // ✅ restrict typing more than 10 digits
                                         className={`form-control form-control-lg rech_input ${error ? "is-invalid" : ""}`}
                                         placeholder={
-                                            mode === "rogershome" ? "Enter RogersFiber number" : "Enter mobile number"
+                                            mode === "fiber" ? "Enter RogersFiber number" : "Enter mobile number"
                                         }
                                     />
                                     {error && <div className="invalid-feedback">{error}</div>}
                                 </div>
-                                <button type="submit" className="btn x_rech_btn w-100 py-2 fw-semibold">Continue</button>
+                                <button type="submit" className="btn x_rech_btn w-100 py-2 fw-semibold" disabled={loading}>
+                                    {loading ? "Processing..." : "Continue"}
+                                </button>
                             </form>
                         </div>
                     </div>
 
                     <div className="col-lg-6">
                         <div className="rech_hero d-flex flex-column flex-md-row align-items-center gap-4">
-                            {/* <div className="rech_hero_text">
-                <h1 className="display-6 fw-bold mb-2">
-                  Plans to redefine your digital life
-                </h1>
-                <p className="text-muted mb-4">
-                  Find a RogersFiber plan that suits your digital aspirations.
-                </p>
-                <div className="d-flex flex-wrap gap-3">
-                  <span className="rech_chip">Data sachets</span>
-                  <span className="rech_chip">Budget plans</span>
-                  <span className="rech_chip">OTT bundled plans</span>
-                  <span className="rech_chip">ISD plans</span>
-                </div>
-              </div> */}
                             <div className="rech_hero_img m-auto">
                                 <img src={rech} className="rech_img_1 rounded-4"></img>
                             </div>

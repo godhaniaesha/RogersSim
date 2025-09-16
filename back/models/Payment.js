@@ -1,30 +1,27 @@
+// Payment.js (UPDATED)
 const mongoose = require('mongoose');
 
 const PaymentSchema = new mongoose.Schema({
   user: {
     type: mongoose.Schema.ObjectId,
-    ref: 'User',
-    required: true
+    ref: 'User'
+    // not required if you might accept guest payments; but recommended to provide userId
   },
   order: {
     type: mongoose.Schema.ObjectId,
-    ref: 'Order',
-    required: true
+    ref: 'Order'
+    // made optional for Stripe payments without an "Order" entity
   },
   paymentId: {
     type: String,
     required: true,
-    unique: true
+    unique: true // keep unique to avoid duplicates
   },
-  razorpayOrderId: {
-    type: String
-  },
-  razorpayPaymentId: {
-    type: String
-  },
-  razorpaySignature: {
-    type: String
-  },
+  // Stripe-specific fields
+  stripePaymentIntentId: { type: String },
+  stripeChargeId: { type: String },
+  receiptUrl: { type: String },
+
   amount: {
     type: Number,
     required: true,
@@ -36,7 +33,7 @@ const PaymentSchema = new mongoose.Schema({
   },
   method: {
     type: String,
-    enum: ['cod', 'card', 'netbanking', 'upi', 'wallet', 'emi'],
+    enum: ['cod', 'card', 'netbanking', 'upi', 'wallet', 'emi', 'stripe'],
     required: true
   },
   status: {
@@ -45,27 +42,14 @@ const PaymentSchema = new mongoose.Schema({
     default: 'pending'
   },
   gatewayResponse: {
-    type: Map,
-    of: mongoose.Schema.Types.Mixed
+    type: mongoose.Schema.Types.Mixed // store raw gateway response
   },
-  refundAmount: {
-    type: Number,
-    default: 0,
-    min: 0
-  },
-  refundId: {
+  phone: {
     type: String
   },
-  refundStatus: {
-    type: String,
-    enum: ['none', 'pending', 'success', 'failed'],
-    default: 'none'
-  },
-  emiDetails: {
-    tenure: Number,
-    monthlyAmount: Number,
-    interestRate: Number,
-    processingFee: Number
+  planId: {
+    type: mongoose.Schema.ObjectId,
+    ref: 'Plan'
   },
   createdAt: {
     type: Date,
@@ -77,7 +61,6 @@ const PaymentSchema = new mongoose.Schema({
   }
 });
 
-// Update the updatedAt field before saving
 PaymentSchema.pre('save', function(next) {
   this.updatedAt = Date.now();
   next();

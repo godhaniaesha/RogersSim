@@ -140,11 +140,11 @@ export default function Header() {
                           My Profile
                         </NavLink>
                       </li>
-                      <li>
+                      {/* <li>
                         <NavLink className="dropdown-item" to="/profile/orders" onClick={closeMenu}>
                           Order History
                         </NavLink>
-                      </li>
+                      </li> */}
                       <li>
                         <hr className="dropdown-divider" />
                       </li>

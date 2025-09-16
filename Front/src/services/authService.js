@@ -1,17 +1,15 @@
 import api from './api';
 
-const authService = {
+export const authService = {
   // Login with email and password
   loginWithEmail: async (email, password) => {
     try {
       const response = await api.post('/auth/login', { email, password });
       if (response.data.token) {
         localStorage.setItem('token', response.data.token);
-        localStorage.setItem('user', JSON.stringify(response.data.user));
       }
       return response.data;
     } catch (error) {
-      console.error('Login error:', error);
       throw error.response?.data || { message: 'Login failed' };
     }
   },
@@ -22,7 +20,6 @@ const authService = {
       const response = await api.post('/auth/send-otp', { mobile });
       return response.data;
     } catch (error) {
-      console.error('Send OTP error:', error);
       throw error.response?.data || { message: 'Failed to send OTP' };
     }
   },
@@ -32,11 +29,9 @@ const authService = {
       const response = await api.post('/auth/verify-otp', { mobile, otp });
       if (response.data.token) {
         localStorage.setItem('token', response.data.token);
-        localStorage.setItem('user', JSON.stringify(response.data.user));
       }
       return response.data;
     } catch (error) {
-      console.error('OTP verification error:', error);
       throw error.response?.data || { message: 'OTP verification failed' };
     }
   },
@@ -47,11 +42,9 @@ const authService = {
       const response = await api.post('/auth/google', { tokenId });
       if (response.data.token) {
         localStorage.setItem('token', response.data.token);
-        localStorage.setItem('user', JSON.stringify(response.data.user));
       }
       return response.data;
     } catch (error) {
-      console.error('Google login error:', error);
       throw error.response?.data || { message: 'Google login failed' };
     }
   },
@@ -62,27 +55,16 @@ const authService = {
       const response = await api.post('/auth/signup', userData);
       if (response.data.token) {
         localStorage.setItem('token', response.data.token);
-        localStorage.setItem('user', JSON.stringify(response.data.user));
       }
       return response.data;
     } catch (error) {
-      console.error('Signup error:', error);
       throw error.response?.data || { message: 'Signup failed' };
     }
   },
 
   // Logout
-  logout: async () => {
-    try {
-      // Call the logout endpoint
-      await api.get('/auth/logout');
-    } catch (error) {
-      console.error('Logout error:', error);
-    } finally {
-      // Always clear local storage
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
-    }
+  logout: () => {
+    localStorage.removeItem('token');
   },
 
   // Get current user profile
@@ -132,12 +114,6 @@ const authService = {
   // Check if user is authenticated
   isAuthenticated: () => {
     return !!localStorage.getItem('token');
-  },
-  
-  // Get user from localStorage
-  getUser: () => {
-    const user = localStorage.getItem('user');
-    return user ? JSON.parse(user) : null;
   },
 };
 
