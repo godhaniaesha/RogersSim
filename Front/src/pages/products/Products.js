@@ -19,20 +19,8 @@ import { toast } from "react-toastify";
 import productService from "../../services/productService";
 
 const Products = () => {
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
 
-  const {
-    products = [],
-    loading = false,
-    error = null,
-  } = useSelector((state) => state.product || {});
-
-  useEffect(() => {
-    dispatch(fetchProducts());
-  }, [dispatch]);
-
-  // Filter states
+  // Filter states (move to top so it's initialized before use)
   const [filters, setLocalFilters] = useState({
     type: "",
     simType: "",
@@ -46,6 +34,35 @@ const Products = () => {
   // Offcanvas state for mobile filters
   const [showOffcanvas, setShowOffcanvas] = useState(false);
 
+  // Filtered products
+  const [filteredProducts, setFilteredProducts] = useState([]);
+  const [isSortOpen, setIsSortOpen] = useState(false);
+
+  // Pagination state
+  const productsPerPage = 6;
+  const [currentPage, setCurrentPage] = useState(1);
+  const totalPages = Math.ceil(filteredProducts.length / productsPerPage);
+
+  // Reset page when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [filters, sortBy]);
+
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  const {
+    products = [],
+    loading = false,
+    error = null,
+  } = useSelector((state) => state.product || {});
+
+  useEffect(() => {
+    dispatch(fetchProducts());
+  }, [dispatch]);
+
+ 
+
   // Update Redux when local state changes
   useEffect(() => {
     dispatch(setFilters(filters));
@@ -55,9 +72,7 @@ const Products = () => {
     dispatch(setSort(sortBy));
   }, [sortBy, dispatch]);
 
-  // Filtered products
-  const [filteredProducts, setFilteredProducts] = useState([]);
-  const [isSortOpen, setIsSortOpen] = useState(false);
+ 
 
   // Use products from Redux if available, otherwise use mock data
   const productsToUse =
@@ -482,57 +497,124 @@ const Products = () => {
             </p>
           </div>
 
+          {/* Product Grid with Pagination */}
           {filteredProducts.length > 0 ? (
-            <div className="row">
-              {filteredProducts.map((product) => (
-                <div
-                  className="col-12 col-sm-6 col-lg-4 mb-4 d-flex justify-content-center"
-                  key={product.id}
-                >
-                  <div className="card h-100 border-0 shadow-sm z_prd_card">
-                    <div className="card-body d-flex flex-column">
-                      <div className="d-flex justify-content-between align-items-start mb-2">
-                        <h5 className="card-title mb-0 z_prd_name">{product.name}</h5>
-                      </div>
-                      <p className="card-text text-muted small mb-3">
-                        {product.description}
-                      </p>
-                      <div className="mb-3 flex-grow-1">
-                        {product.features.map((feature, index) => (
-                          <div
-                            key={index}
-                            className="d-flex align-items-center mb-1"
-                          >
-                            <div className="me-2 z_prd_bullet">•</div>
-                            <div className="small">{feature}</div>
+            <>
+              <div className="row">
+                {filteredProducts
+                  .slice((currentPage - 1) * productsPerPage, currentPage * productsPerPage)
+                  .map((product) => (
+                    <div
+                      className="col-12 col-sm-6 col-lg-4 mb-4 d-flex justify-content-center"
+                      key={product.id}
+                    >
+                      <div className="card h-100 border-0 shadow-sm z_prd_card">
+                        <div className="card-body d-flex flex-column">
+                          <div className="d-flex justify-content-between align-items-start mb-2">
+                            <h5 className="card-title mb-0 z_prd_name">{product.name}</h5>
                           </div>
-                        ))}
-                      </div>
-                      <div>
-                        <div className="d-flex justify-content-between align-items-center mt-auto">
-                          <h5 className="z_prd_price mb-0">₹{product.price}</h5>
-                          <button
-                            className="btn z_prd_btn"
-                            onClick={() => {
-                              if (product.category === "prepaid") {
-                                // Go to prepaid plan selection page
-                                navigate(`/products/${product._id}?type=prepaid`);
-                              } else {
-                                // Add to cart and go to cart page
-                                dispatch(addToCart({ productId: product._id, quantity: 1 })); // You may want to adjust the payload as per your cartSlice
-                                navigate("/cart");
-                              }
-                            }}
-                          >
-                            Select
-                          </button>
+                          <p className="card-text text-muted small mb-3">
+                            {product.description}
+                          </p>
+                          <div className="mb-3 flex-grow-1">
+                            {product.features.map((feature, index) => (
+                              <div
+                                key={index}
+                                className="d-flex align-items-center mb-1"
+                              >
+                                <div className="me-2 z_prd_bullet">•</div>
+                                <div className="small">{feature}</div>
+                              </div>
+                            ))}
+                          </div>
+                          <div>
+                            <div className="d-flex justify-content-between align-items-center mt-auto">
+                              <h5 className="z_prd_price mb-0">₹{product.price}</h5>
+                              <button
+                                className="btn z_prd_btn"
+                                onClick={() => {
+                                  if (product.category === "prepaid") {
+                                    navigate(`/products/${product._id}?type=prepaid`);
+                                  } else {
+                                    dispatch(addToCart({ productId: product._id, quantity: 1 }));
+                                    navigate("/cart");
+                                  }
+                                }}
+                              >
+                                Select
+                              </button>
+                            </div>
+                          </div>
                         </div>
                       </div>
                     </div>
-                  </div>
+                  ))}
+              </div>
+              {/* Pagination: show only if more than 6 products */}
+              {filteredProducts.length > productsPerPage && (
+                <div className="x_pagination d-flex justify-content-center align-items-center my-4">
+                  <button
+                    className="x_page_btn"
+                    disabled={currentPage === 1}
+                    onClick={() => setCurrentPage(currentPage - 1)}
+                    style={{ background: 'white', color: '#c90f0f', border: 'none', fontSize: '1.5rem', borderRadius: '50%', width: '40px', height: '40px' }}
+                  >
+                    &#60;
+                  </button>
+                  {/* Show only 3 page numbers at a time, centered around currentPage */}
+                  {(() => {
+                    let startPage = 1;
+                    let endPage = totalPages;
+                    if (totalPages > 3) {
+                      if (currentPage === 1) {
+                        startPage = 1;
+                        endPage = 3;
+                      } else if (currentPage === totalPages) {
+                        startPage = totalPages - 2;
+                        endPage = totalPages;
+                      } else {
+                        startPage = currentPage - 1;
+                        endPage = currentPage + 1;
+                      }
+                    }
+                    const pages = [];
+                    for (let i = startPage; i <= endPage; i++) {
+                      if (i > 0 && i <= totalPages) {
+                        pages.push(i);
+                      }
+                    }
+                    return pages.map((page) => (
+                      <button
+                        key={page}
+                        className={`x_page_btn mx-2${currentPage === page ? ' x_active_page' : ''}`}
+                        onClick={() => setCurrentPage(page)}
+                        style={{
+                          background: currentPage === page ? '#c90f0f' : 'white',
+                          color: currentPage === page ? 'white' : '#c90f0f',
+                          border: 'none',
+                          fontWeight: 'bold',
+                          borderRadius: '50%',
+                          width: '32px',
+                          height: '32px',
+                          fontSize: '1.1rem',
+                          boxShadow: currentPage === page ? '0 0 8px rgba(255,0,0,0.2)' : 'none',
+                        }}
+                      >
+                        {page}
+                      </button>
+                    ));
+                  })()}
+                  <button
+                    className="x_page_btn"
+                    disabled={currentPage === totalPages}
+                    onClick={() => setCurrentPage(currentPage + 1)}
+                    style={{ background: 'white', color: '#c90f0f', border: 'none', fontSize: '1.5rem', borderRadius: '50%', width: '40px', height: '40px' }}
+                  >
+                    &#62;
+                  </button>
                 </div>
-              ))}
-            </div>
+              )}
+            </>
           ) : (
             <div className="card border-0 shadow-sm">
               <div className="card-body text-center py-5">

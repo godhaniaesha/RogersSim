@@ -3,7 +3,7 @@ import "../style/x_app.css";
 
 export default function ExplorB() {
   return (
-    <section className="explorb-section x_exp container py-4">
+    <section className="explorb-section x_exp container py-5">
       {/* Section Heading */}
       <div className="section-title">
         <h2 className="section-heading">

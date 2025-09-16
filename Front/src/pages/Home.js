@@ -162,7 +162,7 @@ export default function Home() {
         <AdAbout></AdAbout>
 
         {/* Popular Plans Section (Dynamic) */}
-        <section className="py-md-5 py-4">
+        <section className="py-md-5 py-4 mb-3">
           <div className="container">
             <h2 className="text-center mb-md-5 mb-2 fw-bold">Popular Plans</h2>
             {loading ? (
@@ -220,7 +220,7 @@ export default function Home() {
 
         {/* Buy SIM CTA Section */}
         <section className="py-md-5 py-3 bg-primary-custom">
-          <div className="container py-4 text-center">
+          <div className="container text-center">
             <h2 className="text-white mb-4">Ready to Experience Rogers Network?</h2>
             <p className="lead text-white mb-4">Get started with a new SIM card or port your existing number today!</p>
             <Link to="/products" className="btn btn-light btn-lg px-md-5 px-3">

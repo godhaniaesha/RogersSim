@@ -9,7 +9,7 @@ export default function AdAbout() {
 
   return (
     <section className="b2b_contact_section">
-      <div className="contact_inner_wrapper">
+      <div className="contact_inner_wrapper my-3 mb-4">
         <div className="container">
           <div className="content">
             <div className="contact_left">

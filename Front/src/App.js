@@ -99,8 +99,8 @@ const AppContent = () => {
 
             <Route path="/products/:id" element={<ProductDetail />} />
             <Route path="/cart" element={<Cart />} />
-            {/* <Route path="/checkout" element={<Checkout />} />
-            <Route path="/payment" element={<Payment />} /> */}
+            {/* <Route path="/checkout" element={<Checkout />} /> */}
+            {/* <Route path="/payment" element={<Payment />} /> */}
             <Route path="/order-confirmation" element={<OrderConfirmation />} />
             <Route path="/forgot-password" element={<ForgotPass />} />
             <Route path="/helpcenter" element={<HelpCenter />} />

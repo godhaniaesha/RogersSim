@@ -212,3 +212,26 @@ exports.buyPlan = async (req, res) => {
     res.status(500).json({ success: false, message: err.message });
   }
 };
+
+
+// Get Recharges of Logged-in User
+exports.getMyRecharges = async (req, res) => {
+  try {
+    const userId = req.user && req.user.id;
+    if (!userId) {
+      return res.status(401).json({ success: false, error: 'Unauthorized' });
+    }
+    const myRecharges = await Recharge.find({ user: userId })
+      .populate("plans")
+      .populate("user")
+      .sort({ createdAt: -1 }); // latest first
+
+    return res.status(200).json({
+      success: true,
+      count: myRecharges.length,
+      data: myRecharges,
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
