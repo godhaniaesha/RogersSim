@@ -203,6 +203,7 @@ exports.clearCart = async (req, res, next) => {
     }
 
     cart.items = [];
+    cart.markModified("items");
     await cart.save();
 
     res.status(200).json({

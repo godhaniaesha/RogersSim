@@ -505,7 +505,7 @@ const Products = () => {
                   .slice((currentPage - 1) * productsPerPage, currentPage * productsPerPage)
                   .map((product) => (
                     <div
-                      className="col-12 col-sm-6 col-lg-4 mb-4 d-flex justify-content-center"
+                      className="col-12 col-sm-6 col-lg-6 col-xl-4 mb-4 d-flex justify-content-center"
                       key={product.id}
                     >
                       <div className="card h-100 border-0 shadow-sm z_prd_card">

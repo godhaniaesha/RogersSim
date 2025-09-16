@@ -2,7 +2,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 
 // Base URL
-const API_URL = "http://localhost:5000/api/cart"; // 👈 tamaru backend URL mukvo
+const API_URL = "http://localhost:5000/api/cart";
 
 // 🟢 Get Cart
 export const getCart = createAsyncThunk(
@@ -30,7 +30,6 @@ export const getCart = createAsyncThunk(
 export const addToCart = createAsyncThunk(
   "cart/addToCart",
   async (payload, { rejectWithValue }) => {
-
     console.log("🛒 addToCart payload:", payload); // { productId, planId, quantity }
 
     try {
@@ -88,7 +87,6 @@ export const removeFromCart = createAsyncThunk(
   async (itemId, { rejectWithValue }) => {
     console.log("🛒 removeFromCart itemId:", itemId);
     try {
-
       const token = localStorage.getItem("token");
       const res = await fetch(`http://localhost:5000/api/cart/${itemId}`, {
         method: "DELETE",
@@ -111,24 +109,26 @@ export const clearCart = createAsyncThunk(
   "cart/clearCart",
   async (_, { rejectWithValue }) => {
     try {
-      const res = await fetch(API_URL, {
+      const token = localStorage.getItem("token");
+
+      const res = await fetch("http://localhost:5000/api/cart", {
         method: "DELETE",
-        credentials: "include",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
+          Authorization: `Bearer ${token}`,
         },
       });
+
       const data = await res.json();
       console.log("🛒 clearCart response:", data);
+
       if (!res.ok) return rejectWithValue(data);
-      return data.data;
+      return data;
     } catch (err) {
       return rejectWithValue(err.message);
     }
   }
 );
-
 // Slice
 const cartSlice = createSlice({
   name: "cart",
@@ -194,10 +194,11 @@ const cartSlice = createSlice({
 
       // Clear Cart
       .addCase(clearCart.fulfilled, (state, action) => {
-        state.items = action.payload.items || [];
-        state.subtotal = action.payload.subtotal || 0;
-        state.tax = action.payload.tax || 0;
-        state.total = action.payload.total || 0;
+        console.log("🟢 clearCart.fulfilled called with:", action.payload);
+        state.items = [];
+        state.subtotal = 0;
+        state.tax = 0;
+        state.total = 0;
       })
       .addCase(clearCart.rejected, (state, action) => {
         state.error = action.payload;

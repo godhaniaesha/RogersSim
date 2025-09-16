@@ -1,4 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import { clearCart } from './cartSlice';
 
 // 🔹 Async thunk: my orders fetch
 export const fetchMyOrders = createAsyncThunk(
@@ -30,7 +31,7 @@ export const fetchMyOrders = createAsyncThunk(
 );
 export const createOrder = createAsyncThunk(
   "orders/createOrder",
-  async (orderData, { rejectWithValue }) => {
+  async (orderData, { rejectWithValue, dispatch }) => {
     try {
       const token = localStorage.getItem("token");
       const response = await fetch("http://localhost:5000/api/orders", {
@@ -41,6 +42,7 @@ export const createOrder = createAsyncThunk(
         },
         body: JSON.stringify(orderData),
       });
+
       if (!response.ok) {
         const err = await response.json();
         console.error("Order API error:", err);
@@ -48,6 +50,9 @@ export const createOrder = createAsyncThunk(
       }
 
       const data = await response.json();
+
+      await dispatch(clearCart());
+
       return data.data.order;
     } catch (error) {
       return rejectWithValue(error.message);

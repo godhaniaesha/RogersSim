@@ -11,7 +11,8 @@ const Cart = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  const [cartItems, setCartItems] = useState([]);
+  // const [cartItems, setCartItems] = useState([]);
+  // const { items, loading, error } = useSelector(state => state.cart);
 
   // Fetch products from Redux
   useEffect(() => {
@@ -24,9 +25,9 @@ const Cart = () => {
   const { isAuthenticated } = useSelector(state => state.auth);
 
   // Update local cart state when Redux cart changes
-  useEffect(() => {
-    if (items) setCartItems(items);
-  }, [items]);
+  // useEffect(() => {
+  //   if (items) setCartItems(items);
+  // }, [items]);
 
   // Fetch cart items on mount
   useEffect(() => {
@@ -58,7 +59,7 @@ const Cart = () => {
 
   // Calculate cart total
   const calculateTotal = () => {
-    return cartItems.reduce((sum, item) => sum + item.totalPrice, 0);
+    return items.reduce((sum, item) => sum + item.totalPrice, 0);
   };
 
   // ✅ Tax calculation (example: 18% GST)
@@ -75,7 +76,7 @@ const Cart = () => {
 
   // Proceed to checkout
   const proceedToCheckout = () => {
-    if (cartItems.length === 0) {
+    if (items.length === 0) {
       toast.error('Your cart is empty');
       return;
     }
@@ -99,13 +100,13 @@ const Cart = () => {
         </div>
       ) : error ? (
         <div className="alert alert-danger">{error}</div>
-      ) : cartItems.length > 0 ? (
+      ) : items.length > 0 ? (
         <div className="row">
           {/* Cart Items */}
           <div className="col-lg-8 mb-4">
             <div className="card border-0 shadow-sm">
               <div className="card-body">
-                {cartItems.map((item) => {
+                {items.map((item) => {
                   const matchedProduct = products.find(
                     (p) => p._id === item.productId._id
                   );
@@ -167,15 +168,13 @@ const Cart = () => {
           {/* Order Summary */}
           <div className="col-lg-4">
             <div
-              className="card border-0 shadow-sm sticky-lg-top"
-              style={{ top: '2rem' }}
-            >
+              className="card border-0 shadow-sm">
               <div className="card-header bg-white py-3">
                 <h4 className="mb-0">Order Summary</h4>
               </div>
               <div className="card-body">
                 <div className="d-flex justify-content-between mb-2">
-                  <span>Subtotal ({cartItems.length} items)</span>
+                  <span>Subtotal ({items.length} items)</span>
                   <span>₹{calculateTotal()}</span>
                 </div>
                 <div className="d-flex justify-content-between mb-2">
