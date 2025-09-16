@@ -1,10 +1,5 @@
 import React, { useState, useEffect } from "react";
-import {
-  useParams,
-  Link,
-  useNavigate,
-  useLocation,
-} from "react-router-dom";
+import { useParams, Link, useNavigate, useLocation } from "react-router-dom";
 import {
   FaArrowLeft,
   FaCheck,
@@ -16,7 +11,10 @@ import { addToCart } from "../../store/slices/cartSlice";
 import { toast } from "react-toastify";
 import productService from "../../services/productService";
 import cartService from "../../services/cartService";
-import { fetchProductById, fetchPlansByProductId } from "../../store/slices/productSlice";
+import {
+  fetchProductById,
+  fetchPlansByProductId,
+} from "../../store/slices/productSlice";
 import "../../App.css";
 
 const ProductDetail = () => {
@@ -33,7 +31,9 @@ const ProductDetail = () => {
   const [portingNumber, setPortingNumber] = useState("");
   const [selectedAddons, setSelectedAddons] = useState([]);
   const [addons, setAddons] = useState([]);
-  const { product, loading, error,plans } = useSelector((state) => state.product);
+  const { product, loading, error, plans } = useSelector(
+    (state) => state.product
+  );
   const { items, loading: cartLoading } = useSelector((state) => state.cart);
 
   // Fetch product and plans
@@ -55,7 +55,6 @@ const ProductDetail = () => {
     // }
   };
 
-
   const handleAddonToggle = (addon) => {
     if (selectedAddons.some((a) => a.id === addon.id)) {
       setSelectedAddons(selectedAddons.filter((a) => a.id !== addon.id));
@@ -72,26 +71,32 @@ const ProductDetail = () => {
   };
 
   const handleAddToCart = async () => {
-    if (!selectedPlan) {
+    // make sure plan is selected for prepaid
+    if (isPrepaid && !selectedPlan) {
       toast.error("Please select a plan to continue");
       return;
     }
+
     const cartItem = {
-      product,
-      plan: selectedPlan,
+      productId: product?._id, // send only ID
+      planId: selectedPlan?._id || null, // send only ID
       numberType,
       portingNumber: numberType === "port" ? portingNumber : null,
-      addons: selectedAddons,
       total: calculateTotal(),
     };
 
     try {
-      dispatch(addToCart(cartItem));
+      dispatch(addToCart(cartItem)); // if your slice accepts same shape
       await cartService.addToCart(cartItem);
       toast.success("Added to cart successfully!");
       navigate("/cart");
     } catch (err) {
-      toast.error(err.message || "Failed to add item to cart");
+      // Fixed: Convert error object to string
+      const errorMessage = err?.response?.data?.error || 
+                          err?.message || 
+                          err?.error || 
+                          "Failed to add item to cart";
+      toast.error(errorMessage);
     }
   };
 
@@ -110,7 +115,8 @@ const ProductDetail = () => {
     return (
       <div className="container py-5">
         <div className="alert alert-danger">
-          {error}
+          {/* Fixed: Ensure error is displayed as string */}
+          {typeof error === 'object' ? JSON.stringify(error) : error}
           <button
             className="btn btn-outline-danger btn-sm ms-3"
             onClick={() => window.location.reload()}
@@ -162,7 +168,8 @@ const ProductDetail = () => {
                   <div className="d-flex align-items-center mb-2">
                     <span className="badge bg-light text-dark me-2">
                       {product?.type
-                        ? product.type.charAt(0).toUpperCase() + product.type.slice(1)
+                        ? product.type.charAt(0).toUpperCase() +
+                          product.type.slice(1)
                         : "N/A"}
                     </span>
                     <span className="badge bg-light text-dark">
@@ -179,7 +186,8 @@ const ProductDetail = () => {
                   product.features.map((feature, index) => (
                     <li key={index} className="d-flex align-items-center mb-2">
                       <FaCheck className="text-danger me-2" />
-                      <span>{feature}</span>
+                      {/* Fixed: Ensure feature is rendered as string */}
+                      <span>{typeof feature === 'object' ? JSON.stringify(feature) : feature}</span>
                     </li>
                   ))
                 ) : (
@@ -201,37 +209,55 @@ const ProductDetail = () => {
                 </div>
                 <div className="card-body">
                   <div className="row row-cols-1 row-cols-md-3 g-3">
-                    {plans.map((plan, index) => {
-                      const uniqueKey = `${plan.id}-${plan.planType || index}`;
+                    {plans && plans.length > 0 ? plans.map((plan, index) => {
+                      const uniqueKey = `${plan.id || plan._id}-${plan.planType || index}`;
                       const isSelected =
                         selectedPlan &&
-                        selectedPlan.id === plan.id &&
+                        (selectedPlan.id === plan.id || selectedPlan._id === plan._id) &&
                         selectedPlan.planType === plan.planType;
 
                       return (
                         <div className="col" key={uniqueKey}>
                           <div
-                            className={`card h-100 ${isSelected ? "border-primary" : "border-light"}`}
+                            className={`card h-100 ${
+                              isSelected ? "border-danger" : "border-light"
+                            }`}
                             onClick={() => handlePlanSelect(plan)}
                             style={{ cursor: "pointer" }}
                           >
                             <div className="card-body">
-                              <h5 className="card-title">{plan.name}</h5>
-                              <h6 className="text-primary mb-3">₹{plan.price}</h6>
-                              <div className="small mb-1"><strong>Data:</strong> {plan.dataLimit}</div>
-                              <div className="small mb-1"><strong>Validity:</strong> {plan.validity}</div>
-                              <div className="small mb-1"><strong>Speed:</strong> {plan.speed}</div>
-                              <div className="small mb-1"><strong>PlanType:</strong> {plan.planType}</div>
+                              <h5 className="card-title">{plan.name || 'Unnamed Plan'}</h5>
+                              <h6 className="text-danger mb-3">
+                                ₹{plan.price || 0}
+                              </h6>
+                              <div className="small mb-1">
+                                <strong>Data:</strong> {plan.dataLimit || 'N/A'}
+                              </div>
+                              <div className="small mb-1">
+                                <strong>Validity:</strong> {plan.validity || 'N/A'}
+                              </div>
+                              <div className="small mb-1">
+                                <strong>Speed:</strong> {plan.speed || 'N/A'}
+                              </div>
+                              <div className="small mb-1">
+                                <strong>PlanType:</strong> {plan.planType || 'N/A'}
+                              </div>
                             </div>
                             {isSelected && (
-                              <div className="card-footer bg-primary text-white text-center py-2">
+                              <div className="card-footer bg-danger text-white text-center py-2">
                                 <small>Selected</small>
                               </div>
                             )}
                           </div>
                         </div>
                       );
-                    })}
+                    }) : (
+                      <div className="col-12">
+                        <div className="text-center text-muted">
+                          No plans available for this product
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
@@ -257,7 +283,11 @@ const ProductDetail = () => {
                       <div className="d-flex justify-content-between mb-2">
                         <span>Add-ons</span>
                         <span>
-                          ₹{selectedAddons.reduce((sum, addon) => sum + addon.price, 0)}
+                          ₹
+                          {selectedAddons.reduce(
+                            (sum, addon) => sum + addon.price,
+                            0
+                          )}
                         </span>
                       </div>
                       <div className="ps-3 small text-muted mb-2">
@@ -276,12 +306,12 @@ const ProductDetail = () => {
                   <hr />
                   <div className="d-flex justify-content-between fw-bold">
                     <span>Total</span>
-                    <span className="text-primary">₹{calculateTotal()}</span>
+                    <span className="text-danger">₹{calculateTotal()}</span>
                   </div>
                 </div>
                 <div className="card-footer bg-white border-0 pt-0">
                   <button
-                    className="btn btn-primary w-100 py-2"
+                    className="btn btn-danger w-100 py-2"
                     onClick={handleAddToCart}
                     disabled={!selectedPlan}
                   >

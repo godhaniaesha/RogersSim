@@ -1,80 +1,65 @@
 const mongoose = require('mongoose');
 
 const PaymentSchema = new mongoose.Schema({
+  // Optional reference to a user if available in your app
   user: {
     type: mongoose.Schema.ObjectId,
     ref: 'User',
-    required: true
   },
-  order: {
-    type: mongoose.Schema.ObjectId,
-    ref: 'Order',
-    required: true
-  },
-  paymentId: {
+  // Phone number used for recharge/payment
+  phone: {
     type: String,
     required: true,
-    unique: true
   },
-  razorpayOrderId: {
-    type: String
+  productId: {
+    type: mongoose.Schema.ObjectId,
+    ref: 'Product',
+    required: false,
   },
-  razorpayPaymentId: {
-    type: String
+  // The plan being purchased
+  planId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Plan',
+    required: false,
   },
-  razorpaySignature: {
-    type: String
-  },
+  // Amount in rupees for easy reporting (Stripe returns paise; we convert)
   amount: {
     type: Number,
     required: true,
-    min: 0
+    min: 0,
   },
   currency: {
     type: String,
-    default: 'INR'
+    default: 'INR',
   },
-  method: {
+  // Stripe identifiers
+  stripeSessionId: {
     type: String,
-    enum: ['cod', 'card', 'netbanking', 'upi', 'wallet', 'emi'],
-    required: true
+    unique: true,
+    required: true,
   },
+  stripePaymentIntentId: {
+    type: String,
+  },
+  // Payment status lifecycle
   status: {
     type: String,
     enum: ['pending', 'success', 'failed', 'cancelled', 'refunded'],
-    default: 'pending'
+    default: 'pending',
   },
+  // Raw gateway response (optional)
   gatewayResponse: {
     type: Map,
-    of: mongoose.Schema.Types.Mixed
-  },
-  refundAmount: {
-    type: Number,
-    default: 0,
-    min: 0
-  },
-  refundId: {
-    type: String
-  },
-  refundStatus: {
-    type: String,
-    enum: ['none', 'pending', 'success', 'failed'],
-    default: 'none'
-  },
-  emiDetails: {
-    tenure: Number,
-    monthlyAmount: Number,
-    interestRate: Number,
-    processingFee: Number
+    of: mongoose.Schema.Types.Mixed,
   },
   createdAt: {
     type: Date,
-    default: Date.now
+    default: Date.now,
   },
   updatedAt: {
     type: Date,
-    default: Date.now
-  }
+    default: Date.now,
+  },
 });
 
 // Update the updatedAt field before saving
