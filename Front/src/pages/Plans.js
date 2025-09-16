@@ -19,7 +19,7 @@ import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
 import "../style/z_app.css";
-
+import { jwtDecode } from "jwt-decode";
 import { loadStripe } from "@stripe/stripe-js";
 
 // initialise Stripe with your public key
@@ -34,7 +34,18 @@ function Plans() {
     (state) => state.plan
   );
   const { profile: userProfile } = useSelector((state) => state.user || {});
-
+  
+  const token = localStorage.getItem("token"); // token store karyo hoy to
+  let userId = null;
+  if (token) {
+    try {
+      const decoded = jwtDecode(token);
+      userId = decoded.id || decoded._id; // JWT payload ma je key hoy te use karo
+      console.log(userId,"===");      
+    } catch (err) {
+      console.error("Invalid token:", err);
+    }
+  }
   const [show, setShow] = useState(false);
   const [showPayment, setShowPayment] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
@@ -53,6 +64,36 @@ function Plans() {
       setPhoneNumber(userProfile.phone);
     }
   }, [userProfile]);
+
+  // Detect Stripe redirect success and record the payment on backend
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const success = params.get('success');
+    const sessionId = params.get('session_id');
+    if (success === 'true' && sessionId) {
+      fetch('http://localhost:5000/api/payments/record-payment', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ session_id: sessionId }),
+      })
+        .then(async (res) => {
+          if (!res.ok) throw new Error(await res.text());
+          return res.json();
+        })
+        .then(() => {
+          setShowSuccess(true);
+          // Clean URL
+          const url = new URL(window.location.href);
+          url.searchParams.delete('success');
+          url.searchParams.delete('session_id');
+          window.history.replaceState({}, '', url.toString());
+        })
+        .catch((err) => {
+          console.error('Record payment failed:', err);
+          toast.error('Unable to record payment. Please contact support.');
+        });
+    }
+  }, []);
 
   const toggleAccordion = (index) => {
     setActiveIndex(activeIndex === index ? null : index);
@@ -94,6 +135,7 @@ function Plans() {
           amount,
           planId: localSelectedPlan._id,
           phone: phoneNumber,
+          userId: userId,
         }),
       }
     );

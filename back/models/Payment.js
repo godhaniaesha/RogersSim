@@ -2,63 +2,65 @@
 const mongoose = require('mongoose');
 
 const PaymentSchema = new mongoose.Schema({
+  // Optional reference to a user if available in your app
   user: {
     type: mongoose.Schema.ObjectId,
-    ref: 'User'
-    // not required if you might accept guest payments; but recommended to provide userId
+    ref: 'User',
   },
-  order: {
-    type: mongoose.Schema.ObjectId,
-    ref: 'Order'
-    // made optional for Stripe payments without an "Order" entity
-  },
-  paymentId: {
+  // Phone number used for recharge/payment
+  phone: {
     type: String,
     required: true,
-    unique: true // keep unique to avoid duplicates
   },
-  // Stripe-specific fields
-  stripePaymentIntentId: { type: String },
-  stripeChargeId: { type: String },
-  receiptUrl: { type: String },
-
+  productId: {
+    type: mongoose.Schema.ObjectId,
+    ref: 'Product',
+    required: false,
+  },
+  // The plan being purchased
+  planId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Plan',
+    required: false,
+  },
+  // Amount in rupees for easy reporting (Stripe returns paise; we convert)
   amount: {
     type: Number,
     required: true,
-    min: 0
+    min: 0,
   },
   currency: {
     type: String,
-    default: 'INR'
+    default: 'INR',
   },
-  method: {
+  // Stripe identifiers
+  stripeSessionId: {
     type: String,
-    enum: ['cod', 'card', 'netbanking', 'upi', 'wallet', 'emi', 'stripe'],
-    required: true
+    unique: true,
+    required: true,
   },
+  stripePaymentIntentId: {
+    type: String,
+  },
+  // Payment status lifecycle
   status: {
     type: String,
     enum: ['pending', 'success', 'failed', 'cancelled', 'refunded'],
-    default: 'pending'
+    default: 'pending',
   },
+  // Raw gateway response (optional)
   gatewayResponse: {
-    type: mongoose.Schema.Types.Mixed // store raw gateway response
-  },
-  phone: {
-    type: String
-  },
-  planId: {
-    type: mongoose.Schema.ObjectId,
-    ref: 'Plan'
+    type: Map,
+    of: mongoose.Schema.Types.Mixed,
   },
   createdAt: {
     type: Date,
-    default: Date.now
+    default: Date.now,
   },
   updatedAt: {
     type: Date,
-    default: Date.now
-  }
+    default: Date.now,
+  },
 });
 
 PaymentSchema.pre('save', function(next) {

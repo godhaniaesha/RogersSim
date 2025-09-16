@@ -1,8 +1,7 @@
 // src/redux/cartSlice.js
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 
-// Base URL
-const API_URL = "http://localhost:5000/api/cart"; // 👈 tamaru backend URL mukvo
+const API_URL = "http://localhost:5000/api/cart"; // 👈 your backend URL
 
 // 🟢 Get Cart
 export const getCart = createAsyncThunk(
@@ -10,7 +9,7 @@ export const getCart = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const res = await fetch(API_URL, {
-        method: "GET", // if cookies used for auth
+        method: "GET",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -30,12 +29,9 @@ export const getCart = createAsyncThunk(
 export const addToCart = createAsyncThunk(
   "cart/addToCart",
   async (payload, { rejectWithValue }) => {
-
-    console.log("🛒 addToCart payload:", payload); // { productId, planId, quantity }
-
+    console.log("🛒 addToCart payload:", payload);
     try {
-      const token = localStorage.getItem("token"); // ✅ get token
-
+      const token = localStorage.getItem("token");
       if (!token) {
         return rejectWithValue("No token found. Please log in again.");
       }
@@ -46,7 +42,7 @@ export const addToCart = createAsyncThunk(
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify(payload), // { productId, planId, quantity }
+        body: JSON.stringify(payload),
       });
       const data = await res.json();
       console.log("🛒 addToCart response:", data);
@@ -88,9 +84,8 @@ export const removeFromCart = createAsyncThunk(
   async (itemId, { rejectWithValue }) => {
     console.log("🛒 removeFromCart itemId:", itemId);
     try {
-
       const token = localStorage.getItem("token");
-      const res = await fetch(`http://localhost:5000/api/cart/${itemId}`, {
+      const res = await fetch(`${API_URL}/${itemId}`, {
         method: "DELETE",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -106,7 +101,7 @@ export const removeFromCart = createAsyncThunk(
   }
 );
 
-// 🟢 Clear Cart
+// 🟢 Clear Cart (all items)
 export const clearCart = createAsyncThunk(
   "cart/clearCart",
   async (_, { rejectWithValue }) => {
@@ -129,7 +124,6 @@ export const clearCart = createAsyncThunk(
   }
 );
 
-// Slice
 const cartSlice = createSlice({
   name: "cart",
   initialState: {
@@ -140,7 +134,12 @@ const cartSlice = createSlice({
     loading: false,
     error: null,
   },
-  reducers: {},
+  reducers: {
+    // 👇 This is new
+    clearCartError: (state) => {
+      state.error = null;
+    },
+  },
   extraReducers: (builder) => {
     builder
       // Get Cart
@@ -153,6 +152,7 @@ const cartSlice = createSlice({
         state.subtotal = action.payload.subtotal || 0;
         state.tax = action.payload.tax || 0;
         state.total = action.payload.total || 0;
+        state.error = null;
       })
       .addCase(getCart.rejected, (state, action) => {
         state.loading = false;
@@ -165,6 +165,7 @@ const cartSlice = createSlice({
         state.subtotal = action.payload.subtotal || 0;
         state.tax = action.payload.tax || 0;
         state.total = action.payload.total || 0;
+        state.error = null;
       })
       .addCase(addToCart.rejected, (state, action) => {
         state.error = action.payload;
@@ -176,6 +177,7 @@ const cartSlice = createSlice({
         state.subtotal = action.payload.subtotal || 0;
         state.tax = action.payload.tax || 0;
         state.total = action.payload.total || 0;
+        state.error = null;
       })
       .addCase(updateCartItem.rejected, (state, action) => {
         state.error = action.payload;
@@ -187,6 +189,7 @@ const cartSlice = createSlice({
         state.subtotal = action.payload.subtotal || 0;
         state.tax = action.payload.tax || 0;
         state.total = action.payload.total || 0;
+        state.error = null;
       })
       .addCase(removeFromCart.rejected, (state, action) => {
         state.error = action.payload;
@@ -198,6 +201,7 @@ const cartSlice = createSlice({
         state.subtotal = action.payload.subtotal || 0;
         state.tax = action.payload.tax || 0;
         state.total = action.payload.total || 0;
+        state.error = null;
       })
       .addCase(clearCart.rejected, (state, action) => {
         state.error = action.payload;
@@ -205,4 +209,5 @@ const cartSlice = createSlice({
   },
 });
 
+export const { clearCartError } = cartSlice.actions;
 export default cartSlice.reducer;
