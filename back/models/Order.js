@@ -19,7 +19,7 @@ barcode: { type: String, unique: true },
 newNumber: { type: String, unique: true },
 
   shippingAddress: {
-    type: mongoose.Schema.ObjectId,
+    type: mongoose.Schema.Types.ObjectId,
     ref: 'Address',
     required: true
   },

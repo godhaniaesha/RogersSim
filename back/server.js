@@ -24,6 +24,11 @@ if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
 }
 
+// Import payments routes
+const paymentRoutes = require("./routes/payments");
+
+
+
 // Mount routes
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/users', require('./routes/users'));
@@ -36,7 +41,7 @@ app.use('/api/address', require('./routes/addresses'));
 app.use('/api/checkout', require('./routes/checkout'));
 app.use('/api/recharge', require('./routes/recharge'));
 app.use('/api/cards', require('./routes/cards'));
-
+app.use("/api/payments", paymentRoutes);
 
 // Default route
 app.get('/', (req, res) => {

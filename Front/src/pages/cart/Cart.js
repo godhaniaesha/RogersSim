@@ -43,17 +43,34 @@ const Cart = () => {
   // Remove item from cart
   const removeItem = async (itemId) => {
     try {
-      dispatch(removeFromCart(itemId));
-      await cartService.removeFromCart(itemId);
-      toast.success('Item removed from cart');
+      const result = await dispatch(removeFromCart(itemId));
+
+      if (removeFromCart.fulfilled.match(result)) {
+        toast.success("Item removed from cart");
+      } else {
+        toast.error(result.payload || "Failed to remove item from cart");
+      }
     } catch (err) {
-      toast.error(err.message || 'Failed to remove item from cart');
+      toast.error(err.message || "Failed to remove item from cart");
     }
   };
+
 
   // Calculate cart total
   const calculateTotal = () => {
     return cartItems.reduce((sum, item) => sum + item.totalPrice, 0);
+  };
+
+  // ✅ Tax calculation (example: 18% GST)
+  const calculateTax = () => {
+    const subtotal = calculateTotal();
+    const taxRate = 0.18; // 18% GST, change if needed
+    return Math.round(subtotal * taxRate);
+  };
+
+  // ✅ Final total including tax
+  const calculateGrandTotal = () => {
+    return calculateTotal() + calculateTax();
   };
 
   // Proceed to checkout
@@ -166,13 +183,14 @@ const Cart = () => {
                   <span>Free</span>
                 </div>
                 <div className="d-flex justify-content-between mb-2">
-                  <span>Tax</span>
-                  <span>Included</span>
+                  <span>Tax (18%)</span>
+                  <span>₹{calculateTax()}</span>
                 </div>
                 <hr />
                 <div className="d-flex justify-content-between fw-bold mb-3">
                   <span>Total</span>
-                  <span className="text-danger">₹{calculateTotal()}</span>
+                  {/* <span className="text-danger">₹{calculateTotal()}</span> */}
+                  <span className="text-danger">₹{calculateGrandTotal()}</span>
                 </div>
                 <button
                   className="btn btn-primary w-100 py-2"

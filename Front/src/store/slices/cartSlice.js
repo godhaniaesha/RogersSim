@@ -88,12 +88,12 @@ export const removeFromCart = createAsyncThunk(
   async (itemId, { rejectWithValue }) => {
     console.log("🛒 removeFromCart itemId:", itemId);
     try {
-      const res = await fetch(`${API_URL}/${itemId}`, {
+
+      const token = localStorage.getItem("token");
+      const res = await fetch(`http://localhost:5000/api/cart/${itemId}`, {
         method: "DELETE",
-        credentials: "include",
         headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
+          Authorization: `Bearer ${token}`,
         },
       });
       const data = await res.json();
