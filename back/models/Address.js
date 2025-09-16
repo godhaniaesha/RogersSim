@@ -28,7 +28,7 @@ const SingleAddressSchema = new mongoose.Schema({
     required: [true, 'Please add pincode'],
     match: [/^[0-9]{6}$/, 'Pincode must be 6 digits']
   }
-}, { _id: false }); // avoid extra _id inside address array
+}); // avoid extra _id inside address array
  
 // Main schema
 const AddressSchema = new mongoose.Schema({

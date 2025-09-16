@@ -10,22 +10,18 @@ import {
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  fetchCart,
-  removeFromCart,
-  updateQuantity,
-} from "../../store/slices/cartSlice";
 import { toast } from "react-toastify";
-import cartService from "../../services/cartService";
 import "../../style/checkout.css";
-import { addAddress, fetchAddresses, updateAddress } from "../../store/slices/checkOutSlice";
+import { addAddress, createCheckout, fetchAddresses, fetchOrders, updateAddress } from "../../store/slices/checkOutSlice";
+import { getCart } from "../../store/slices/cartSlice";
 
 const Checkout = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
   // Get cart state from Redux
-  const { items: cartItems } = useSelector((state) => state.cart);
+  const { items: cartItems, subtotal, tax, total, loading: cartLoading } =
+    useSelector((state) => state.cart);
   const { isAuthenticated } = useSelector((state) => state.auth);
 
   // State for loading and error
@@ -36,11 +32,11 @@ const Checkout = () => {
   // Calculate cart total from Redux
   const cartTotal = cartItems
     ? cartItems.reduce((total, item) => total + item.price * item.quantity, 0)
-    : 547;  
+    : 547;
 
   // Redirect to login if not authenticated
   useEffect(() => {
-    
+
     // If cart is empty, redirect to products
     if (cartItems && cartItems.length === 0 && !loading) {
       toast.error("Your cart is empty");
@@ -58,41 +54,40 @@ const Checkout = () => {
   const [editingAddress, setEditingAddress] = useState(null);
   const [paymentMethod, setPaymentMethod] = useState("full");
   const [emiMonths, setEmiMonths] = useState(3);
-  const { addresses = [] } = useSelector((state) => state.checkout || {});
-  console.log(addresses,'addressessss');
-  
+  const { addresses = [] } = useSelector((state) => state.checkout);
+  const { orders = [] } = useSelector((state) => state.checkout);
+
+
+  // console.log(addresses, 'addressessss');
+
   const mappedAddresses = addresses.map((address, idx) => ({
-    id: idx, // use index as id since backend doesn't provide one
+    id: address._id, // Use MongoDB _id
     name: address.fullName,
     mobile: address.mobileNumber,
     address: address.address,
     city: address.city,
     state: address.state,
     pincode: address.pincode,
-    isDefault: address.isDefault || false, // if you have this field
+    isDefault: address.isDefault || false,
   }));
 
 
   useEffect(() => {
+    dispatch(getCart());
     dispatch(fetchAddresses());
+    dispatch(fetchOrders());
   }, [dispatch]);
   useEffect(() => {
     if (addresses && addresses.length > 0) {
-      console.log("Fetched addresses:", addresses);
+      // console.log("Fetched addresses:", addresses);
     }
   }, [addresses]);
   // Calculate EMI details
   const calculateEMI = () => {
-    if (!cartTotal || cartTotal <= 0) {
-      return {
-        finalPrice: "0.00",
-        advance: "0.00",
-        emiPerMonth: "0.00",
-        totalMonths: emiMonths,
-      };
+    if (!total || total <= 0) {
+      return { finalPrice: "0.00", advance: "0.00", emiPerMonth: "0.00", totalMonths: emiMonths };
     }
-
-    const finalPrice = cartTotal + cartTotal * 0.1;
+    const finalPrice = total + total * 0.1;
     const advance = finalPrice * 0.5;
     const emiPerMonth = (finalPrice - advance) / emiMonths;
 
@@ -103,6 +98,7 @@ const Checkout = () => {
       totalMonths: emiMonths,
     };
   };
+
 
   // Address form validation schema
   const addressSchema = Yup.object().shape({
@@ -122,6 +118,7 @@ const Checkout = () => {
   // Handle address selection
   const handleAddressSelect = (addressId) => {
     setSelectedAddress(addressId);
+    localStorage.setItem("selectedAddressId", addressId);
   };
 
   const handleAddressSubmit = async (values, { resetForm }) => {
@@ -162,28 +159,59 @@ const Checkout = () => {
 
   // Process payment
   const handlePayment = async () => {
-    if (!selectedAddress) {
+    const storedAddressId = localStorage.getItem("selectedAddressId");
+
+    if (!storedAddressId) {
       toast.error("Please select a delivery address");
       return;
     }
 
     try {
-     
+      const selectedAddrObj = mappedAddresses.find(
+        (addr) => addr.id.toString() === storedAddressId
+      );
 
-      // // Navigate to payment page with payment details and order ID
-      navigate("/payment", {
-        state: {
-          // orderId: orderData?.orderId,
-          paymentMethod,
-          amount: paymentMethod === "full" ? cartTotal : calculateEMI().advance,
-          emiDetails: paymentMethod === "emi" ? calculateEMI() : null,
-        },
-      });
-      // navigate('/payment')
+      if (!selectedAddrObj) {
+        toast.error("Invalid address selected");
+        return;
+      }
+
+      // ✅ Instead of sending whole object, send only addressId
+      const checkoutPayload = {
+        shippingAddress: selectedAddrObj.id,
+        items: cartItems,
+        paymentMethod,
+        amount: paymentMethod === "full" ? cartTotal : calculateEMI().advance,
+        emiDetails: paymentMethod === "emi" ? calculateEMI() : null,
+      };
+
+      console.log("📦 Checkout Payload Sending:", checkoutPayload);
+
+      const result = await dispatch(createCheckout(checkoutPayload));
+
+      if (createCheckout.fulfilled.match(result)) {
+        toast.success("Checkout created successfully!");
+
+        console.log(result.payload.checkout._id, 'checkout result');
+
+        localStorage.setItem("checkoutId", result.payload.checkout._id);
+
+        navigate("/payment", {
+          state: {
+            orderId: result.payload._id,
+            amount: checkoutPayload.amount,
+            items: cartItems,
+            address: selectedAddrObj, // or just the address id if needed
+          },
+        });
+      } else {
+        toast.error(result.payload || "Failed to create checkout");
+      }
     } catch (err) {
-      toast.error(err.message || "Failed to create order");
+      toast.error(err.message || "Something went wrong");
     }
   };
+
 
   return (
     <div className="d_checkout-container">
@@ -562,78 +590,33 @@ const Checkout = () => {
                 <div className="d_card-header">
                   <h4 className="d_card-title">Order Summary</h4>
                 </div>
-                <div className="d_summary-products mb-3">
-                  {cartItems.map((item, index) => (
-                    <div key={index} className="d_summary-product">
-                      {/* Product Image */}
 
-                      {/* Product + Plan Details */}
-                      <div className="d_summary-product-info">
-                        <h6 className="mb-1">{item.product?.name}</h6>
-                        <div className="text-muted small">
-                          Type: {item.product?.type} ({item.product?.simType})
-                        </div>
-
-                        {item.plan && (
-                          <div className="d_summary-plan mt-1">
-                            <strong>{item.plan.name}</strong> - ₹
-                            {item.plan.price}
-                            <div className="text-muted small">
-                              {item.plan.data} • {item.plan.validity} •{" "}
-                              {item.plan.calls} • {item.plan.sms}
-                            </div>
-                          </div>
-                        )}
-
-                        {item.addons?.length > 0 && (
-                          <div className="d_summary-addons mt-1">
-                            <span className="fw-bold">Addons:</span>
-                            <ul className="small mb-0">
-                              {item.addons.map((addon) => (
-                                <li key={addon.id}>
-                                  {addon.name} (+₹{addon.price})
-                                </li>
-                              ))}
-                            </ul>
-                          </div>
-                        )}
-                      </div>
-
-                      {/* Item Price */}
-                      <div className="d_summary-product-price">
-                        ₹{item.total}
-                      </div>
-                    </div>
-                  ))}
-                </div>
 
                 <div className="d_card-body">
                   <div className="d_summary-item">
                     <span>Subtotal</span>
-                    <span>₹{cartTotal}</span>
+                    <span>₹{subtotal}</span>
                   </div>
                   <div className="d_summary-item">
                     <span>Delivery</span>
                     <span>Free</span>
                   </div>
-                  {paymentMethod === "emi" && (
-                    <div className="d_summary-item">
-                      <span>Processing Fee (10%)</span>
-                      <span>₹{(cartTotal * 0.1).toFixed(2)}</span>
-                    </div>
-                  )}
+
+                  <div className="d_summary-item">
+                    <span>Tax</span>
+                    <span>₹{tax}</span>
+                  </div>
+
+
                   <hr />
+
                   <div className="d_summary-total d_summary-item">
-                    <span>
-                      {paymentMethod === "emi" ? "Advance Payment" : "Total"}
-                    </span>
+                    <span>{paymentMethod === "emi" ? "Advance Payment" : "Total"}</span>
                     <span className="d_price">
-                      ₹
-                      {paymentMethod === "emi"
-                        ? calculateEMI().advance
-                        : cartTotal}
+                      ₹{paymentMethod === "emi" ? calculateEMI().advance : total}
                     </span>
                   </div>
+
                   {paymentMethod === "emi" && (
                     <div className="d_summary-item text-muted small">
                       <span>Remaining EMI</span>

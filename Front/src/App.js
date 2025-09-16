@@ -41,11 +41,17 @@ import HelpCenter from './pages/HelpCenter';
 import ForgotPass from './pages/auth/ForgotPass';
 import FAQ from './pages/FAQ';
 import Termscondition from './pages/Terms&condition';
+import { Elements } from '@stripe/react-stripe-js';
+import { loadStripe } from '@stripe/stripe-js';
+
+const stripePromise = loadStripe("pk_test_51R8wmeQ0DPGsMRTSHTci2XmwYmaDLRqeSSRS2hNUCU3xU7ikSAvXzSI555Rxpyf9SsTIgI83PXvaaQE3pJAlkMaM00g9BdsrOB");
 
 function App() {
   return (
     <Provider store={store}>
-      <AppContent />
+      <Elements stripe={stripePromise}>
+        <AppContent />
+      </Elements>
     </Provider>
   );
 }
@@ -68,7 +74,7 @@ const AppContent = () => {
     <Provider store={store} >
       <Router >
         <ToastContainer position="top-right" autoClose={3000} hideProgressBar={false} />
-        <Header/>
+        <Header />
         <main className="h-100" >
           <Routes>
             <Route path="/" element={<Home />} />

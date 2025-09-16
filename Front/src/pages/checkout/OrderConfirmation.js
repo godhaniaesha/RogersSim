@@ -163,8 +163,8 @@ const OrderConfirmation = () => {
                       <small className="text-muted">{item.plan} {item.addons && `+ ${item.addons.length} add-ons`}</small>
                     </div>
                     <div className="text-end">
-                      <p className="mb-0">₹{item.price.toFixed(2)} x {item.quantity}</p>
-                      <strong>₹{item.totalPrice.toFixed(2)}</strong>
+                      <p className="mb-0">₹{item.price} x {item.quantity}</p>
+                      <strong>₹{item.totalPrice}</strong>
                     </div>
                   </ListGroup.Item>
                 ))}

@@ -15,7 +15,7 @@ export const fetchAddresses = createAsyncThunk(
                 throw new Error("Failed to fetch addresses");
             }
             const data = await response.json();
-            
+
             return data.data.addresses;
         } catch (error) {
             return rejectWithValue(error.message);
@@ -107,16 +107,113 @@ export const updateAddress = createAsyncThunk(
     }
 );
 
+// ✅ GET Orders
+export const fetchOrders = createAsyncThunk(
+    "checkout/fetchOrders",
+    async (_, { rejectWithValue }) => {
+        try {
+            const token = localStorage.getItem("token");
+            if (!token) {
+                return rejectWithValue("No token found. Please log in again.");
+            }
+
+            const response = await fetch("http://localhost:5000/api/orders", {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+
+            if (!response.ok) {
+                throw new Error("Failed to fetch orders");
+            }
+
+            const data = await response.json();
+            console.log(data.data, 'dataaa from fetch orders');
+
+            const checkouts = data.data
+                .filter((order) => order.checkout !== null) // null hatare avoid karo
+                .map((order) => order.checkout);
+
+            console.log(checkouts, 'checkouts');
+
+            return checkouts;
+        } catch (error) {
+            return rejectWithValue(error.message);
+        }
+    }
+);
+
+export const createCheckout = createAsyncThunk(
+    "checkout/createCheckout",
+    async (checkoutData, { rejectWithValue }) => {
+        try {
+            console.log("📦 Checkout Data to API:", checkoutData);
+
+            const token = localStorage.getItem("token");
+            if (!token) {
+                return rejectWithValue("No token found. Please log in again.");
+            }
+
+            const response = await fetch("http://localhost:5000/api/checkout", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify(checkoutData),
+            });
+
+            if (!response.ok) {
+                const err = await response.json();
+                throw new Error(err.message || "Failed to create checkout");
+            }
+
+            const data = await response.json();
+            console.log("✅ API Response from createCheckout:", data);
+            return data.data;
+        } catch (error) {
+            return rejectWithValue(error.message);
+        }
+    }
+);
+
+// ✅ GET Checkout by ID
+export const fetchCheckoutById = createAsyncThunk(
+  "checkout/fetchCheckoutById",
+  async (id, { rejectWithValue }) => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await fetch(`http://localhost:5000/api/checkout/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (!response.ok) {
+        const err = await response.json();
+        throw new Error(err.message || "Failed to fetch checkout");
+      }
+      const data = await response.json();
+      return data.data.checkout;
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
 const checkoutSlice = createSlice({
     name: "checkout",
     initialState: {
         addresses: [],
+        orders: [],
+        currentCheckout: null,
         loading: false,
         error: null,
     },
     reducers: {
         resetCheckout: (state) => {
             state.addresses = [];
+            state.orders = [];
+            state.currentCheckout = null;
             state.loading = false;
             state.error = null;
         },
@@ -147,6 +244,46 @@ const checkoutSlice = createSlice({
             .addCase(updateAddress.fulfilled, (state, action) => {
                 state.loading = false;
                 state.addresses[action.payload.index] = action.payload.address;
+            })
+
+            // ✅ Orders
+            .addCase(fetchOrders.pending, (state) => {
+                state.loading = true;
+                state.error = null;
+            })
+            .addCase(fetchOrders.fulfilled, (state, action) => {
+                state.loading = false;
+                state.orders = action.payload;
+            })
+            .addCase(fetchOrders.rejected, (state, action) => {
+                state.loading = false;
+                state.error = action.payload;
+            })
+            // ✅ Create Checkout
+            .addCase(createCheckout.pending, (state) => {
+                state.loading = true;
+                state.error = null;
+            })
+            .addCase(createCheckout.fulfilled, (state, action) => {
+                state.loading = false;
+                state.currentCheckout = action.payload;
+            })
+            .addCase(createCheckout.rejected, (state, action) => {
+                state.loading = false;
+                state.error = action.payload;
+            })
+            // ✅ Fetch Checkout by ID
+            .addCase(fetchCheckoutById.pending, (state) => {
+                state.loading = true;
+                state.error = null;
+            })
+            .addCase(fetchCheckoutById.fulfilled, (state, action) => {
+                state.loading = false;
+                state.currentCheckout = action.payload;
+            })
+            .addCase(fetchCheckoutById.rejected, (state, action) => {
+                state.loading = false;
+                state.error = action.payload;
             });
     },
 });
