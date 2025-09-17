@@ -207,12 +207,12 @@ export default function Recharge() {
         }
     };
 
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        navigate('/plans');
-       
-        // alert("Form submitted with number: " + number);
-    };
+const handleSubmit = (e) => {
+  e.preventDefault();
+
+  // pass the mode in location state
+  navigate('/plans', { state: { mode } });
+};
 
 
     const toggle = (i) => {
