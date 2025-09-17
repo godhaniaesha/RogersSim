@@ -16,7 +16,7 @@ const router = express.Router();
 const { protect } = require('../middleware/auth');
 const Stripe = require("stripe");
 const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
-const Payment = require('../models/Payment');
+// const Payment = require('../models/Payment');
 
 // Create a Stripe Checkout Session for simple redirect-based payments
 router.post("/create-checkout-session", async (req, res) => {
