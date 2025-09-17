@@ -76,10 +76,11 @@ exports.updateProfile = async (req, res, next) => {
 // @access  Private
 exports.uploadKyc = async (req, res, next) => {
   try {
+    // If using multer, files will be in req.files (for multiple) or req.file (for single)
     const kycDocuments = {
-      idProof: req.body.idProof || 'id_proof_url',
-      addressProof: req.body.addressProof || 'address_proof_url',
-      photo: req.body.photo || 'photo_url'
+      idProof: req.files?.idProof?.[0]?.path || req.body.idProof || 'id_proof_url',
+      addressProof: req.files?.addressProof?.[0]?.path || req.body.addressProof || 'address_proof_url',
+      photo: req.files?.photo?.[0]?.path || req.body.photo || 'photo_url'
     };
 
     const user = await User.findByIdAndUpdate(

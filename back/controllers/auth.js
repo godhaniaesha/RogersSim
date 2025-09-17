@@ -201,7 +201,6 @@ exports.getMe = async (req, res, next) => {
 exports.forgotPassword = async (req, res, next) => {
   try {
     const { mobile } = req.body;
-    console.log(mobile,"mmm");
     
 
     if (!mobile) {

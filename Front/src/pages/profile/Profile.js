@@ -36,19 +36,23 @@ import {
   clearError,
   resetOtpState,
 } from "../../store/slices/cardSlice";
+import { uploadKyc } from "../../store/slices/kycSlice";
 
 const Profile = () => {
+  // KYC file upload states
+  const [idProofFile, setIdProofFile] = useState(null);
+  const [addressProofFile, setAddressProofFile] = useState(null);
   const [activeTab, setActiveTab] = useState("personal");
   const [barcode, setBarcode] = useState("");
   const [otp, setOtp] = useState("");
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const kycState = useSelector(state => state.kyc);
 
   // Get user profile from Redux
   const { user, loading, error, isAuthenticated } = useSelector(
     (state) => state.auth
   );
-
   // Get card state from Redux
   const {
     currentCard,
@@ -64,9 +68,6 @@ const Profile = () => {
     loading: ordersLoading,
     error: ordersError,
   } = useSelector((state) => state.orders);
-  console.log("====================================");
-  console.log(myOrders, "mmmmm");
-  console.log("====================================");
   useEffect(() => {
     if (!isAuthenticated) {
       navigate("/login");
@@ -207,8 +208,12 @@ const Profile = () => {
     }
   };
 
-  // Handle KYC document upload
+  // Dynamic KYC document upload using uploadKyc thunk
   const handleDocumentUpload = async (type, e) => {
+    if (!isAuthenticated) {
+      toast.error("Please login to upload documents.");
+      return;
+    }
     const file = e.target.files[0];
     if (!file) return;
 
@@ -216,19 +221,35 @@ const Profile = () => {
     formData.append(type, file);
 
     try {
-      await dispatch(updateUserProfile(formData)).unwrap();
+      await dispatch(uploadKyc(formData)).unwrap();
       toast.success(`${type} uploaded successfully!`);
+      // Optionally refresh profile after upload
+      await dispatch(fetchUserProfile()).unwrap();
     } catch (err) {
       toast.error(err || "Failed to upload document");
     }
   };
+  const [userData, setUserData] = useState({
+    name: user?.name || 'John Doe',
+    email: user?.email || 'john.doe@example.com',
+    mobile: user?.mobile || '9876543210',
+    address: user?.address || '123 Main Street, Mumbai, Maharashtra',
+    pincode: user?.pincode || '400001',
+    kycStatus: user?.kycStatus || 'pending', // 'pending', 'verified', 'rejected'
+    kycDocuments: user?.kycDocuments || {
+      idProof: null,
+      addressProof: null
+    }
+  });
+  console.log("userData", userData);
+  
 
   return (
     <div className="container py-5">
       <div className="row">
         {/* Profile Sidebar */}
         <div className="col-md-3 mb-4">
-          <div className="card border-0 shadow-sm">
+          <div className="card border-0 shadow-sm x_m_card">
             <div className="card-body">
               <div className="text-center mb-4">
                 <div
@@ -243,41 +264,40 @@ const Profile = () => {
 
               <div className="list-group list-group-flush">
                 <button
-                  className={`list-group-item list-group-item-action border-0 ${
-                    activeTab === "personal"
-                      ? "active bg-primary-custom text-white"
-                      : ""
-                  }`}
+                  className={`list-group-item list-group-item-action border-0  d-flex align-items-center x_btn_rs ${activeTab === "personal"
+                    ? "active bg-primary-custom text-white"
+                    : ""
+                    }`}
                   onClick={() => setActiveTab("personal")}
                 >
-                  <FaUser className="me-2" /> Personal Details
+                  <div>
+                    <FaUser className="me-2" />
+                  </div>
+                  Personal Details
                 </button>
                 <button
-                  className={`list-group-item list-group-item-action border-0 ${
-                    activeTab === "kyc"
-                      ? "active bg-primary-custom text-white"
-                      : ""
-                  }`}
+                  className={`list-group-item list-group-item-action border-0 d-flex align-items-center x_btn_rs ${activeTab === "kyc"
+                    ? "active bg-primary-custom text-white"
+                    : ""
+                    }`}
                   onClick={() => setActiveTab("kyc")}
                 >
                   <FaIdCard className="me-2" /> KYC Verification
                 </button>
                 <button
-                  className={`list-group-item list-group-item-action border-0 ${
-                    activeTab === "orders"
-                      ? "active bg-primary-custom text-white"
-                      : ""
-                  }`}
+                  className={`list-group-item list-group-item-action border-0 d-flex align-items-center x_btn_rs ${activeTab === "orders"
+                    ? "active bg-primary-custom text-white"
+                    : ""
+                    }`}
                   onClick={() => setActiveTab("orders")}
                 >
                   <FaHistory className="me-2" /> Order History
                 </button>
                 <button
-                  className={`list-group-item list-group-item-action border-0 ${
-                    activeTab === "activate"
-                      ? "active bg-primary-custom text-white"
-                      : ""
-                  }`}
+                  className={`list-group-item list-group-item-action border-0 d-flex align-items-center x_btn_rs ${activeTab === "activate"
+                    ? "active bg-primary-custom text-white"
+                    : ""
+                    }`}
                   onClick={() => setActiveTab("activate")}
                 >
                   <FaBarcode className="me-2" /> Activate Card
@@ -396,45 +416,85 @@ const Profile = () => {
                 </div>
               )}
 
-              {activeTab === "kyc" && (
+           
+              {activeTab === 'kyc' && (
                 <div>
                   <h4 className="mb-4">KYC Verification</h4>
-                  <p>
-                    Your KYC status is currently:{" "}
-                    <strong>{user.kycStatus}</strong>
-                  </p>
-                  <div className="row">
-                    <div className="col-md-6 mb-3">
-                      <label className="form-label">Upload ID Proof</label>
-                      <input
-                        type="file"
-                        className="form-control"
-                        onChange={(e) => handleDocumentUpload("idProof", e)}
-                      />
-                      <small className="text-muted">
-                        {user.kycDocuments?.idProof
-                          ? "ID Proof uploaded"
-                          : "No ID Proof uploaded"}
-                      </small>
+               
+                  <form
+                    onSubmit={async (e) => {
+                      e.preventDefault();
+                      if (!isAuthenticated) {
+                        toast.error("Please login to upload documents.");
+                        return;
+                      }
+                      if (!idProofFile && !addressProofFile) {
+                        toast.error("Please select both documents.");
+                        return;
+                      }
+                      const formData = new FormData();
+                      if (idProofFile) formData.append('idProof', idProofFile);
+                      if (addressProofFile) formData.append('addressProof', addressProofFile);
+                      try {
+                        await dispatch(uploadKyc(formData)).unwrap();
+                        toast.success("KYC documents uploaded successfully!");
+                        await dispatch(fetchUserProfile()).unwrap();
+                      } catch (err) {
+                        toast.error(err || "Failed to upload KYC documents");
+                      }
+                    }}
+                  >
+                    <div className="row mb-4">
+                      <div className="col-md-6 mb-3 mb-md-0">
+                        <div className="card h-100">
+                          <div className="card-body">
+                            <h5 className="card-title">ID Proof</h5>
+                            <p className="card-text text-muted small">Upload your Aadhaar Card, PAN Card, Voter ID, or Driving License</p>
+                            <input
+                              type="file"
+                              accept="image/*,application/pdf"
+                              onChange={(e) => setIdProofFile(e.target.files[0])}
+                              className="form-control"
+                            />
+                            {userData.kycDocuments.idProof && (
+                              <div className="mt-2">
+                                <span className="text-success">Uploaded: {userData.kycDocuments.idProof}</span>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                      <div className="col-md-6">
+                        <div className="card h-100">
+                          <div className="card-body">
+                            <h5 className="card-title">Address Proof</h5>
+                            <p className="card-text text-muted small">Upload your Latest Utility Bill, Valid Rental Agreement, or Passport Copy</p>
+                            <input
+                              type="file"
+                              accept="image/*,application/pdf"
+                              onChange={(e) => setAddressProofFile(e.target.files[0])}
+                              className="form-control"
+                            />
+                            {userData.kycDocuments.addressProof && (
+                              <div className="mt-2">
+                                <span className="text-success">Uploaded: {userData.kycDocuments.addressProof}</span>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
                     </div>
-                    <div className="col-md-6 mb-3">
-                      <label className="form-label">Upload Address Proof</label>
-                      <input
-                        type="file"
-                        className="form-control"
-                        onChange={(e) =>
-                          handleDocumentUpload("addressProof", e)
-                        }
-                      />
-                      <small className="text-muted">
-                        {user.kycDocuments?.addressProof
-                          ? "Address Proof uploaded"
-                          : "No Address Proof uploaded"}
-                      </small>
-                    </div>
+                    <button type="submit" className="btn btn-primary">Submit KYC Documents</button>
+                  </form>
+                  <div className="alert alert-warning mt-3">
+                    <small>
+                      <strong>Note:</strong> Please ensure that the documents are clear and all details are visible.
+                      Verification may take up to 24-48 hours after submission.
+                    </small>
                   </div>
                 </div>
               )}
+
 
               {/* Activate Card Tab - Updated with Redux */}
               {activeTab === "activate" && (
@@ -451,13 +511,12 @@ const Profile = () => {
                       <p>
                         <strong>Status:</strong>
                         <span
-                          className={`badge ms-2 ${
-                            currentCard.status === "active"
-                              ? "bg-success"
-                              : currentCard.status === "sold"
+                          className={`badge ms-2 ${currentCard.status === "active"
+                            ? "bg-success"
+                            : currentCard.status === "sold"
                               ? "bg-warning"
                               : "bg-secondary"
-                          }`}
+                            }`}
                         >
                           {currentCard.status}
                         </span>
@@ -620,29 +679,28 @@ const Profile = () => {
                               </td>
                               <td>
                                 {order.checkout &&
-                                order.checkout.items &&
-                                order.checkout.items.length > 0
+                                  order.checkout.items &&
+                                  order.checkout.items.length > 0
                                   ? order.checkout.items
-                                      .map((item) => item.productId)
-                                      .join(", ")
+                                    .map((item) => item.productId)
+                                    .join(", ")
                                   : "-"}
                               </td>
                               <td>
                                 {order.shippingAddress
                                   ? order.shippingAddress.label ||
-                                    order.shippingAddress._id
+                                  order.shippingAddress._id
                                   : "-"}
                               </td>
                               <td>₹{order.total || order.amount || "-"}</td>
                               <td>
                                 <span
-                                  className={`badge ${
-                                    order.status === "delivered"
-                                      ? "bg-success"
-                                      : order.status === "processing"
+                                  className={`badge ${order.status === "delivered"
+                                    ? "bg-success"
+                                    : order.status === "processing"
                                       ? "bg-warning"
                                       : "bg-primary"
-                                  }`}
+                                    }`}
                                 >
                                   {order.status}
                                 </span>

@@ -6,6 +6,8 @@ import {
   FaChevronDown,
   FaChevronUp,
   FaTimes,
+  FaChevronLeft,
+  FaChevronRight,
 } from "react-icons/fa";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -559,7 +561,7 @@ const Products = () => {
                     onClick={() => setCurrentPage(currentPage - 1)}
                     style={{ background: 'white', color: '#c90f0f', border: 'none', fontSize: '1.5rem', borderRadius: '50%', width: '40px', height: '40px' }}
                   >
-                    &#60;
+                    <FaChevronLeft />
                   </button>
                   {/* Show only 3 page numbers at a time, centered around currentPage */}
                   {(() => {
@@ -610,7 +612,7 @@ const Products = () => {
                     onClick={() => setCurrentPage(currentPage + 1)}
                     style={{ background: 'white', color: '#c90f0f', border: 'none', fontSize: '1.5rem', borderRadius: '50%', width: '40px', height: '40px' }}
                   >
-                    &#62;
+                    <FaChevronRight />
                   </button>
                 </div>
               )}

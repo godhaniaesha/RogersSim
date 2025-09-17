@@ -1,4 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import axios from "axios";
 
 // Async thunk for fetching user profile
 export const fetchUserProfile = createAsyncThunk(
@@ -38,25 +39,39 @@ export const updateUserProfile = createAsyncThunk(
     async (updatedData, { rejectWithValue }) => {
         try {
             const token = localStorage.getItem("token");
-            const isFormData = updatedData instanceof FormData;
+            let response;
 
-            const response = await fetch("http://localhost:5000/api/users/profile", {
-                method: "PUT",
-                headers: {
-                    ...(isFormData ? {} : { "Content-Type": "application/json" }),
-                    Authorization: `Bearer ${token}`,
-                },
-                body: isFormData ? updatedData : JSON.stringify(updatedData),
-            });
-
-            const result = await response.json();
-            if (!response.ok) {
-                return rejectWithValue(result.message || "Failed to update profile");
+            if (updatedData instanceof FormData) {
+                // 👉 Image + other fields
+                response = await axios.put(
+                    "http://localhost:5000/api/users/profile",
+                    updatedData,
+                    {
+                        headers: {
+                            Authorization: `Bearer ${token}`,
+                            "Content-Type": "multipart/form-data", // important for images
+                        },
+                    }
+                );
+            } else {
+                // 👉 JSON payload
+                response = await axios.put(
+                    "http://localhost:5000/api/users/profile",
+                    updatedData,
+                    {
+                        headers: {
+                            Authorization: `Bearer ${token}`,
+                            "Content-Type": "application/json",
+                        },
+                    }
+                );
             }
 
-            return result.data; // ✅ return updated user object
+            return response.data?.data; // ✅ updated user object
         } catch (error) {
-            return rejectWithValue(error.message || "Failed to update profile");
+            return rejectWithValue(
+                error.response?.data?.message || error.message || "Failed to update profile"
+            );
         }
     }
 );
