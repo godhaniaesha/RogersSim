@@ -21,6 +21,7 @@ import "swiper/css/pagination";
 import "../style/z_app.css";
 import { jwtDecode } from "jwt-decode";
 import { loadStripe } from "@stripe/stripe-js";
+import { useLocation } from "react-router-dom";
 
 // initialise Stripe with your public key
 const stripePromise = loadStripe(
@@ -49,11 +50,20 @@ function Plans() {
   const [show, setShow] = useState(false);
   const [showPayment, setShowPayment] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
-  const [isFiber, setIsFiber] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [localSelectedPlan, setLocalSelectedPlan] = useState(null);
   const [phoneNumber, setPhoneNumber] = useState("");
+  const location = useLocation();
+const [isFiber, setIsFiber] = useState(
+  location.state?.mode === 'rogershome' // true = fiber
+);
 
+// optional: keep it in sync if the user goes back/forward
+useEffect(() => {
+  if (location.state?.mode) {
+    setIsFiber(location.state.mode === 'rogershome');
+  }
+}, [location.state]);
   useEffect(() => {
     dispatch(fetchAllPlans());
     dispatch(fetchUserProfile());

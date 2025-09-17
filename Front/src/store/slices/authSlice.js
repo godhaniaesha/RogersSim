@@ -1,11 +1,12 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 
 const initialState = {
-  isAuthenticated: false,
+  // null = we haven’t checked yet
+  isAuthenticated: null,
   user: null,
-  loading: false,
+  loading: false,   // start in loading so UI waits
   error: null,
-};
+};  
 
 // Async thunk for fetching user profile
 export const fetchProfile = createAsyncThunk(
@@ -54,7 +55,6 @@ export const signupUser = createAsyncThunk(
       }
 
       const data = await response.json();
-      console.log(data, "data from signup user");
       return data;
     } catch (error) {
       return rejectWithValue(error.message);
@@ -81,7 +81,6 @@ export const loginUser = createAsyncThunk(
       }
 
       const data = await response.json();
-      console.log("Login response:", data);
 
       // ✅ Save token in localStorage
       if (data.token) {
@@ -94,7 +93,6 @@ export const loginUser = createAsyncThunk(
     }
   }
 );
-
 
 // ✅ Logout thunk
 export const logoutUser = createAsyncThunk(
@@ -128,7 +126,6 @@ export const logoutUser = createAsyncThunk(
 export const sendOtp = createAsyncThunk(
   "auth/sendOtp",
   async (mobile, { rejectWithValue }) => {
-    console.log(mobile, "mobile in sendOtp");
     try {
       const response = await fetch("http://localhost:5000/api/auth/forgot-password", {
         method: "POST",
@@ -196,6 +193,7 @@ export const resetPassword = createAsyncThunk(
     }
   }
 );
+
 const authSlice = createSlice({
   name: 'auth',
   initialState,
@@ -223,7 +221,6 @@ const authSlice = createSlice({
       state.error = null;
     },
     signupSuccess: (state, action) => {
-      console.log(action.payload, "signupSuccess")
       state.isAuthenticated = true;
       state.user = action.payload;
       state.loading = false;
@@ -244,10 +241,12 @@ const authSlice = createSlice({
     fetchProfileSuccess: (state, action) => {
       state.loading = false;
       state.user = action.payload;
+      state.isAuthenticated = true; // ✅ mark as authenticated
     },
     fetchProfileFailure: (state, action) => {
       state.loading = false;
       state.error = action.payload;
+      state.isAuthenticated = false; // ✅ mark as not authenticated
     },
     updateProfileSuccess: (state, action) => {
       state.user = { ...state.user, ...action.payload };
@@ -269,7 +268,6 @@ const authSlice = createSlice({
         state.error = null;
       })
       .addCase(signupUser.fulfilled, (state, action) => {
-        console.log(action.payload, "action.payload", "fulfilled")
         state.loading = false;
         state.isAuthenticated = true;
         state.user = action.payload;
@@ -292,6 +290,7 @@ const authSlice = createSlice({
       .addCase(loginUser.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
+        state.isAuthenticated = false;
       })
       //  Logout cases
       .addCase(logoutUser.pending, (state) => {
@@ -344,7 +343,7 @@ const authSlice = createSlice({
       .addCase(resetPassword.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
-      })
+      });
   }
 });
 

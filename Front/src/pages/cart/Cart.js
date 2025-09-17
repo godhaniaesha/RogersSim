@@ -36,11 +36,12 @@ const Cart = () => {
   }, [dispatch]);
 
   // Redirect to login if not authenticated
-  useEffect(() => {
-    if (!isAuthenticated && !loading) {
-      navigate('/login');
-    }
-  }, [isAuthenticated, loading, navigate]);
+useEffect(() => {
+  // only redirect when authentication check finished
+  if (isAuthenticated === false && !loading) {
+    navigate('/login');
+  }
+}, [isAuthenticated, loading, navigate]);
 
   // Remove item from cart
   const removeItem = async (itemId) => {

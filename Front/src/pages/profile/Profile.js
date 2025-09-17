@@ -67,28 +67,35 @@ const Profile = () => {
   console.log("====================================");
   console.log(myOrders, "mmmmm");
   console.log("====================================");
+  const profileToastShown = React.useRef(false);
+
   useEffect(() => {
-    if (!isAuthenticated) {
-      navigate("/login");
-      return;
-    }
+  // Only redirect if we *know* the user is not authenticated
+  if (isAuthenticated === false) {
+    navigate("/login");
+  }
 
-    const cachedProfile = localStorage.getItem("userProfile");
-    if (cachedProfile) {
-      // fallback redux ma set karo
-      dispatch(fetchProfileSuccess(JSON.parse(cachedProfile)));
-    }
+  // fetch profile only if not already in localStorage
+  const cachedProfile = localStorage.getItem("userProfile");
+  if (cachedProfile) {
+    dispatch(fetchProfileSuccess(JSON.parse(cachedProfile)));
+  }
 
-    dispatch(fetchUserProfile())
-      .unwrap()
-      .then((profile) => {
-        localStorage.setItem("userProfile", JSON.stringify(profile));
-        toast.success("Profile loaded successfully");
-      })
-      .catch((err) => {
-        toast.error(err);
-      });
-  }, [isAuthenticated, navigate, dispatch]);
+  // Always fetch a fresh profile
+  dispatch(fetchUserProfile())
+    .unwrap()
+    .then((profile) => {
+      localStorage.setItem("userProfile", JSON.stringify(profile));
+      if (!profileToastShown.current) {
+        toast.success("Profile loaded successfully"); 
+        profileToastShown.current = true;
+      }
+    })
+    .catch((err) => {
+      toast.error(err);
+    });
+}, [isAuthenticated, navigate, dispatch]);
+
 
   useEffect(() => {
     if (activeTab === "orders") {
