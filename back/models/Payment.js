@@ -7,8 +7,11 @@ const PaymentSchema = new mongoose.Schema({
     type: mongoose.Schema.ObjectId,
     ref: 'User',
   },
-  // Phone number used for recharge/payment
-  phone: {
+  checkout: {
+    type: mongoose.Schema.ObjectId,
+    ref: 'Checkout',
+  },
+  paymentId: {
     type: String,
     required: true,
   },
@@ -39,6 +42,15 @@ const PaymentSchema = new mongoose.Schema({
     unique: true,
     required: true,
   },
+  razorpayOrderId: String,
+  razorpayPaymentId: String,
+  razorpaySignature: String,
+  amount: { type: Number, required: true, min: 0 },
+  currency: { type: String, default: 'INR' },
+  method: {
+    type: String,
+    enum: ['cod', 'card', 'netbanking', 'upi', 'wallet', 'emi']
+  },
   stripePaymentIntentId: {
     type: String,
   },
@@ -51,19 +63,26 @@ const PaymentSchema = new mongoose.Schema({
   // Raw gateway response (optional)
   gatewayResponse: {
     type: Map,
-    of: mongoose.Schema.Types.Mixed,
+    of: mongoose.Schema.Types.Mixed
   },
-  createdAt: {
-    type: Date,
-    default: Date.now,
+  refundAmount: { type: Number, default: 0, min: 0 },
+  refundId: String,
+  refundStatus: {
+    type: String,
+    enum: ['none', 'pending', 'success', 'failed'],
+    default: 'none'
   },
-  updatedAt: {
-    type: Date,
-    default: Date.now,
+  emiDetails: {
+    tenure: Number,
+    monthlyAmount: Number,
+    interestRate: Number,
+    processingFee: Number
   },
+  createdAt: { type: Date, default: Date.now },
+  updatedAt: { type: Date, default: Date.now }
 });
 
-PaymentSchema.pre('save', function(next) {
+PaymentSchema.pre('save', function (next) {
   this.updatedAt = Date.now();
   next();
 });

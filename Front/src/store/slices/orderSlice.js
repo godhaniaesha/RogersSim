@@ -28,6 +28,8 @@ export const fetchMyOrders = createAsyncThunk(
     }
   }
 );
+
+
 export const createOrder = createAsyncThunk(
   "orders/createOrder",
   async (orderData, { rejectWithValue }) => {
@@ -39,16 +41,22 @@ export const createOrder = createAsyncThunk(
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify(orderData),
+        body: JSON.stringify({
+          ...orderData,
+          checkout: orderData.checkout?.trim(),
+          shippingAddress: orderData.shippingAddress?.trim(),
+        }),
       });
+
+      const data = await response.json(); // ✅ read once
+
       if (!response.ok) {
-        const err = await response.json();
-        console.error("Order API error:", err);
-        throw new Error(err.message || "Failed to create order");
+        console.error("Order API error:", data);
+        return rejectWithValue(data.error || data.message || "Failed to create order");
       }
 
-      const data = await response.json();
-      return data.data.order;
+      console.log("Order Created Successfully", data);
+      return data.data; // backend returns { success: true, data: order }
     } catch (error) {
       return rejectWithValue(error.message);
     }
@@ -85,6 +93,7 @@ const orderSlice = createSlice({
       .addCase(createOrder.fulfilled, (state, action) => {
         state.loading = false;
         state.currentOrder = action.payload;
+        state.orders.unshift(action.payload);
       })
       .addCase(createOrder.rejected, (state, action) => {
         state.loading = false;

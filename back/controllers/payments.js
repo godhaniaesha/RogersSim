@@ -1,5 +1,5 @@
 const Payment = require('../models/Payment');
-const Order = require('../models/Order');
+const Checkout = require('../models/Checkout'); // previously 'Order'
 const ErrorResponse = require('../utils/errorResponse');
 
 // @desc    Process payment
@@ -8,7 +8,7 @@ const ErrorResponse = require('../utils/errorResponse');
 exports.processPayment = async (req, res, next) => {
   try {
     const { 
-      orderId, 
+      checkoutId, 
       paymentMethod, 
       razorpayOrderId, 
       razorpayPaymentId, 
@@ -16,38 +16,39 @@ exports.processPayment = async (req, res, next) => {
       emiDetails 
     } = req.body;
 
-    // Get order
-    const order = await Order.findById(orderId);
-    if (!order) {
-      return next(new ErrorResponse('Order not found', 404));
+    // Get checkout
+    const checkout = await Checkout.findById(checkoutId);
+    if (!checkout) {
+      return next(new ErrorResponse('Checkout not found', 404));
     }
 
-    // Check if order belongs to user
-    if (order.user.toString() !== req.user.id) {
-      return next(new ErrorResponse('Not authorized to process payment for this order', 403));
+    // Check if checkout belongs to user
+    if (checkout.user.toString() !== req.user.id) {
+      return next(new ErrorResponse('Not authorized to process payment for this checkout', 403));
     }
 
-    // Generate payment ID
+    // Generate unique payment ID
     const paymentId = `PAY_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
-    // Create payment record
+    // Create payment
     const payment = await Payment.create({
       user: req.user.id,
-      order: orderId,
+      checkout: checkoutId,
       paymentId,
       razorpayOrderId,
       razorpayPaymentId,
       razorpaySignature,
-      amount: order.total,
+      amount: checkout.total,
       method: paymentMethod,
       status: 'pending',
+      currency: 'INR',
       emiDetails
     });
 
-    // Update order payment status
-    order.paymentStatus = 'pending';
-    order.paymentId = paymentId;
-    await order.save();
+    // Update checkout payment status
+    checkout.paymentStatus = 'pending';
+    checkout.paymentId = paymentId;
+    await checkout.save();
 
     res.status(201).json({
       success: true,
@@ -63,33 +64,32 @@ exports.processPayment = async (req, res, next) => {
 // @access  Private
 exports.verifyPayment = async (req, res, next) => {
   try {
-    const { paymentId, razorpayOrderId, razorpayPaymentId, razorpaySignature } = req.body;
+    const { paymentId, razorpayOrderId, razorpayPaymentId, razorpaySignature, gatewayResponse } = req.body;
 
-    // In a real application, you would verify the Razorpay signature here
-    // For now, we'll simulate a successful verification
-    
     const payment = await Payment.findOne({ paymentId });
     if (!payment) {
       return next(new ErrorResponse('Payment not found', 404));
     }
 
-    // Check if payment belongs to user
     if (payment.user.toString() !== req.user.id) {
       return next(new ErrorResponse('Not authorized to verify this payment', 403));
     }
 
-    // Update payment status
+    // Update payment
     payment.status = 'success';
     payment.razorpayOrderId = razorpayOrderId;
     payment.razorpayPaymentId = razorpayPaymentId;
     payment.razorpaySignature = razorpaySignature;
+    if (gatewayResponse) {
+      payment.gatewayResponse = gatewayResponse;
+    }
     await payment.save();
 
-    // Update order status
-    const order = await Order.findById(payment.order);
-    order.paymentStatus = 'paid';
-    order.status = 'confirmed';
-    await order.save();
+    // Update checkout
+    const checkout = await Checkout.findById(payment.checkout);
+    checkout.paymentStatus = 'paid';
+    checkout.status = 'confirmed';
+    await checkout.save();
 
     res.status(200).json({
       success: true,
@@ -111,14 +111,13 @@ exports.calculateEmi = async (req, res, next) => {
       return next(new ErrorResponse('Amount and months are required', 400));
     }
 
-    // EMI calculation parameters
-    const interestRate = 12; // 12% annual interest rate
-    const processingFee = 0.02; // 2% processing fee
-    const processingFeeAmount = amount * processingFee;
-    const principal = amount + processingFeeAmount;
-    
+    const interestRate = 12;
+    const processingFeeRate = 0.02;
+    const processingFee = amount * processingFeeRate;
+    const principal = amount + processingFee;
+
     const monthlyRate = interestRate / (12 * 100);
-    const emi = (principal * monthlyRate * Math.pow(1 + monthlyRate, months)) / 
+    const emi = (principal * monthlyRate * Math.pow(1 + monthlyRate, months)) /
                 (Math.pow(1 + monthlyRate, months) - 1);
 
     const totalAmount = emi * months;
@@ -128,13 +127,13 @@ exports.calculateEmi = async (req, res, next) => {
       success: true,
       data: {
         principal: amount,
-        processingFee: processingFeeAmount,
+        processingFee,
         totalPrincipal: principal,
         monthlyEmi: Math.round(emi),
         totalAmount: Math.round(totalAmount),
         totalInterest: Math.round(totalInterest),
         tenure: months,
-        interestRate: interestRate
+        interestRate
       }
     });
   } catch (err) {
@@ -148,14 +147,14 @@ exports.calculateEmi = async (req, res, next) => {
 exports.getPaymentHistory = async (req, res, next) => {
   try {
     const { page = 1, limit = 10, status } = req.query;
-    
-    let query = { user: req.user.id };
+
+    const query = { user: req.user.id };
     if (status) {
       query.status = status;
     }
 
     const payments = await Payment.find(query)
-      .populate('order', 'orderNumber total status')
+      .populate('checkout', 'orderNumber total status')
       .sort({ createdAt: -1 })
       .limit(limit * 1)
       .skip((page - 1) * limit);
@@ -184,14 +183,13 @@ exports.getPaymentHistory = async (req, res, next) => {
 exports.getPaymentById = async (req, res, next) => {
   try {
     const payment = await Payment.findById(req.params.id)
-      .populate('order', 'orderNumber total status items')
+      .populate('checkout', 'orderNumber total status items')
       .populate('user', 'name email mobile');
 
     if (!payment) {
       return next(new ErrorResponse('Payment not found', 404));
     }
 
-    // Check if payment belongs to user
     if (payment.user._id.toString() !== req.user.id) {
       return next(new ErrorResponse('Not authorized to view this payment', 403));
     }
@@ -218,12 +216,10 @@ exports.initiateRefund = async (req, res, next) => {
       return next(new ErrorResponse('Payment not found', 404));
     }
 
-    // Check if payment belongs to user
     if (payment.user.toString() !== req.user.id) {
       return next(new ErrorResponse('Not authorized to refund this payment', 403));
     }
 
-    // Check if payment is successful
     if (payment.status !== 'success') {
       return next(new ErrorResponse('Only successful payments can be refunded', 400));
     }
@@ -231,18 +227,17 @@ exports.initiateRefund = async (req, res, next) => {
     const refundAmount = amount || payment.amount;
     const refundId = `REF_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
-    // Update payment record
     payment.refundAmount = refundAmount;
     payment.refundId = refundId;
     payment.refundStatus = 'pending';
+    payment.status = 'refunded';
     await payment.save();
 
-    // Update order status
-    const order = await Order.findById(payment.order);
-    order.paymentStatus = 'refunded';
-    order.status = 'refunded';
-    order.notes = order.notes ? `${order.notes}\nRefund reason: ${reason}` : `Refund reason: ${reason}`;
-    await order.save();
+    const checkout = await Checkout.findById(payment.checkout);
+    checkout.paymentStatus = 'refunded';
+    checkout.status = 'refunded';
+    checkout.notes = checkout.notes ? `${checkout.notes}\nRefund reason: ${reason}` : `Refund reason: ${reason}`;
+    await checkout.save();
 
     res.status(200).json({
       success: true,
