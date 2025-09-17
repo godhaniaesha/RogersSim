@@ -816,7 +816,7 @@ body {
 
 
 .X_last a {
-    color: #1e6ff4;
+    color: #b71414;
     text-decoration: underline;
 }
 
@@ -833,7 +833,7 @@ body {
 
 /* Link styling */
 .x-link {
-    color: #0b66ff;
+    color: #b71414;
     /* slightly bright blue */
     text-decoration: underline;
 }
@@ -924,7 +924,7 @@ body {
 
 /* Links inside answers */
 .X_accContent a {
-    color: #007bff;
+    color: #b71414;
     text-decoration: none;
 }
 
