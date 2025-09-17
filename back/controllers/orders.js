@@ -1,19 +1,30 @@
+const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const Order = require('../models/Order');
-const ErrorResponse = require('../utils/errorResponse'); // optional if you’re using a custom error handler
+const Payment = require('../models/Payment');
+const ErrorResponse = require('../utils/errorResponse'); // optional custom error handler
 
 // @desc    Create new order
 // @route   POST /api/orders
 // @access  Private
 exports.createOrder = async (req, res, next) => {
   try {
-    const { checkout, shippingAddress } = req.body; // user comes from req.user if you use auth middleware
+    let { checkout, shippingAddress, paymentId } = req.body;
+    console.log(req.body,"================ create order ========================")
+    const userId = req.user.id;
 
-    // Create a new order
+    // Trim spacesa
+    checkout = checkout?.trim();
+    shippingAddress = shippingAddress?.trim();
+
     const order = await Order.create({
-      user: req.user.id, // assuming user is attached to req
+      user: userId,
       checkout,
       shippingAddress,
+      paymentId,
+      status: "pending",
     });
+
+    console.log(order, "================= New Order Created =================");
 
     res.status(201).json({ success: true, data: order });
   } catch (err) {
@@ -21,16 +32,23 @@ exports.createOrder = async (req, res, next) => {
   }
 };
 
+
 // @desc    Get all orders (admin or user-specific)
 // @route   GET /api/orders
 // @access  Private
 exports.getOrders = async (req, res, next) => {
   try {
-    // If you want user-specific orders:
-    // const orders = await Order.find({ user: req.user.id }).populate('checkout shippingAddress');
-    const orders = await Order.find().populate('user checkout shippingAddress');
+    const userId = req.user && req.user.id;
 
-    res.status(200).json({ success: true, count: orders.length, data: orders });
+    const orders = await Order.find({ user: userId })
+      .sort({ createdAt: -1 })
+      .populate('checkout shippingAddress payment');
+
+    res.status(200).json({
+      success: true,
+      count: orders.length,
+      data: orders,
+    });
   } catch (err) {
     next(err);
   }
@@ -39,27 +57,26 @@ exports.getOrders = async (req, res, next) => {
 // @desc    Get current user's orders
 // @route   GET /api/orders/my
 // @access  Private
-exports.getMyOrders = async (req,res,next) => {
+exports.getMyOrders = async (req, res, next) => {
   try {
     const userId = req.user && req.user.id;
     if (!userId) {
-      return res.status(401).json({success:false, error:'Unauthorized'});
+      return res.status(401).json({ success: false, error: 'Unauthorized' });
     }
 
-    const orders = await Order.find({ user:userId })
-      .sort({ createdAt:-1 })
+    const orders = await Order.find({ user: userId })
+      .sort({ createdAt: -1 })
       .populate('checkout shippingAddress');
 
     return res.status(200).json({
-      success:true,
-      count:orders.length,
-      data:orders
+      success: true,
+      count: orders.length,
+      data: orders,
     });
   } catch (err) {
     next(err);
   }
 };
-
 
 // @desc    Get single order
 // @route   GET /api/orders/:id
@@ -89,7 +106,6 @@ exports.updateOrder = async (req, res, next) => {
       return res.status(404).json({ success: false, error: 'Order not found' });
     }
 
-    // Only update allowed fields (status, shippingAddress, etc.)
     const { status, shippingAddress } = req.body;
 
     if (status) order.status = status;

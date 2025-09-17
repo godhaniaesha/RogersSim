@@ -5,8 +5,9 @@ import { toast } from "react-toastify";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchCheckoutById } from "../../store/slices/checkOutSlice";
-import { createOrder } from "../../store/slices/orderSlice"; // <-- import the thunk
+import { createOrder } from "../../store/slices/orderSlice";
 import { clearCart } from "../../store/slices/cartSlice";
+import { saveStripePayment } from "../../store/slices/paymentSlice";
 
 const Payment = () => {
   const stripe = useStripe();
@@ -16,10 +17,11 @@ const Payment = () => {
   const dispatch = useDispatch();
 
   const paymentDetails = location.state || {};
-  const orderId = paymentDetails.orderId || localStorage.getItem("orderId");
+  const orderId = paymentDetails.orderId || localStorage.getItem("checkoutId");
 
   // Get checkout details from Redux
   const { currentCheckout, loading } = useSelector((state) => state.checkout);
+  // console.log("currentCheckout", currentCheckout.checkout);
 
   const [cardName, setCardName] = useState("");
   const [processing, setProcessing] = useState(false);
@@ -47,11 +49,17 @@ const Payment = () => {
 
     try {
       // 1️⃣ Create PaymentIntent on server
+      const token = localStorage.getItem("token");
       const res = await fetch("http://localhost:5000/api/payments/create-payment-intent", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+        },
+
         body: JSON.stringify({
-          orderId: orderId,
+          orderId,
+          checkoutId: orderId,
           amount: amount, // server converts to paise
         }),
       });
@@ -73,6 +81,17 @@ const Payment = () => {
       if (paymentIntent.status === "succeeded") {
         toast.success("Payment successful!");
 
+        // Save in backend
+        await dispatch(
+          saveStripePayment({
+            userId: currentCheckout?.user || "USER_ID", // from Redux auth
+            orderId,
+            checkoutId: orderId,
+            paymentIntent,
+          })
+        );
+
+        // Order create logic
         const orderPayload = {
           checkout: orderId,
           shippingAddress: paymentDetails.address?.id || currentCheckout?.shippingAddress?._id,
@@ -80,19 +99,17 @@ const Payment = () => {
           amount: amount,
           status: "paid",
         };
-
-        console.log("Sending orderPayload:", orderPayload);
+        console.log(orderPayload, " Order Payload");
 
         const result = await dispatch(createOrder(orderPayload));
+
         if (createOrder.fulfilled.match(result)) {
-          console.log("order created successfully", result.payload);
           toast.success("Order created successfully!");
-          // 🟢 CLEAR CART HERE
           await dispatch(clearCart());
-          console.log("Cart cleared successfully ✅");
         } else {
           toast.error(result.payload || "Failed to create order");
         }
+
         navigate("/");
       }
     } catch (err) {

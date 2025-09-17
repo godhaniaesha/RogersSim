@@ -193,6 +193,7 @@ export const fetchCheckoutById = createAsyncThunk(
         throw new Error(err.message || "Failed to fetch checkout");
       }
       const data = await response.json();
+      
       return data.data.checkout;
     } catch (error) {
       return rejectWithValue(error.message);

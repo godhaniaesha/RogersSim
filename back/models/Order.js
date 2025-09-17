@@ -14,9 +14,14 @@ const OrderSchema = new mongoose.Schema({
     required: true
   },
 
-orderNumber: { type: String, unique: true },
-barcode: { type: String, unique: true },
-newNumber: { type: String, unique: true },
+  paymentId: {
+    type: String,
+    required: false
+  },
+
+  orderNumber: { type: String, unique: true },
+  barcode: { type: String, unique: true },
+  newNumber: { type: String, unique: true },
 
   shippingAddress: {
     type: mongoose.Schema.Types.ObjectId,

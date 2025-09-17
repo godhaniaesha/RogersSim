@@ -8,11 +8,15 @@ const {
   initiateRefund
 } = require('../controllers/payments');
 
+const Payment = require('../models/Payment');
+const Order = require('../models/Order');
+
 const router = express.Router();
 
 const { protect } = require('../middleware/auth');
 const Stripe = require("stripe");
 const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
+
 // router.post("/create-checkout-session", async (req, res) => {
 //   const { amount, planId, phone } = req.body;
 
@@ -42,21 +46,94 @@ const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
 // });
 
 // Create PaymentIntent for CardElement flow
-router.post("/create-payment-intent", async (req, res) => {
-  try {
-    const { amount, orderId } = req.body;
 
-    // Amount must be in paise (smallest currency unit for INR)
+router.post("/create-payment-intent", protect, async (req, res) => {
+  try {
+    const { amount, checkout } = req.body;
+    const user = req.user.id;
+    console.log("Creating PaymentIntent for:", { amount, checkout, user });
+
     const paymentIntent = await stripe.paymentIntents.create({
-      amount: amount * 100, // e.g. ₹500 → 50000
+      amount: amount * 100,
       currency: "inr",
-      metadata: { orderId },
-      automatic_payment_methods: { enabled: true },
+      payment_method_types: ["card"], // Explicitly define method
+      metadata: { checkout, user },
     });
 
-    res.json({ clientSecret: paymentIntent.client_secret });
+    console.log("PaymentIntent created:", paymentIntent);
+
+    const payment = await Payment.create({
+      user: user,
+      checkout,
+      paymentId: paymentIntent.id,
+      amount,
+      currency: "INR",
+      method: "card",
+      status: "pending",
+    });
+
+    const existingPayment = await Payment.findOne({ paymentId: paymentIntent.id });
+    if (!existingPayment) {
+      await Payment.create({
+        user: user,
+        checkout,
+        paymentId: paymentIntent.id,
+        amount,
+        currency: "INR",
+        method: "card",
+        status: "pending",
+      });
+    }
+
+    res.status(201).json({
+      success: true,
+      clientSecret: paymentIntent.client_secret,
+      paymentId: payment._id,
+    });
   } catch (err) {
     console.error("PaymentIntent error:", err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Save successful Stripe payment in DB
+router.post("/save-stripe-payment", protect, async (req, res) => {
+  try {
+    const { checkoutId, paymentIntent } = req.body;
+    const userId = req.user.id;
+
+    if (!paymentIntent || !paymentIntent.id) {
+      return res.status(400).json({ error: "Invalid paymentIntent data" });
+    }
+
+    // ✅ Find existing payment by paymentId
+    let payment = await Payment.findOne({ paymentId: paymentIntent.id });
+
+    if (!payment) {
+      return res.status(404).json({ error: "Payment not found" });
+    }
+
+    // Update fields
+    payment.checkout = checkoutId; // store checkoutId
+    payment.status = paymentIntent.status === "succeeded" ? "success" : "failed";
+    payment.gatewayResponse = paymentIntent;
+
+    await payment.save();
+
+    // Update checkout payment status
+    const checkout = await Checkout.findById(checkoutId);
+    if (checkout) {
+      checkout.paymentStatus = payment.status === "success" ? "paid" : "failed";
+      checkout.paymentId = payment.paymentId;
+      await checkout.save();
+    }
+
+    res.status(200).json({
+      success: true,
+      data: payment,
+    });
+  } catch (err) {
+    console.error("Save Stripe Payment error:", err);
     res.status(500).json({ error: err.message });
   }
 });

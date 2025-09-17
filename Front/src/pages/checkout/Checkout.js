@@ -613,7 +613,11 @@ const Checkout = () => {
                   <div className="d_summary-total d_summary-item">
                     <span>{paymentMethod === "emi" ? "Advance Payment" : "Total"}</span>
                     <span className="d_price">
-                      ₹{paymentMethod === "emi" ? calculateEMI().advance : total}
+                      ₹ {(
+                        paymentMethod === "emi"
+                          ? calculateEMI().advance
+                          : total
+                      ).toFixed(2)}
                     </span>
                   </div>
 

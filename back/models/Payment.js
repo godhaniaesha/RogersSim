@@ -6,38 +6,23 @@ const PaymentSchema = new mongoose.Schema({
     ref: 'User',
     required: true
   },
-  order: {
+  checkout: {
     type: mongoose.Schema.ObjectId,
-    ref: 'Order',
-    required: true
+    ref: 'Checkout',
   },
   paymentId: {
     type: String,
     required: true,
     unique: true
   },
-  razorpayOrderId: {
-    type: String
-  },
-  razorpayPaymentId: {
-    type: String
-  },
-  razorpaySignature: {
-    type: String
-  },
-  amount: {
-    type: Number,
-    required: true,
-    min: 0
-  },
-  currency: {
-    type: String,
-    default: 'INR'
-  },
+  razorpayOrderId: String,
+  razorpayPaymentId: String,
+  razorpaySignature: String,
+  amount: { type: Number, required: true, min: 0 },
+  currency: { type: String, default: 'INR' },
   method: {
     type: String,
-    enum: ['cod', 'card', 'netbanking', 'upi', 'wallet', 'emi'],
-    required: true
+    enum: ['cod', 'card', 'netbanking', 'upi', 'wallet', 'emi']
   },
   status: {
     type: String,
@@ -48,14 +33,8 @@ const PaymentSchema = new mongoose.Schema({
     type: Map,
     of: mongoose.Schema.Types.Mixed
   },
-  refundAmount: {
-    type: Number,
-    default: 0,
-    min: 0
-  },
-  refundId: {
-    type: String
-  },
+  refundAmount: { type: Number, default: 0, min: 0 },
+  refundId: String,
   refundStatus: {
     type: String,
     enum: ['none', 'pending', 'success', 'failed'],
@@ -67,18 +46,11 @@ const PaymentSchema = new mongoose.Schema({
     interestRate: Number,
     processingFee: Number
   },
-  createdAt: {
-    type: Date,
-    default: Date.now
-  },
-  updatedAt: {
-    type: Date,
-    default: Date.now
-  }
+  createdAt: { type: Date, default: Date.now },
+  updatedAt: { type: Date, default: Date.now }
 });
 
-// Update the updatedAt field before saving
-PaymentSchema.pre('save', function(next) {
+PaymentSchema.pre('save', function (next) {
   this.updatedAt = Date.now();
   next();
 });

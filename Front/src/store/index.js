@@ -6,6 +6,7 @@ import planReducer from './slices/planSlice';
 import checkoutReducer from './slices/checkOutSlice';
 import cardReducer from './slices/cardSlice';
 import orderReducer from './slices/orderSlice';
+import paymentReducer from './slices/paymentSlice';
 
 export const store = configureStore({
   reducer: {
@@ -15,7 +16,8 @@ export const store = configureStore({
     plan:planReducer,
     checkout: checkoutReducer,
     card: cardReducer,
-    orders: orderReducer
+    orders: orderReducer,
+    payment: paymentReducer,
   },
 });
 
