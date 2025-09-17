@@ -40,6 +40,7 @@ import { uploadKyc } from "../../store/slices/kycSlice";
 
 const Profile = () => {
   // KYC file upload states
+  const [profileToastShown, setProfileToastShown] = useState(false);
   const [idProofFile, setIdProofFile] = useState(null);
   const [addressProofFile, setAddressProofFile] = useState(null);
   const [activeTab, setActiveTab] = useState("personal");

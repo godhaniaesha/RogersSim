@@ -40,7 +40,7 @@ const PaymentSchema = new mongoose.Schema({
   stripeSessionId: {
     type: String,
     unique: true,
-    required: true,
+    required: false,
   },
   razorpayOrderId: String,
   razorpayPaymentId: String,
