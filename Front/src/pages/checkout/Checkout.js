@@ -12,56 +12,66 @@ import * as Yup from "yup";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import "../../style/checkout.css";
-import { addAddress, createCheckout, fetchAddresses, fetchOrders, updateAddress } from "../../store/slices/checkOutSlice";
+import {
+  addAddress,
+  createCheckout,
+  fetchAddresses,
+  fetchOrders,
+  updateAddress,
+} from "../../store/slices/checkOutSlice";
 import { getCart } from "../../store/slices/cartSlice";
 
 const Checkout = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  // Get cart state from Redux
-  const { items: cartItems, subtotal, tax, total, loading: cartLoading } =
-    useSelector((state) => state.cart);
+  // Redux state
+  const {
+    items: cartItems,
+    subtotal,
+    tax,
+    total,
+    loading: cartLoading,
+  } = useSelector((state) => state.cart);
   const { isAuthenticated } = useSelector((state) => state.auth);
+  const { addresses = [] } = useSelector((state) => state.checkout);
 
-  // State for loading and error
+  // Local state
   const [loading, setLoading] = useState(true);
-  const [addressesLoading, setAddressesLoading] = useState(true);
   const [error, setError] = useState(null);
-
-  // Calculate cart total from Redux
-  const cartTotal = cartItems
-    ? cartItems.reduce((total, item) => total + item.price * item.quantity, 0)
-    : 547;
-
-  // Redirect to login if not authenticated
-  useEffect(() => {
-
-    // If cart is empty, redirect to products
-    if (cartItems && cartItems.length === 0 && !loading) {
-      toast.error("Your cart is empty");
-      navigate("/products");
-    }
-
-    setLoading(false);
-  }, [isAuthenticated, cartItems, loading, navigate]);
-
-  // Fetch addresses from API
-
-
   const [selectedAddress, setSelectedAddress] = useState(1);
   const [showAddressForm, setShowAddressForm] = useState(false);
   const [editingAddress, setEditingAddress] = useState(null);
   const [paymentMethod, setPaymentMethod] = useState("full");
   const [emiMonths, setEmiMonths] = useState(3);
-  const { addresses = [] } = useSelector((state) => state.checkout);
-  const { orders = [] } = useSelector((state) => state.checkout);
 
+  // Safe cart total calculation
+  const cartTotal = cartItems
+    ? cartItems.reduce(
+        (total, item) =>
+          total + Number(item.price || 0) * Number(item.quantity || 0),
+        0
+      )
+    : 0;
 
-  // console.log(addresses, 'addressessss');
+  // Redirect if cart empty
+  useEffect(() => {
+    if (cartItems && cartItems.length === 0 && !loading) {
+      toast.error("Your cart is empty");
+      navigate("/products");
+    }
+    setLoading(false);
+  }, [cartItems, loading, navigate]);
+
+  // Fetch cart, addresses, orders
+  useEffect(() => {
+    dispatch(getCart());
+    dispatch(fetchAddresses());
+    dispatch(fetchOrders());
+  }, [dispatch]);
 
   const mappedAddresses = addresses.map((address, idx) => ({
-    id: address._id, // Use MongoDB _id
+    id: address._id,
     name: address.fullName,
     mobile: address.mobileNumber,
     address: address.address,
@@ -71,23 +81,18 @@ const Checkout = () => {
     isDefault: address.isDefault || false,
   }));
 
-
-  useEffect(() => {
-    dispatch(getCart());
-    dispatch(fetchAddresses());
-    dispatch(fetchOrders());
-  }, [dispatch]);
-  useEffect(() => {
-    if (addresses && addresses.length > 0) {
-      // console.log("Fetched addresses:", addresses);
-    }
-  }, [addresses]);
-  // Calculate EMI details
+  // EMI calculation
   const calculateEMI = () => {
-    if (!total || total <= 0) {
-      return { finalPrice: "0.00", advance: "0.00", emiPerMonth: "0.00", totalMonths: emiMonths };
+    const safeTotal = Number(total || cartTotal);
+    if (!safeTotal || safeTotal <= 0) {
+      return {
+        finalPrice: "0.00",
+        advance: "0.00",
+        emiPerMonth: "0.00",
+        totalMonths: emiMonths,
+      };
     }
-    const finalPrice = total + total * 0.1;
+    const finalPrice = safeTotal + safeTotal * 0.1;
     const advance = finalPrice * 0.5;
     const emiPerMonth = (finalPrice - advance) / emiMonths;
 
@@ -99,8 +104,7 @@ const Checkout = () => {
     };
   };
 
-
-  // Address form validation schema
+  // Address form validation
   const addressSchema = Yup.object().shape({
     name: Yup.string().required("Name is required"),
     mobile: Yup.string()
@@ -115,7 +119,7 @@ const Checkout = () => {
     isDefault: Yup.boolean(),
   });
 
-  // Handle address selection
+  // Address select & submit
   const handleAddressSelect = (addressId) => {
     setSelectedAddress(addressId);
     localStorage.setItem("selectedAddressId", addressId);
@@ -124,24 +128,18 @@ const Checkout = () => {
   const handleAddressSubmit = async (values, { resetForm }) => {
     try {
       if (editingAddress) {
-        // Use editingAddress.index for backend index
-        const result = await dispatch(updateAddress({ index: editingAddress.index, ...values }));
-
-        if (updateAddress.fulfilled.match(result)) {
+        const result = await dispatch(
+          updateAddress({ index: editingAddress.index, ...values })
+        );
+        if (updateAddress.fulfilled.match(result))
           toast.success("Address updated successfully");
-        } else {
-          toast.error(result.payload || "Failed to update address");
-        }
+        else toast.error(result.payload || "Failed to update address");
       } else {
-        // Add new
         const result = await dispatch(addAddress(values));
-        if (addAddress.fulfilled.match(result)) {
+        if (addAddress.fulfilled.match(result))
           toast.success("Address added successfully");
-        } else {
-          toast.error(result.payload || "Failed to add address");
-        }
+        else toast.error(result.payload || "Failed to add address");
       }
-
       resetForm();
       setShowAddressForm(false);
       setEditingAddress(null);
@@ -150,17 +148,15 @@ const Checkout = () => {
     }
   };
 
-  // Edit address
   const handleEditAddress = (address, idx) => {
     setEditingAddress({ ...address, index: idx });
     localStorage.setItem("editingAddressIndex", idx);
     setShowAddressForm(true);
   };
 
-  // Process payment
+  // Payment
   const handlePayment = async () => {
     const storedAddressId = localStorage.getItem("selectedAddressId");
-
     if (!storedAddressId) {
       toast.error("Please select a delivery address");
       return;
@@ -170,38 +166,40 @@ const Checkout = () => {
       const selectedAddrObj = mappedAddresses.find(
         (addr) => addr.id.toString() === storedAddressId
       );
-
       if (!selectedAddrObj) {
         toast.error("Invalid address selected");
         return;
       }
-
-      // ✅ Instead of sending whole object, send only addressId
+      const checkoutItems = cartItems.map((item) => ({
+        productId: item.productId?._id, // existing id
+        planId: item.planId?._id, // existing id
+        quantity: item.quantity,
+        totalPrice: item.price * item.quantity,
+        product: item.productId, // full product object
+        plan: item.planId, // full plan object
+      }));
+      // const emiInfo = paymentMethod === "emi" ? calculateEMI() : null;
       const checkoutPayload = {
         shippingAddress: selectedAddrObj.id,
-        items: cartItems,
+        items: checkoutItems, // send mapped items with full info
         paymentMethod,
-        amount: paymentMethod === "full" ? cartTotal : calculateEMI().advance,
-        emiDetails: paymentMethod === "emi" ? calculateEMI() : null,
+        amount:
+          paymentMethod === "full" ? cartTotal : Number(calculateEMI().advance),
+        emiMonths: paymentMethod === "emi" ? emiMonths : undefined,
       };
-
-      console.log("📦 Checkout Payload Sending:", checkoutPayload);
 
       const result = await dispatch(createCheckout(checkoutPayload));
 
       if (createCheckout.fulfilled.match(result)) {
         toast.success("Checkout created successfully!");
-
-        console.log(result.payload.checkout._id, 'checkout result');
-
         localStorage.setItem("checkoutId", result.payload.checkout._id);
 
         navigate("/payment", {
           state: {
-            orderId: result.payload._id,
+            orderId: result.payload.checkout._id,
             amount: checkoutPayload.amount,
-            items: cartItems,
-            address: selectedAddrObj, // or just the address id if needed
+            items: result.payload.checkout.items, // now contains full product/plan info
+            address: selectedAddrObj,
           },
         });
       } else {
@@ -211,7 +209,6 @@ const Checkout = () => {
       toast.error(err.message || "Something went wrong");
     }
   };
-
 
   return (
     <div className="d_checkout-container">
@@ -234,6 +231,7 @@ const Checkout = () => {
         </div>
       ) : (
         <>
+          {/* Header */}
           <div className="d_checkout-header">
             <h1 className="d_checkout-title">Checkout</h1>
             <Link to="/cart" className="d_back-to-cart-btn">
@@ -242,6 +240,7 @@ const Checkout = () => {
           </div>
 
           <div className="d_checkout-content row">
+            {/* Main checkout section */}
             <div className="d_checkout-main col-md-8">
               <div className="d_card d_address-section">
                 <div className="d_card-header">
@@ -253,7 +252,9 @@ const Checkout = () => {
                       {mappedAddresses.map((address, idx) => (
                         <div
                           key={address.id}
-                          className={`d_address-card ${selectedAddress === address.id ? "selected" : ""}`}
+                          className={`d_address-card ${
+                            selectedAddress === address.id ? "selected" : ""
+                          }`}
                           onClick={() => handleAddressSelect(address.id)}
                         >
                           <div className="d_address-card-body">
@@ -265,7 +266,9 @@ const Checkout = () => {
                                   name="addressSelection"
                                   id={`address-${address.id}`}
                                   checked={selectedAddress === address.id}
-                                  onChange={() => handleAddressSelect(address.id)}
+                                  onChange={() =>
+                                    handleAddressSelect(address.id)
+                                  }
                                 />
                                 <label
                                   className="form-check-label"
@@ -283,7 +286,7 @@ const Checkout = () => {
                                 className="d_edit-btn"
                                 onClick={(e) => {
                                   e.stopPropagation();
-                                  handleEditAddress(address, idx); // Pass idx here
+                                  handleEditAddress(address, idx);
                                 }}
                               >
                                 <FaEdit /> Edit
@@ -293,7 +296,8 @@ const Checkout = () => {
                               <div>{address.mobile}</div>
                               <div>{address.address}</div>
                               <div>
-                                {address.city}, {address.state} - {address.pincode}
+                                {address.city}, {address.state} -{" "}
+                                {address.pincode}
                               </div>
                             </div>
                           </div>
@@ -333,6 +337,7 @@ const Checkout = () => {
                         >
                           {({ isSubmitting }) => (
                             <Form>
+                              {/* Name & Mobile */}
                               <div className="row">
                                 <div className="col-md-6 mb-3">
                                   <label htmlFor="name" className="form-label">
@@ -349,7 +354,6 @@ const Checkout = () => {
                                     className="text-danger small"
                                   />
                                 </div>
-
                                 <div className="col-md-6 mb-3">
                                   <label
                                     htmlFor="mobile"
@@ -370,6 +374,7 @@ const Checkout = () => {
                                 </div>
                               </div>
 
+                              {/* Address */}
                               <div className="mb-3">
                                 <label htmlFor="address" className="form-label">
                                   Address
@@ -387,6 +392,7 @@ const Checkout = () => {
                                 />
                               </div>
 
+                              {/* City, State, Pincode */}
                               <div className="row">
                                 <div className="col-md-4 mb-3">
                                   <label htmlFor="city" className="form-label">
@@ -403,7 +409,6 @@ const Checkout = () => {
                                     className="text-danger small"
                                   />
                                 </div>
-
                                 <div className="col-md-4 mb-3">
                                   <label htmlFor="state" className="form-label">
                                     State
@@ -419,7 +424,6 @@ const Checkout = () => {
                                     className="text-danger small"
                                   />
                                 </div>
-
                                 <div className="col-md-4 mb-3">
                                   <label
                                     htmlFor="pincode"
@@ -440,6 +444,7 @@ const Checkout = () => {
                                 </div>
                               </div>
 
+                              {/* Default toggle */}
                               <div className="mb-3">
                                 <div className="d_toggle-wrapper">
                                   <Field name="isDefault">
@@ -500,8 +505,9 @@ const Checkout = () => {
                   <div className="d_card-body">
                     <div className="d_payment-options">
                       <div
-                        className={`d_payment-option ${paymentMethod === "full" ? "selected" : ""
-                          }`}
+                        className={`d_payment-option ${
+                          paymentMethod === "full" ? "selected" : ""
+                        }`}
                         onClick={() => setPaymentMethod("full")}
                       >
                         <FaCreditCard className="d_payment-icon" />
@@ -516,8 +522,9 @@ const Checkout = () => {
                       </div>
 
                       <div
-                        className={`d_payment-option ${paymentMethod === "emi" ? "selected" : ""
-                          }`}
+                        className={`d_payment-option ${
+                          paymentMethod === "emi" ? "selected" : ""
+                        }`}
                         onClick={() => setPaymentMethod("emi")}
                       >
                         <FaMoneyBill className="d_payment-icon" />
@@ -542,8 +549,9 @@ const Checkout = () => {
                             {[3, 6, 9, 12].map((month) => (
                               <div
                                 key={month}
-                                className={`d_emi-option ${emiMonths === month ? "selected" : ""
-                                  }`}
+                                className={`d_emi-option ${
+                                  emiMonths === month ? "selected" : ""
+                                }`}
                                 onClick={() => setEmiMonths(month)}
                               >
                                 {month} Months
@@ -556,11 +564,11 @@ const Checkout = () => {
                         <div className="d_emi-breakdown">
                           <div className="d_emi-row">
                             <span>Original Price</span>
-                            <span>₹{cartTotal.toFixed(2)}</span>
+                            <span>₹{Number(cartTotal).toFixed(2)}</span>
                           </div>
                           <div className="d_emi-row">
                             <span>Processing Fee (10%)</span>
-                            <span>₹{(cartTotal * 0.1).toFixed(2)}</span>
+                            <span>₹{(Number(cartTotal) * 0.1).toFixed(2)}</span>
                           </div>
                           <div className="d_emi-row highlight">
                             <span>Final Price</span>
@@ -590,33 +598,31 @@ const Checkout = () => {
                 <div className="d_card-header">
                   <h4 className="d_card-title">Order Summary</h4>
                 </div>
-
-
                 <div className="d_card-body">
                   <div className="d_summary-item">
                     <span>Subtotal</span>
-                    <span>₹{subtotal}</span>
+                    <span>₹{Number(subtotal || 0).toFixed(2)}</span>
                   </div>
                   <div className="d_summary-item">
                     <span>Delivery</span>
                     <span>Free</span>
                   </div>
-
                   <div className="d_summary-item">
                     <span>Tax</span>
-                    <span>₹{tax}</span>
+                    <span>₹{Number(tax || 0).toFixed(2)}</span>
                   </div>
-
 
                   <hr />
 
                   <div className="d_summary-total d_summary-item">
-                    <span>{paymentMethod === "emi" ? "Advance Payment" : "Total"}</span>
+                    <span>
+                      {paymentMethod === "emi" ? "Advance Payment" : "Total"}
+                    </span>
                     <span className="d_price">
-                      ₹ {(
-                        paymentMethod === "emi"
-                          ? calculateEMI().advance
-                          : total
+                      ₹
+                      {(paymentMethod === "emi"
+                        ? Number(calculateEMI().advance)
+                        : Number(total || cartTotal)
                       ).toFixed(2)}
                     </span>
                   </div>
@@ -629,6 +635,7 @@ const Checkout = () => {
                       </span>
                     </div>
                   )}
+
                   <button
                     className="d_proceed-btn btn btn-primary"
                     onClick={handlePayment}
