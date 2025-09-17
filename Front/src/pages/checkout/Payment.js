@@ -54,16 +54,24 @@ const Payment = () => {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
         },
-
         body: JSON.stringify({
-          orderId,
           checkoutId: orderId,
-          amount: amount, // server converts to paise
+          amount: amount,
         }),
       });
-      const { clientSecret } = await res.json();
+
+      const data = await res.json();
+      console.log("👉 PaymentIntent response:", data);
+
+      if (!data.clientSecret) {
+        toast.error(data.error || "Failed to create payment intent");
+        setProcessing(false);
+        return;
+      }
+
+      const { clientSecret } = data;
 
       // 2️⃣ Confirm payment with Stripe
       const cardElement = elements.getElement(CardElement);
@@ -103,9 +111,9 @@ const Payment = () => {
 
         const result = await dispatch(createOrder(orderPayload));
 
+        await dispatch(clearCart());
         if (createOrder.fulfilled.match(result)) {
           toast.success("Order created successfully!");
-          await dispatch(clearCart());
         } else {
           toast.error(result.payload || "Failed to create order");
         }

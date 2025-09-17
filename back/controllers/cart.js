@@ -197,7 +197,11 @@ exports.removeFromCart = async (req, res, next) => {
 // @access  Private
 exports.clearCart = async (req, res, next) => {
   try {
+    console.log('🛒 clearCart called ');
+    
     const cart = await Cart.findOne({ user: req.user.id });
+    console.log(cart,'cart');
+    
     if (!cart) {
       return next(new ErrorResponse('Cart not found', 404));
     }

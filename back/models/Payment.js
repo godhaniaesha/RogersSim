@@ -37,11 +37,11 @@ const PaymentSchema = new mongoose.Schema({
     default: 'INR',
   },
   // Stripe identifiers
-  stripeSessionId: {
-    type: String,
-    unique: true,
-    required: false,
-  },
+stripeSessionId: {
+  type: String,
+  required: false,
+  index: true, // keep it searchable, but not unique
+},
   razorpayOrderId: String,
   razorpayPaymentId: String,
   razorpaySignature: String,

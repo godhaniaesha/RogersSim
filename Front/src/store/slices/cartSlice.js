@@ -106,12 +106,13 @@ export const clearCart = createAsyncThunk(
   "cart/clearCart",
   async (_, { rejectWithValue }) => {
     try {
-      const res = await fetch(API_URL, {
+      console.log("🛒 clearCart called");
+      const token = localStorage.getItem("token");
+      const res = await fetch(`${API_URL}/`, {
         method: "DELETE",
-        credentials: "include",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
+            Authorization: `Bearer ${token}`,
         },
       });
       const data = await res.json();
@@ -119,6 +120,8 @@ export const clearCart = createAsyncThunk(
       if (!res.ok) return rejectWithValue(data);
       return data.data;
     } catch (err) {
+      console.log('err',err);
+      
       return rejectWithValue(err.message);
     }
   }

@@ -19,7 +19,7 @@ import {
   fetchOrders,
   updateAddress,
 } from "../../store/slices/checkOutSlice";
-import { getCart } from "../../store/slices/cartSlice";
+import { clearCart, getCart } from "../../store/slices/cartSlice";
 
 const Checkout = () => {
   const navigate = useNavigate();
@@ -48,10 +48,10 @@ const Checkout = () => {
   // Safe cart total calculation
   const cartTotal = cartItems
     ? cartItems.reduce(
-        (total, item) =>
-          total + Number(item.price || 0) * Number(item.quantity || 0),
-        0
-      )
+      (total, item) =>
+        total + Number(item.price || 0) * Number(item.quantity || 0),
+      0
+    )
     : 0;
 
   // Redirect if cart empty
@@ -155,6 +155,7 @@ const Checkout = () => {
   };
 
   // Payment
+  // Payment
   const handlePayment = async () => {
     const storedAddressId = localStorage.getItem("selectedAddressId");
     if (!storedAddressId) {
@@ -170,21 +171,24 @@ const Checkout = () => {
         toast.error("Invalid address selected");
         return;
       }
+
       const checkoutItems = cartItems.map((item) => ({
-        productId: item.productId?._id, // existing id
-        planId: item.planId?._id, // existing id
+        productId: item.productId?._id,
+        planId: item.planId?._id,
         quantity: item.quantity,
         totalPrice: item.price * item.quantity,
-        product: item.productId, // full product object
-        plan: item.planId, // full plan object
+        product: item.productId,
+        plan: item.planId,
       }));
-      // const emiInfo = paymentMethod === "emi" ? calculateEMI() : null;
+
       const checkoutPayload = {
         shippingAddress: selectedAddrObj.id,
-        items: checkoutItems, // send mapped items with full info
+        items: checkoutItems,
         paymentMethod,
         amount:
-          paymentMethod === "full" ? cartTotal : Number(calculateEMI().advance),
+          paymentMethod === "full"
+            ? cartTotal
+            : Number(calculateEMI().advance),
         emiMonths: paymentMethod === "emi" ? emiMonths : undefined,
       };
 
@@ -194,11 +198,15 @@ const Checkout = () => {
         toast.success("Checkout created successfully!");
         localStorage.setItem("checkoutId", result.payload.checkout._id);
 
+        // ✅ Clear cart after successful checkout
+        // await dispatch(clearCart());
+
+        // ✅ Now navigate to payment page
         navigate("/payment", {
           state: {
             orderId: result.payload.checkout._id,
             amount: checkoutPayload.amount,
-            items: result.payload.checkout.items, // now contains full product/plan info
+            items: result.payload.checkout.items,
             address: selectedAddrObj,
           },
         });
@@ -209,6 +217,7 @@ const Checkout = () => {
       toast.error(err.message || "Something went wrong");
     }
   };
+
 
   return (
     <div className="d_checkout-container">
@@ -252,9 +261,8 @@ const Checkout = () => {
                       {mappedAddresses.map((address, idx) => (
                         <div
                           key={address.id}
-                          className={`d_address-card ${
-                            selectedAddress === address.id ? "selected" : ""
-                          }`}
+                          className={`d_address-card ${selectedAddress === address.id ? "selected" : ""
+                            }`}
                           onClick={() => handleAddressSelect(address.id)}
                         >
                           <div className="d_address-card-body">
@@ -505,9 +513,8 @@ const Checkout = () => {
                   <div className="d_card-body">
                     <div className="d_payment-options">
                       <div
-                        className={`d_payment-option ${
-                          paymentMethod === "full" ? "selected" : ""
-                        }`}
+                        className={`d_payment-option ${paymentMethod === "full" ? "selected" : ""
+                          }`}
                         onClick={() => setPaymentMethod("full")}
                       >
                         <FaCreditCard className="d_payment-icon" />
@@ -522,9 +529,8 @@ const Checkout = () => {
                       </div>
 
                       <div
-                        className={`d_payment-option ${
-                          paymentMethod === "emi" ? "selected" : ""
-                        }`}
+                        className={`d_payment-option ${paymentMethod === "emi" ? "selected" : ""
+                          }`}
                         onClick={() => setPaymentMethod("emi")}
                       >
                         <FaMoneyBill className="d_payment-icon" />
@@ -549,9 +555,8 @@ const Checkout = () => {
                             {[3, 6, 9, 12].map((month) => (
                               <div
                                 key={month}
-                                className={`d_emi-option ${
-                                  emiMonths === month ? "selected" : ""
-                                }`}
+                                className={`d_emi-option ${emiMonths === month ? "selected" : ""
+                                  }`}
                                 onClick={() => setEmiMonths(month)}
                               >
                                 {month} Months
@@ -564,24 +569,28 @@ const Checkout = () => {
                         <div className="d_emi-breakdown">
                           <div className="d_emi-row">
                             <span>Original Price</span>
-                            <span>₹{Number(cartTotal).toFixed(2)}</span>
+                            <span>₹{Number(subtotal || 0).toFixed()}</span>
+                          </div>
+                          <div className="d_emi-row">
+                            <span>Tax</span>
+                            <span>₹{Number(tax || 0).toFixed()}</span>
                           </div>
                           <div className="d_emi-row">
                             <span>Processing Fee (10%)</span>
-                            <span>₹{(Number(cartTotal) * 0.1).toFixed(2)}</span>
+                            <span>₹{(Number(subtotal) * 0.1).toFixed()}</span>
                           </div>
                           <div className="d_emi-row highlight">
                             <span>Final Price</span>
-                            <span>₹{calculateEMI().finalPrice}</span>
+                            <span>₹{Number(calculateEMI().finalPrice).toFixed()}</span>
                           </div>
                           <div className="d_emi-row advance">
                             <span>Advance Payment (Now)</span>
-                            <span>₹{calculateEMI().advance}</span>
+                            <span>₹{Number(calculateEMI().advance).toFixed()}</span>
                           </div>
                           <div className="d_emi-row">
                             <span>Monthly Payment</span>
                             <span>
-                              ₹{calculateEMI().emiPerMonth} × {emiMonths} months
+                              ₹{Number(calculateEMI().emiPerMonth).toFixed()} × {emiMonths} months
                             </span>
                           </div>
                         </div>

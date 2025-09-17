@@ -75,52 +75,45 @@ router.post("/create-checkout-session", async (req, res) => {
 
 router.post("/create-payment-intent", protect, async (req, res) => {
   try {
-    const { amount, checkout } = req.body;
+    const { amount, checkoutId } = req.body;
     const user = req.user.id;
-    console.log("Creating PaymentIntent for:", { amount, checkout, user });
 
+    if (!amount) {
+      return res.status(400).json({ error: "Amount is required" });
+    }
+    const intAmount = Math.round(Number(amount) * 100);
+
+    // 1. Create PaymentIntent in Stripe
     const paymentIntent = await stripe.paymentIntents.create({
-      amount: amount * 100,
+      amount: intAmount, // convert to paise
       currency: "inr",
-      payment_method_types: ["card"], // Explicitly define method
-      metadata: { checkout, user },
+      payment_method_types: ["card"],
+      metadata: { checkoutId, user },
     });
 
-    console.log("PaymentIntent created:", paymentIntent);
+    console.log("✅ PaymentIntent created:", paymentIntent.id);
 
-    const payment = await Payment.create({
-      user: user,
-      checkout,
+    // 2. Save to Mongo once
+    await Payment.create({
+      user,
+      checkout: checkoutId,
       paymentId: paymentIntent.id,
       amount,
-      stripeSessionId: paymentIntent.id,
+      stripePaymentIntentId: paymentIntent.id,
       currency: "INR",
       method: "card",
       status: "pending",
     });
 
-    const existingPayment = await Payment.findOne({ paymentId: paymentIntent.id });
-    if (!existingPayment) {
-      await Payment.create({
-        user: user,
-        checkout,
-        paymentId: paymentIntent.id,
-        amount,
-        stripeSessionId: paymentIntent.id,
-        currency: "INR",
-        method: "card",
-        status: "pending",
-      });
-    }
-
-    res.status(201).json({
+    // 3. Always respond with clientSecret
+    return res.status(201).json({
       success: true,
-      clientSecret: paymentIntent.client_secret, 
-      paymentId: payment._id,
+      clientSecret: paymentIntent.client_secret,
+      paymentIntentId: paymentIntent.id,
     });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: err.message });
+    console.error("❌ create-payment-intent error:", err);
+    return res.status(500).json({ error: err.message });
   }
 });
 

@@ -43,7 +43,7 @@ exports.createCheckout = async (req, res, next) => {
     subtotal = round2(subtotal);
 
     // Compute tax & total
-    const tax = round2(subtotal * 0.18); // example GST
+    const tax = round2(subtotal * 0.12); // example GST
     const total = round2(subtotal + tax);
 
     // Compute EMI fields if needed
