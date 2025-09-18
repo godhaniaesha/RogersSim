@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchAllPlans, fetchPlanById } from "../store/slices/planSlice"; // adjust path if needed
 import { fetchUserProfile } from "../store/slices/userSlice";
-import {  toast } from "react-toastify";
+import { toast } from "react-toastify";
 import {
   FaBolt,
   FaChevronRight,
@@ -35,14 +35,14 @@ function Plans() {
     (state) => state.plan
   );
   const { profile: userProfile } = useSelector((state) => state.user || {});
-  
+
   const token = localStorage.getItem("token"); // token store karyo hoy to
   let userId = null;
   if (token) {
     try {
       const decoded = jwtDecode(token);
       userId = decoded.id || decoded._id; // JWT payload ma je key hoy te use karo
-      console.log(userId,"===");      
+      console.log(userId, "===");
     } catch (err) {
       console.error("Invalid token:", err);
     }
@@ -54,16 +54,16 @@ function Plans() {
   const [localSelectedPlan, setLocalSelectedPlan] = useState(null);
   const [phoneNumber, setPhoneNumber] = useState("");
   const location = useLocation();
-const [isFiber, setIsFiber] = useState(
-  location.state?.mode === 'rogershome' // true = fiber
-);
+  const [isFiber, setIsFiber] = useState(
+    location.state?.mode === "rogershome" // true = fiber
+  );
 
-// optional: keep it in sync if the user goes back/forward
-useEffect(() => {
-  if (location.state?.mode) {
-    setIsFiber(location.state.mode === 'rogershome');
-  }
-}, [location.state]);
+  // optional: keep it in sync if the user goes back/forward
+  useEffect(() => {
+    if (location.state?.mode) {
+      setIsFiber(location.state.mode === "rogershome");
+    }
+  }, [location.state]);
   useEffect(() => {
     dispatch(fetchAllPlans());
     dispatch(fetchUserProfile());
@@ -78,12 +78,12 @@ useEffect(() => {
   // Detect Stripe redirect success and record the payment on backend
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    const success = params.get('success');
-    const sessionId = params.get('session_id');
-    if (success === 'true' && sessionId) {
-      fetch('http://localhost:5000/api/payments/record-payment', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+    const success = params.get("success");
+    const sessionId = params.get("session_id");
+    if (success === "true" && sessionId) {
+      fetch("http://localhost:5000/api/payments/record-payment", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ session_id: sessionId }),
       })
         .then(async (res) => {
@@ -94,13 +94,13 @@ useEffect(() => {
           setShowSuccess(true);
           // Clean URL
           const url = new URL(window.location.href);
-          url.searchParams.delete('success');
-          url.searchParams.delete('session_id');
-          window.history.replaceState({}, '', url.toString());
+          url.searchParams.delete("success");
+          url.searchParams.delete("session_id");
+          window.history.replaceState({}, "", url.toString());
         })
         .catch((err) => {
-          console.error('Record payment failed:', err);
-          toast.error('Unable to record payment. Please contact support.');
+          console.error("Record payment failed:", err);
+          toast.error("Unable to record payment. Please contact support.");
         });
     }
   }, []);
@@ -124,40 +124,40 @@ useEffect(() => {
 
   const handlePaymentClose = () => setShowPayment(false);
 
- const handleProceedToStripe = async () => {
-  // Validate phone number
-  const phoneRegex = /^[0-9]{10}$/;
-  if (!phoneRegex.test(phoneNumber)) {
-    toast.error("Please enter a valid 10-digit phone number.");
-    return;
-  }
+  const handleProceedToStripe = async () => {
+    // Validate phone number
+    const phoneRegex = /^[0-9]{10}$/;
+    if (!phoneRegex.test(phoneNumber)) {
+      toast.error("Please enter a valid 10-digit phone number.");
+      return;
+    }
 
-  if (!localSelectedPlan) return;
+    if (!localSelectedPlan) return;
 
-  const amount = Math.round(localSelectedPlan.price * 100); // paise
-  try {
-    const res = await fetch(
-      "http://localhost:5000/api/payments/create-checkout-session",
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          amount,
-          planId: localSelectedPlan._id,
-          phone: phoneNumber,
-          userId: userId,
-        }),
-      }
-    );
-    if (!res.ok) throw new Error(await res.text());
-    const { sessionId } = await res.json();
-    const stripe = await stripePromise;
-    await stripe.redirectToCheckout({ sessionId });
-  } catch (err) {
-    console.error("Stripe checkout error:", err);
-    alert("Payment could not be started: " + err.message);
-  }
-};
+    const amount = Math.round(localSelectedPlan.price * 100); // paise
+    try {
+      const res = await fetch(
+        "http://localhost:5000/api/payments/create-checkout-session",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            amount,
+            planId: localSelectedPlan._id,
+            phone: phoneNumber,
+            userId: userId,
+          }),
+        }
+      );
+      if (!res.ok) throw new Error(await res.text());
+      const { sessionId } = await res.json();
+      const stripe = await stripePromise;
+      await stripe.redirectToCheckout({ sessionId });
+    } catch (err) {
+      console.error("Stripe checkout error:", err);
+      alert("Payment could not be started: " + err.message);
+    }
+  };
 
   // filter and group plans
   const filteredPlans = Array.isArray(plans)
@@ -178,6 +178,28 @@ useEffect(() => {
     title: key,
     plans: groupedPlans[key],
   }));
+
+  const getValidityInDays = (validity) => {
+    if (!validity) return "";
+
+    // pattern: <number>_<unit>
+    const [numStr, unit] = validity.split("_");
+    const num = parseInt(numStr, 10) || 0;
+
+    switch (unit) {
+      case "day":
+      case "days":
+        return num;
+      case "month":
+      case "months":
+        return num * 30; // or 31 based on your logic
+      case "year":
+      case "years":
+        return num * 365; // or 366 if leap-year logic needed
+      default:
+        return "";
+    }
+  };
 
   return (
     <>
@@ -267,7 +289,9 @@ useEffect(() => {
                             <p className="mb-1">
                               <small className="text-muted">Validity</small>{" "}
                               <br />
-                              <span className="fw-bold">{plan.validity}</span>
+                              <span className="fw-bold">
+                                {getValidityInDays(plan.validity)} days
+                              </span>
                             </p>
                             {isFiber ? (
                               <p className="mb-1">
@@ -279,7 +303,7 @@ useEffect(() => {
                               <p className="mb-1">
                                 <small className="text-muted">Data</small>{" "}
                                 <br />
-                                <span className="fw-bold">{plan.data}</span>
+                                <span className="fw-bold">{plan.dataLimit}</span>
                               </p>
                             )}
                           </div>
@@ -314,7 +338,12 @@ useEffect(() => {
                     <tbody>
                       <tr>
                         <td>Validity</td>
-                        <td>{(localSelectedPlan || selectedPlan).validity}</td>
+                        <td>
+                          {getValidityInDays(
+                            (localSelectedPlan || selectedPlan).validity
+                          )}{" "}
+                          days
+                        </td>
                       </tr>
                       {isFiber ? (
                         <>
@@ -324,12 +353,8 @@ useEffect(() => {
                           </tr>
                           <tr>
                             <td>Data</td>
-                            <td>{(localSelectedPlan || selectedPlan).data}</td>
-                          </tr>
-                          <tr>
-                            <td>Benefits</td>
                             <td>
-                              {(localSelectedPlan || selectedPlan).benefits}
+                              {(localSelectedPlan || selectedPlan).dataLimit}
                             </td>
                           </tr>
                         </>
@@ -337,18 +362,14 @@ useEffect(() => {
                         <>
                           <tr>
                             <td>Data</td>
-                            <td>{(localSelectedPlan || selectedPlan).data}</td>
+                            <td>{(localSelectedPlan || selectedPlan).dataLimit }</td>
                           </tr>
                           <tr>
                             <td>High Speed</td>
                             <td>
-                              {(localSelectedPlan || selectedPlan).highSpeed}
+                              {(localSelectedPlan || selectedPlan).speed}
                             </td>
-                          </tr>
-                          <tr>
-                            <td>Voice</td>
-                            <td>{(localSelectedPlan || selectedPlan).voice}</td>
-                          </tr>
+                          </tr>                         
                         </>
                       )}
                     </tbody>

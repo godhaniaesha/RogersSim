@@ -71,34 +71,33 @@ const ProductDetail = () => {
   };
 
   const handleAddToCart = async () => {
-  if (isPrepaid && !selectedPlan) {
-    toast.error("Please select a plan to continue");
-    return;
-  }
+    if (isPrepaid && !selectedPlan) {
+      toast.error("Please select a plan to continue");
+      return;
+    }
 
-  const cartItem = {
-    productId: product?._id,
-    planId: selectedPlan?._id || null,
-    planType: selectedPlan?.planType || null,
-    numberType,
-    portingNumber: numberType === "port" ? portingNumber : null,
-    totalPrice: calculateTotal(), // match backend field name
+    const cartItem = {
+      productId: product?._id,
+      planId: selectedPlan?._id || null,
+      planType: selectedPlan?.planType || null,
+      numberType,
+      portingNumber: numberType === "port" ? portingNumber : null,
+      totalPrice: calculateTotal(), // match backend field name
+    };
+
+    try {
+      // call thunk which posts to API and updates store
+      await dispatch(addToCart(cartItem)).unwrap();
+      toast.success("Added to cart successfully!");
+      navigate("/cart");
+    } catch (err) {
+      toast.error(
+        err?.response?.data?.error ||
+          err?.message ||
+          "Failed to add item to cart"
+      );
+    }
   };
-
-  try {
-    // call thunk which posts to API and updates store
-    await dispatch(addToCart(cartItem)).unwrap();
-    toast.success("Added to cart successfully!");
-    navigate("/cart");
-  } catch (err) {
-    toast.error(
-      err?.response?.data?.error ||
-      err?.message ||
-      "Failed to add item to cart"
-    );
-  }
-};
-
 
   if (loading) {
     return (
@@ -116,7 +115,7 @@ const ProductDetail = () => {
       <div className="container py-5">
         <div className="alert alert-danger">
           {/* Fixed: Ensure error is displayed as string */}
-          {typeof error === 'object' ? JSON.stringify(error) : error}
+          {typeof error === "object" ? JSON.stringify(error) : error}
           <button
             className="btn btn-outline-danger btn-sm ms-3"
             onClick={() => window.location.reload()}
@@ -140,6 +139,28 @@ const ProductDetail = () => {
   }
 
   const isPrepaid = product.category === "prepaid" || type === "prepaid";
+
+  const getValidityInDays = (validity) => {
+    if (!validity) return "";
+
+    // pattern: <number>_<unit>
+    const [numStr, unit] = validity.split("_");
+    const num = parseInt(numStr, 10) || 0;
+
+    switch (unit) {
+      case "day":
+      case "days":
+        return num;
+      case "month":
+      case "months":
+        return num * 30; // or 31 based on your logic
+      case "year":
+      case "years":
+        return num * 365; // or 366 if leap-year logic needed
+      default:
+        return "";
+    }
+  };
 
   return (
     <div className="container py-5">
@@ -187,7 +208,11 @@ const ProductDetail = () => {
                     <li key={index} className="d-flex align-items-center mb-2">
                       <FaCheck className="text-danger me-2" />
                       {/* Fixed: Ensure feature is rendered as string */}
-                      <span>{typeof feature === 'object' ? JSON.stringify(feature) : feature}</span>
+                      <span>
+                        {typeof feature === "object"
+                          ? JSON.stringify(feature)
+                          : feature}
+                      </span>
                     </li>
                   ))
                 ) : (
@@ -209,49 +234,59 @@ const ProductDetail = () => {
                 </div>
                 <div className="card-body">
                   <div className="row row-cols-1 row-cols-md-3 g-3">
-                    {plans && plans.length > 0 ? plans.map((plan, index) => {
-                      const uniqueKey = `${plan.id || plan._id}-${plan.planType || index}`;
-                      const isSelected =
-                        selectedPlan &&
-                        (selectedPlan.id === plan.id || selectedPlan._id === plan._id) &&
-                        selectedPlan.planType === plan.planType;
+                    {plans && plans.length > 0 ? (
+                      plans.map((plan, index) => {
+                        const uniqueKey = `${plan.id || plan._id}-${
+                          plan.planType || index
+                        }`;
+                        const isSelected =
+                          selectedPlan &&
+                          (selectedPlan.id === plan.id ||
+                            selectedPlan._id === plan._id) &&
+                          selectedPlan.planType === plan.planType;
 
-                      return (
-                        <div className="col" key={uniqueKey}>
-                          <div
-                            className={`card h-100 ${
-                              isSelected ? "border-danger" : "border-light"
-                            }`}
-                            onClick={() => handlePlanSelect(plan)}
-                            style={{ cursor: "pointer" }}
-                          >
-                            <div className="card-body">
-                              <h5 className="card-title">{plan.name || 'Unnamed Plan'}</h5>
-                              <h6 className="text-danger mb-3">
-                                ₹{plan.price || 0}
-                              </h6>
-                              <div className="small mb-1">
-                                <strong>Data:</strong> {plan.dataLimit || 'N/A'}
+                        return (
+                          <div className="col" key={uniqueKey}>
+                            <div
+                              className={`card h-100 ${
+                                isSelected ? "border-danger" : "border-light"
+                              }`}
+                              onClick={() => handlePlanSelect(plan)}
+                              style={{ cursor: "pointer" }}
+                            >
+                              <div className="card-body">
+                                <h5 className="card-title">
+                                  {plan.name || "Unnamed Plan"}
+                                </h5>
+                                <h6 className="text-danger mb-3">
+                                  ₹{plan.price || 0}
+                                </h6>
+                                <div className="small mb-1">
+                                  <strong>Data:</strong>{" "}
+                                  {plan.dataLimit || "N/A"}
+                                </div>
+                                <div className="small mb-1">
+                                  <strong>Validity:</strong>{" "}
+                                  {getValidityInDays(plan.validity) || "N/A"} days
+                                </div>
+                                <div className="small mb-1">
+                                  <strong>Speed:</strong> {plan.speed || "N/A"}
+                                </div>
+                                <div className="small mb-1">
+                                  <strong>PlanType:</strong>{" "}
+                                  {plan.planType || "N/A"}
+                                </div>
                               </div>
-                              <div className="small mb-1">
-                                <strong>Validity:</strong> {plan.validity || 'N/A'}
-                              </div>
-                              <div className="small mb-1">
-                                <strong>Speed:</strong> {plan.speed || 'N/A'}
-                              </div>
-                              <div className="small mb-1">
-                                <strong>PlanType:</strong> {plan.planType || 'N/A'}
-                              </div>
+                              {isSelected && (
+                                <div className="card-footer bg-danger text-white text-center py-2">
+                                  <small>Selected</small>
+                                </div>
+                              )}
                             </div>
-                            {isSelected && (
-                              <div className="card-footer bg-danger text-white text-center py-2">
-                                <small>Selected</small>
-                              </div>
-                            )}
                           </div>
-                        </div>
-                      );
-                    }) : (
+                        );
+                      })
+                    ) : (
                       <div className="col-12">
                         <div className="text-center text-muted">
                           No plans available for this product
