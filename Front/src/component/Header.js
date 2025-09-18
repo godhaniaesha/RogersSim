@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { NavLink } from "react-router-dom";
-import { FaUser, FaShoppingCart, FaBars, FaTimes } from "react-icons/fa";
+import { FaUser, FaShoppingCart, FaBars, FaTimes, FaHistory } from "react-icons/fa";
 import { useSelector, useDispatch } from "react-redux";
 import { logout, logoutUser } from "../store/slices/authSlice";
 import Logo from "../image/IMG_4025 (1).png";
@@ -134,25 +134,28 @@ export default function Header() {
                     >
                       <FaUser className="me-1" /> Account
                     </button>
-                    <ul className="dropdown-menu dropdown-menu-end">
+                    <ul className="dropdown-menu dropdown-menu-end dropdown-menu-theme">
                       <li>
-                        <NavLink className="dropdown-item" to="/profile" onClick={closeMenu}>
+                        <NavLink className="dropdown-item dropdown-item-theme" to="/profile" onClick={closeMenu}>
+                          <FaUser className="me-2" style={{ fontSize: '0.8rem' }} />
                           My Profile
                         </NavLink>
                       </li>
                       {/* <li>
-                        <NavLink className="dropdown-item" to="/profile/orders" onClick={closeMenu}>
+                        <NavLink className="dropdown-item dropdown-item-theme" to="/profile/orders" onClick={closeMenu}>
+                          <FaHistory className="me-2" style={{ fontSize: '0.8rem' }} />
                           Order History
                         </NavLink>
                       </li> */}
                       <li>
-                        <hr className="dropdown-divider" />
+                        <hr className="dropdown-divider dropdown-divider-theme" />
                       </li>
                       <li>
                         <button
-                          className="dropdown-item"
+                          className="dropdown-item btn-logout-theme"
                           onClick={() => dispatch(logoutUser())}
                         >
+                          <FaTimes className="me-2" style={{ fontSize: '0.8rem' }} />
                           Logout
                         </button>
                       </li>

@@ -3,6 +3,7 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import { Provider, useSelector } from 'react-redux';
+import { PersistGate } from 'redux-persist/integration/react';
 
 // Styles
 import './style/theme.css';
@@ -14,7 +15,7 @@ import Header from './component/Header';
 import Footer from './component/Footer';
 
 // Redux Store
-import store from './store';
+import { store, persistor } from './store';
 
 // Pages
 import Home from './pages/Home';
@@ -49,9 +50,11 @@ const stripePromise = loadStripe("pk_test_51R8wmeQ0DPGsMRTSHTci2XmwYmaDLRqeSSRS2
 function App() {
   return (
     <Provider store={store}>
-      <Elements stripe={stripePromise}>
-        <AppContent />
-      </Elements>
+      <PersistGate loading={<div>Loading...</div>} persistor={persistor}>
+        <Elements stripe={stripePromise}>
+          <AppContent />
+        </Elements>
+      </PersistGate>
     </Provider>
   );
 }
@@ -71,66 +74,52 @@ const AppContent = () => {
   };
 
   return (
-    <Provider store={store} >
-      <Router >
-        <ToastContainer position="top-right" autoClose={3000} hideProgressBar={false} />
-        <Header />
-        <main className="h-100" >
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/exb" element={<ExplorB />} />
-            <Route path="/addabout" element={<AdAbout />} />
-            <Route path="/add" element={<AddBus />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/signup" element={<Signup />} />
-            <Route path="/recharge" element={<Recharge />} />
-            <Route path="/profile" element={
-              <ProtectedRoute>
-                <Profile />
-              </ProtectedRoute>
-            } />
-            <Route path="/profile/orders" element={
-              <ProtectedRoute>
-                <OrderHistory />
-              </ProtectedRoute>
-            } />
-            <Route path="/products" element={<Products />} />
-            <Route path="/plans" element={<Plans />} />
-            <Route path="/about" element={<About />} />
-            <Route path="/contact" element={<Contact />} />
-            <Route path="/privacy" element={<Privacy />} />
-            <Route path="/service" element={<Service />} />
-            <Route path="/faq" element={<FAQ />} />
-            <Route path="/Termscondition" element={<Termscondition />} />
+    <Router>
+      <ToastContainer position="top-right" autoClose={3000} hideProgressBar={false} />
+      <Header />
+      <main className="h-100">
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/exb" element={<ExplorB />} />
+          <Route path="/addabout" element={<AdAbout />} />
+          <Route path="/add" element={<AddBus />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<Signup />} />
+          <Route path="/recharge" element={<Recharge />} />
+          <Route path="/profile" element={
+            <ProtectedRoute>
+              <Profile />
+            </ProtectedRoute>
+          } />
+          <Route path="/profile/orders" element={
+            <ProtectedRoute>
+              <OrderHistory />
+            </ProtectedRoute>
+          } />
+          <Route path="/products" element={<Products />} />
+          <Route path="/plans" element={<Plans />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/contact" element={<Contact />} />
+          <Route path="/privacy" element={<Privacy />} />
+          <Route path="/service" element={<Service />} />
+          <Route path="/faq" element={<FAQ />} />
+          <Route path="/Termscondition" element={<Termscondition />} />
 
-            <Route path="/products/:id" element={<ProductDetail />} />
-            <Route path="/cart" element={<Cart />} />
-            {/* <Route path="/checkout" element={<Checkout />} /> */}
-            {/* <Route path="/payment" element={<Payment />} /> */}
-            <Route path="/order-confirmation" element={<OrderConfirmation />} />
-            <Route path="/forgot-password" element={<ForgotPass />} />
-            <Route path="/helpcenter" element={<HelpCenter />} />
-            <Route path="/checkout" element={
-              // <ProtectedRoute>
-              <Checkout />
-              // </ProtectedRoute>
-            } />
-            <Route path="/payment" element={
-              // <ProtectedRoute>
-              <Payment />
-              // </ProtectedRoute>
-            } />
-            <Route path="/order-confirmation" element={
-              <ProtectedRoute>
-                <OrderConfirmation />
-              </ProtectedRoute>
-            } />
-
-          </Routes>
-        </main>
-        <Footer />
-      </Router>
-    </Provider>
+          <Route path="/products/:id" element={<ProductDetail />} />
+          <Route path="/cart" element={<Cart />} />
+          <Route path="/checkout" element={<Checkout />} />
+          <Route path="/payment" element={<Payment />} />
+          <Route path="/order-confirmation" element={
+            <ProtectedRoute>
+              <OrderConfirmation />
+            </ProtectedRoute>
+          } />
+          <Route path="/forgot-password" element={<ForgotPass />} />
+          <Route path="/helpcenter" element={<HelpCenter />} />
+        </Routes>
+      </main>
+      <Footer />
+    </Router>
   );
 }
 
