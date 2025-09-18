@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import { toast } from "react-toastify";
@@ -41,12 +41,12 @@ import { fetchProducts } from "../../store/slices/productSlice";
 
 const Profile = () => {
   // KYC file upload states
-  const [profileToastShown, setProfileToastShown] = useState(false);
   const [idProofFile, setIdProofFile] = useState(null);
   const [addressProofFile, setAddressProofFile] = useState(null);
   const [activeTab, setActiveTab] = useState("personal");
   const [barcode, setBarcode] = useState("");
   const [otp, setOtp] = useState("");
+  const profileToastShown = useRef(false);
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const kycState = useSelector(state => state.kyc);
@@ -95,6 +95,7 @@ const Profile = () => {
       .unwrap()
       .then((profile) => {
         localStorage.setItem("userProfile", JSON.stringify(profile));
+        // Show toast only once when profile is loaded
         if (!profileToastShown.current) {
           toast.success("Profile loaded successfully");
           profileToastShown.current = true;
