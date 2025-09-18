@@ -73,6 +73,27 @@ export default function Home() {
     }
   ];
 
+  // Function to convert validity into days
+const convertValidityToDays = (validity) => {
+  switch (validity) {
+    case "1_day":
+      return 1;
+    case "1_month":
+      return 30;   // approx 30 days
+    case "3_months":
+      return 90;   // 3 × 30
+    case "6_months":
+      return 180;  // 6 × 30
+    case "1_year":
+      return 365;
+    case "2_years":
+      return 730;  // 2 × 365
+    default:
+      return 0; // fallback
+  }
+};
+
+
   // Redux: fetch plans
   const dispatch = useDispatch();
   const { plans, loading, error } = useSelector(state => state.plan);
@@ -87,49 +108,7 @@ export default function Home() {
       <div >
         {/* Hero Banner Carousel */}
         {/* <Hero /> */}
-        <NewHero></NewHero>
-        {/* <TestSlider></TestSlider> */}
-        {/* <div id="heroCarousel" className="carousel slide" data-bs-ride="carousel">
-        <div className="carousel-inner">
-          {banners.map((banner, index) => (
-            <div key={banner.id} className={`carousel-item ${index === 0 ? 'active' : ''}`}>
-              <div className={`${banner.bgClass} py-5`}>
-                <div className="container py-4">
-                  <div className="row align-items-center">
-                    <div className="col-md-6 text-center text-md-start">
-                      <h1 className={`display-4 fw-bold ${banner.bgClass === 'bg-primary-custom' ? 'text-white' : 'text-primary-custom'}`}>
-                        {banner.title}
-                      </h1>
-                      <p className={`lead mb-4 ${banner.bgClass === 'bg-primary-custom' ? 'text-white' : 'text-dark'}`}>
-                        {banner.description}
-                      </p>
-                      <Link to={banner.buttonLink} className={`btn ${banner.bgClass === 'bg-primary-custom' ? 'btn-light' : 'btn-primary'} btn-lg px-4`}>
-                        {banner.buttonText} <FaArrowRight className="ms-2" />
-                      </Link>
-                    </div>
-                    <div className="col-md-6 d-none d-md-block text-center">
-                      <img
-                        src="/logo512.png"
-                        alt="Rogers SIM"
-                        className="img-fluid"
-                        style={{ maxHeight: '300px' }}
-                      />
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-        <button className="carousel-control-prev" type="button" data-bs-target="#heroCarousel" data-bs-slide="prev">
-          <span className="carousel-control-prev-icon" aria-hidden="true"></span>
-          <span className="visually-hidden">Previous</span>
-        </button>
-        <button className="carousel-control-next" type="button" data-bs-target="#heroCarousel" data-bs-slide="next">
-          <span className="carousel-control-next-icon" aria-hidden="true"></span>
-          <span className="visually-hidden">Next</span>
-        </button>
-      </div> */}
+        <NewHero></NewHero>        
 
         {/* SIM Categories Section */}
         <section className="py-md-5 py-4 bg-light-custom">
@@ -179,7 +158,7 @@ export default function Home() {
                           <h3 className="text-center fw-bold">{plan.name}</h3>
                           <div className="text-center">
                             <span className="h1 fw-bold text-primary-custom">₹{plan.price}</span>
-                            <span className="text-muted">/{plan.validity}</span>
+                            <span className="text-muted">/{convertValidityToDays(plan.validity)} days</span>
                           </div>
                         </div>
                         <div className="card-body">
