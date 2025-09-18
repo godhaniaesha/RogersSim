@@ -56,7 +56,7 @@ exports.createCheckout = async (req, res, next) => {
       emiPerMonth = round2(remainingAmount / emiMonths);
     }
 
-    // Save checkout
+    // Set status to 'success' if paymentMethod is 'full'
     const checkout = await Checkout.create({
       user: req.user._id,
       items: populatedItems,
@@ -69,8 +69,11 @@ exports.createCheckout = async (req, res, next) => {
       remainingAmount,
       emiPerMonth,
       shippingAddress,
-      emiPayments: [] // start empty
+      emiPayments: [], // start empty
+      status: paymentMethod == 'full' ? 'completed' : undefined
     });
+    console.log("checkout", checkout,"========");
+    
 
     res.status(201).json({ status: 'success', data: { checkout } });
   } catch (err) {

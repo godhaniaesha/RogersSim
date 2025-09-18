@@ -37,6 +37,7 @@ import {
   resetOtpState,
 } from "../../store/slices/cardSlice";
 import { uploadKyc } from "../../store/slices/kycSlice";
+import { fetchProducts } from "../../store/slices/productSlice";
 
 const Profile = () => {
   // KYC file upload states
@@ -49,6 +50,14 @@ const Profile = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const kycState = useSelector(state => state.kyc);
+
+  useEffect(() => {
+    dispatch(fetchProducts());
+  }, [dispatch]);
+
+  const product = useSelector(state => state.product.products);
+
+  console.log("product in profile", product);
 
   // Get user profile from Redux
   const { user, loading, error, isAuthenticated } = useSelector(
@@ -70,31 +79,31 @@ const Profile = () => {
     error: ordersError,
   } = useSelector((state) => state.orders);
   useEffect(() => {
-  // Only redirect if we *know* the user is not authenticated
-  if (isAuthenticated === false) {
-    navigate("/login");
-  }
+    // Only redirect if we *know* the user is not authenticated
+    if (isAuthenticated === false) {
+      navigate("/login");
+    }
 
-  // fetch profile only if not already in localStorage
-  const cachedProfile = localStorage.getItem("userProfile");
-  if (cachedProfile) {
-    dispatch(fetchProfileSuccess(JSON.parse(cachedProfile)));
-  }
+    // fetch profile only if not already in localStorage
+    const cachedProfile = localStorage.getItem("userProfile");
+    if (cachedProfile) {
+      dispatch(fetchProfileSuccess(JSON.parse(cachedProfile)));
+    }
 
-  // Always fetch a fresh profile
-  dispatch(fetchUserProfile())
-    .unwrap()
-    .then((profile) => {
-      localStorage.setItem("userProfile", JSON.stringify(profile));
-      if (!profileToastShown.current) {
-        toast.success("Profile loaded successfully"); 
-        profileToastShown.current = true;
-      }
-    })
-    .catch((err) => {
-      toast.error(err);
-    });
-}, [isAuthenticated, navigate, dispatch]);
+    // Always fetch a fresh profile
+    dispatch(fetchUserProfile())
+      .unwrap()
+      .then((profile) => {
+        localStorage.setItem("userProfile", JSON.stringify(profile));
+        if (!profileToastShown.current) {
+          toast.success("Profile loaded successfully");
+          profileToastShown.current = true;
+        }
+      })
+      .catch((err) => {
+        toast.error(err);
+      });
+  }, [isAuthenticated, navigate, dispatch]);
 
 
   useEffect(() => {
@@ -248,7 +257,7 @@ const Profile = () => {
     }
   });
   console.log("userData", userData);
-  
+
 
   return (
     <div className="container py-5">
@@ -422,11 +431,11 @@ const Profile = () => {
                 </div>
               )}
 
-           
+
               {activeTab === 'kyc' && (
                 <div>
                   <h4 className="mb-4">KYC Verification</h4>
-               
+
                   <form
                     onSubmit={async (e) => {
                       e.preventDefault();
@@ -667,7 +676,6 @@ const Profile = () => {
                             <th>Order ID</th>
                             <th>Date</th>
                             <th>Product</th>
-                            <th>Plan</th>
                             <th>Amount</th>
                             <th>Status</th>
                           </tr>
@@ -688,27 +696,39 @@ const Profile = () => {
                                   order.checkout.items &&
                                   order.checkout.items.length > 0
                                   ? order.checkout.items
-                                    .map((item) => item.productId)
+                                    .map((item) => {
+                                      const prod = product.find(p => p._id === item.productId);
+                                      return prod ? prod.name : item.productId;
+                                    })
                                     .join(", ")
                                   : "-"}
                               </td>
-                              <td>
+                              {/* <td>
                                 {order.shippingAddress
                                   ? order.shippingAddress.label ||
                                   order.shippingAddress._id
                                   : "-"}
-                              </td>
-                              <td>₹{order.total || order.amount || "-"}</td>
+                              </td> */}
+                              <td>₹{order.checkout && order.checkout.total || "-"}</td>
                               <td>
                                 <span
-                                  className={`badge ${order.status === "delivered"
-                                    ? "bg-success"
-                                    : order.status === "processing"
-                                      ? "bg-warning"
-                                      : "bg-primary"
-                                    }`}
+                                  className="badge"
+                                  style={{
+                                    backgroundColor:
+                                      order.checkout?.status === "completed"
+                                        ? "#35a370" // green
+                                        : order.checkout?.status === "pending"
+                                          ? "#f1d376" // yellow
+                                          : "#F5DCE0", // Bootstrap primary
+                                    color:
+                                      order.checkout?.status === "completed"
+                                        ? "#fff" // white text on green
+                                        : order.checkout?.status === "pending"
+                                          ? "#000" // black text on yellow
+                                          : "# CC6E9B", // white text on primary
+                                  }}
                                 >
-                                  {order.status}
+                                  {order.checkout?.status}
                                 </span>
                               </td>
                             </tr>
