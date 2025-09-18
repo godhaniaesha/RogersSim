@@ -32,7 +32,6 @@ exports.addToCart = async (req, res, next) => {
   try {
     const { productId, planId, quantity = 1 } = req.body;
 
-    // At least one must be present
     if (!productId && !planId) {
       return next(new ErrorResponse('At least a product or plan is required', 400));
     }
@@ -61,7 +60,7 @@ exports.addToCart = async (req, res, next) => {
       cart = await Cart.create({ user: req.user.id, items: [] });
     }
 
-    // 🟢 NEW: disallow duplicate product or duplicate plan
+    // disallow duplicates
     if (productId) {
       const alreadyHasProduct = cart.items.some(
         (item) => item.productId?.toString() === productId
@@ -85,10 +84,13 @@ exports.addToCart = async (req, res, next) => {
     const productPrice = product ? product.price : 0;
     const totalPrice = (planPrice + productPrice) * quantity;
 
-    // Add new item (no merging because duplicates disallowed)
+    // 🔹 Determine planType automatically from Plan model (if exists)
+    const planType = req.body.planType;
+    // Add new item
     cart.items.push({
       productId: productId || undefined,
       planId: planId || undefined,
+      planType, // fill the field
       quantity,
       totalPrice
     });
@@ -98,7 +100,7 @@ exports.addToCart = async (req, res, next) => {
     // Populate details
     await cart.populate([
       { path: 'items.productId', select: 'name image price' },
-      { path: 'items.planId', select: 'name price validity' }
+      { path: 'items.planId', select: 'name price validity type' } // include type
     ]);
 
     res.status(200).json({
@@ -111,6 +113,7 @@ exports.addToCart = async (req, res, next) => {
 };
 
 
+
 // @desc    Update cart item quantity
 // @route   PUT /api/cart/:itemId
 // @access  Private
@@ -120,24 +123,21 @@ exports.updateCartItem = async (req, res, next) => {
     const { quantity } = req.body;
 
     const cart = await Cart.findOne({ user: req.user.id });
-    if (!cart) {
-      return next(new ErrorResponse('Cart not found', 404));
-    }
+    if (!cart) return next(new ErrorResponse('Cart not found', 404));
 
     const itemIndex = cart.items.findIndex(item => item._id.toString() === itemId);
-    if (itemIndex === -1) {
-      return next(new ErrorResponse('Item not found in cart', 404));
-    }
+    if (itemIndex === -1) return next(new ErrorResponse('Item not found in cart', 404));
 
     if (quantity !== undefined) {
       cart.items[itemIndex].quantity = quantity;
 
-      // Recalculate price
       let planPrice = 0;
       let productPrice = 0;
       if (cart.items[itemIndex].planId) {
         const plan = await Plan.findById(cart.items[itemIndex].planId);
         planPrice = plan ? plan.price : 0;
+        // also refresh planType in case plan changed
+        cart.items[itemIndex].planType = plan?.type;
       }
       if (cart.items[itemIndex].productId) {
         const product = await Product.findById(cart.items[itemIndex].productId);
@@ -151,7 +151,7 @@ exports.updateCartItem = async (req, res, next) => {
 
     await cart.populate([
       { path: 'items.productId', select: 'name image price' },
-      { path: 'items.planId', select: 'name price validity' }
+      { path: 'items.planId', select: 'name price validity type' }
     ]);
 
     res.status(200).json({
@@ -162,6 +162,7 @@ exports.updateCartItem = async (req, res, next) => {
     next(err);
   }
 };
+
 
 // @desc    Remove item from cart
 // @route   DELETE /api/cart/:itemId

@@ -11,6 +11,7 @@ const CartItemSchema = new mongoose.Schema({
     ref: 'Plan',
     required: false, // can be null if only product is chosen
   },
+  planType: { type: String, enum: ['fiber','mobile'] }, // <- add this
   quantity: {
     type: Number,
     default: 1,

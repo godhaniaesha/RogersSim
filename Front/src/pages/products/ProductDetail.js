@@ -71,34 +71,34 @@ const ProductDetail = () => {
   };
 
   const handleAddToCart = async () => {
-    // make sure plan is selected for prepaid
-    if (isPrepaid && !selectedPlan) {
-      toast.error("Please select a plan to continue");
-      return;
-    }
+  if (isPrepaid && !selectedPlan) {
+    toast.error("Please select a plan to continue");
+    return;
+  }
 
-    const cartItem = {
-      productId: product?._id, // send only ID
-      planId: selectedPlan?._id || null, // send only ID
-      numberType,
-      portingNumber: numberType === "port" ? portingNumber : null,
-      total: calculateTotal(),
-    };
-
-    try {
-      dispatch(addToCart(cartItem)); // if your slice accepts same shape
-      await cartService.addToCart(cartItem);
-      toast.success("Added to cart successfully!");
-      navigate("/cart");
-    } catch (err) {
-      // Fixed: Convert error object to string
-      const errorMessage = err?.response?.data?.error || 
-                          err?.message || 
-                          err?.error || 
-                          "Failed to add item to cart";
-      toast.error(errorMessage);
-    }
+  const cartItem = {
+    productId: product?._id,
+    planId: selectedPlan?._id || null,
+    planType: selectedPlan?.planType || null,
+    numberType,
+    portingNumber: numberType === "port" ? portingNumber : null,
+    totalPrice: calculateTotal(), // match backend field name
   };
+
+  try {
+    // call thunk which posts to API and updates store
+    await dispatch(addToCart(cartItem)).unwrap();
+    toast.success("Added to cart successfully!");
+    navigate("/cart");
+  } catch (err) {
+    toast.error(
+      err?.response?.data?.error ||
+      err?.message ||
+      "Failed to add item to cart"
+    );
+  }
+};
+
 
   if (loading) {
     return (
