@@ -4,7 +4,6 @@ import { FaShoppingCart, FaTrash, FaArrowRight } from 'react-icons/fa';
 import { useDispatch, useSelector } from 'react-redux';
 import { clearCartError, getCart, removeFromCart } from '../../store/slices/cartSlice';
 import { toast } from 'react-toastify';
-import cartService from '../../services/cartService';
 import { fetchProducts } from '../../store/slices/productSlice';
 
 const Cart = () => {
@@ -14,11 +13,10 @@ const Cart = () => {
   const [cartItems, setCartItems] = useState([]);
 
   useEffect(() => {
-        dispatch(fetchProducts());
-  // Clear any old error from add/remove before loading cart
-  dispatch(clearCartError());
-  dispatch(getCart());
-}, [dispatch]);
+    dispatch(fetchProducts());
+    dispatch(clearCartError());
+    dispatch(getCart());
+  }, [dispatch]);
 
   // Get cart and product state from Redux
   const { items, loading, error } = useSelector(state => state.cart);
@@ -30,18 +28,12 @@ const Cart = () => {
     if (items) setCartItems(items);
   }, [items]);
 
-  // Fetch cart items on mount
-  useEffect(() => {
-    dispatch(getCart());
-  }, [dispatch]);
-
   // Redirect to login if not authenticated
-useEffect(() => {
-  // only redirect when authentication check finished
-  if (isAuthenticated === false && !loading) {
-    navigate('/login');
-  }
-}, [isAuthenticated, loading, navigate]);
+  useEffect(() => {
+    if (isAuthenticated === false && !loading) {
+      navigate('/login');
+    }
+  }, [isAuthenticated, loading, navigate]);
 
   // Remove item from cart
   const removeItem = async (itemId) => {
@@ -51,12 +43,10 @@ useEffect(() => {
       if (removeFromCart.fulfilled.match(result)) {
         toast.success("Item removed from cart");
       } else {
-        // Fixed: Handle error object properly
         const errorMessage = result.payload || "Failed to remove item from cart";
         toast.error(typeof errorMessage === 'object' ? JSON.stringify(errorMessage) : errorMessage);
       }
     } catch (err) {
-      // Fixed: Handle error object properly
       const errorMessage = err?.message || "Failed to remove item from cart";
       toast.error(typeof errorMessage === 'object' ? JSON.stringify(errorMessage) : errorMessage);
     }
@@ -70,7 +60,7 @@ useEffect(() => {
   // ✅ Tax calculation (example: 18% GST)
   const calculateTax = () => {
     const subtotal = calculateTotal();
-    const taxRate = 0.18; // 18% GST, change if needed
+    const taxRate = 0.18; // 18% GST
     return Math.round(subtotal * taxRate);
   };
 
@@ -105,7 +95,6 @@ useEffect(() => {
         </div>
       ) : error ? (
         <div className="alert alert-danger">
-          {/* Fixed: Ensure error is displayed as string */}
           {typeof error === 'object' ? JSON.stringify(error) : error}
         </div>
       ) : cartItems.length > 0 ? (
@@ -115,52 +104,61 @@ useEffect(() => {
             <div className="card border-0 shadow-sm">
               <div className="card-body">
                 {cartItems.map((item) => {
+                  // get product if it’s a product
                   const matchedProduct = products.find(
                     (p) => p._id === (item.productId?._id || item.productId)
                   );
 
-                  if (!matchedProduct) {
-                    return (
-                      <div key={item._id} className="mb-4 pb-4 border-bottom">
-                        <div className="alert alert-warning">
-                          Product information not available
-                        </div>
-                      </div>
-                    );
-                  }
+                  // get plan if it’s a plan (assuming backend populated planId)
+                  const matchedPlan = item.planId?._id ? item.planId : null;
 
                   return (
                     <div key={item._id} className="mb-4 pb-4 border-bottom">
                       <div className="row">
-                        {/* Product Details */}
                         <div className="col-9">
-                          <h5>{matchedProduct.name || 'Unknown Product'}</h5>
-
-                          {/* Badges */}
-                          <div className="d-flex mb-2">
-                            <span className="badge bg-light text-dark me-2">
-                              {matchedProduct.category ? 
-                                (matchedProduct.category.charAt(0).toUpperCase() +
-                                matchedProduct.category.slice(1)) : 
-                                'N/A'
-                              }
-                            </span>
-                            <span className="badge bg-light text-dark">
-                              {matchedProduct.isPopular
-                                ? 'Popular'
-                                : matchedProduct.simType === 'esim'
-                                  ? 'eSIM'
-                                  : 'Physical SIM'}
-                            </span>
-                          </div>
-
-                          <div className="mb-2 small">
-                            <strong>Validity:</strong>{' '}
-                            {matchedProduct.specifications?.validity || 'N/A'}
-                          </div>
+                          {matchedProduct ? (
+                            <>
+                              <h5>{matchedProduct.name || 'Unknown Product'}</h5>
+                              <div className="d-flex mb-2">
+                                <span className="badge bg-light text-dark me-2">
+                                  {matchedProduct.category
+                                    ? matchedProduct.category.charAt(0).toUpperCase() +
+                                      matchedProduct.category.slice(1)
+                                    : 'N/A'}
+                                </span>
+                                <span className="badge bg-light text-dark">
+                                  {matchedProduct.isPopular
+                                    ? 'Popular'
+                                    : matchedProduct.simType === 'esim'
+                                    ? 'eSIM'
+                                    : 'Physical SIM'}
+                                </span>
+                              </div>
+                              <div className="mb-2 small">
+                                <strong>Validity:</strong>{' '}
+                                {matchedProduct.specifications?.validity || 'N/A'}
+                              </div>
+                            </>
+                          ) : matchedPlan ? (
+                            <>
+                              <h5>{matchedPlan.name || 'Plan'}</h5>
+                              <span className="badge bg-light text-dark me-2">
+                                {matchedPlan.type?.toUpperCase() ||
+                                  item.planType?.toUpperCase() ||
+                                  'PLAN'}
+                              </span>
+                              <div className="mb-2 small">
+                                <strong>Validity:</strong>{' '}
+                                {matchedPlan.validity || 'N/A'}
+                              </div>
+                            </>
+                          ) : (
+                            <div className="alert alert-warning">
+                              Item information not available
+                            </div>
+                          )}
                         </div>
 
-                        {/* Price and Remove */}
                         <div className="col-3 text-md-end mt-3 mt-md-0">
                           <button
                             className="btn btn-sm btn-outline-danger"
@@ -227,7 +225,7 @@ useEffect(() => {
             <FaShoppingCart className="text-muted mb-3" size={50} />
             <h3>Your cart is empty</h3>
             <p className="text-muted mb-4">
-              Looks like you haven't added any products to your cart yet.
+              Looks like you haven't added any products or plans to your cart yet.
             </p>
             <Link to="/products" className="btn btn-primary">
               Browse Products
