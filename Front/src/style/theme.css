@@ -456,6 +456,11 @@ body {
 .dropdown-item:active {
   background-color: transparent !important;
 }
+
+.x_btn_can{
+  border-color: #b71414 !important;
+  color: #b71414 !important;
+}
 @media screen and (max-width: 768px) {
   .x_ms {
     margin-left: 0rem;

@@ -194,7 +194,7 @@ const Login = () => {
                       <ErrorMessage name="mobile" component="div" className="text-danger mt-1 small" />
                     </div>
                     <div className="d-flex justify-content-end">
-                      <button type="button" className="btn btn-secondary me-2" onClick={() => setShowForgotModal(false)}>Cancel</button>
+                      <button type="button" className="btn x_btn_can me-2" onClick={() => setShowForgotModal(false)}>Cancel</button>
                       <button type="submit" className="btn btn-primary" disabled={isSubmitting}>{isSubmitting ? "Sending..." : "Send OTP"}</button>
                     </div>
                   </Form>
@@ -220,7 +220,7 @@ const Login = () => {
                       <ErrorMessage name="otp" component="div" className="text-danger mt-1 small" />
                     </div>
                     <div className="d-flex justify-content-end">
-                      <button type="button" className="btn btn-secondary me-2" onClick={() => setShowOtpModal(false)}>Cancel</button>
+                      <button type="button" className="btn x_btn_can me-2" onClick={() => setShowOtpModal(false)}>Cancel</button>
                       <button type="submit" className="btn btn-primary" disabled={isSubmitting}>{isSubmitting ? "Verifying..." : "Verify OTP"}</button>
                     </div>
                   </Form>
@@ -288,7 +288,7 @@ const Login = () => {
                     </div>
 
                     <div className="d-flex justify-content-end">
-                      <button type="button" className="btn btn-secondary me-2" onClick={() => setShowResetModal(false)}>Cancel</button>
+                      <button type="button" className="btn x_btn_can me-2" onClick={() => setShowResetModal(false)}>Cancel</button>
                       <button type="submit" className="btn btn-primary" disabled={isSubmitting}>
                         {isSubmitting ? "Resetting..." : "Reset Password"}
                       </button>

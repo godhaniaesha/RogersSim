@@ -138,12 +138,12 @@ const Footer = () => {
                   My Account
                 </Link>
               </li>
-              <li className="mb-2">
+               <li className="mb-2">
                 <Link
-                  to="/profile/orders"
-                  className="text-white text-decoration-none hover-primary"
+                  to="/privacy"
+                  className="text-white small text-decoration-none hover-primary"
                 >
-                  Order History
+                  Privacy Policy
                 </Link>
               </li>
             </ul>
@@ -179,20 +179,12 @@ const Footer = () => {
         {/* Bottom Footer */}
         <div className="row mt-md-4 mt-2 pt-md-4 border-top border-secondary">
           <div className="col-md-6 mb-md-0 mb-3">
-            <p className="small d-md-block d-none text-muted mb-0">
+            <p className="small d-md-block d-none mb-0">
               &copy; {currentYear} Rogers Telecom. All rights reserved.
             </p>
           </div>
           <div className="col-md-6 text-md-end">
             <ul className="list-inline mb-0">
-              <li className="list-inline-item">
-                <Link
-                  to="/privacy"
-                  className="text-white small text-decoration-none hover-primary"
-                >
-                  Privacy Policy
-                </Link>
-              </li>
               <li className="list-inline-item ms-3">
                 <Link
                   to="/Termscondition"

@@ -115,7 +115,7 @@ export default function Header() {
                   onClick={closeMenu}
                 >
                   <FaShoppingCart className="me-1" /> Cart
-                  {cartItemsCount > 0 && (
+                  {isLoggedIn && cartItemsCount > 0 && (
                     <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill x_num_count" style={{backgroundColor:"#b71414"}}>
                       {cartItemsCount}
                     </span>

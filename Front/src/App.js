@@ -39,7 +39,6 @@ import Contact from './pages/Contact';
 import Privacy from './pages/Privacy';
 import Service from './pages/Service';
 import HelpCenter from './pages/HelpCenter';
-import ForgotPass from './pages/auth/ForgotPass';
 import FAQ from './pages/FAQ';
 import Termscondition from './pages/Terms&condition';
 import { Elements } from '@stripe/react-stripe-js';
@@ -114,7 +113,6 @@ const AppContent = () => {
               <OrderConfirmation />
             </ProtectedRoute>
           } />
-          <Route path="/forgot-password" element={<ForgotPass />} />
           <Route path="/helpcenter" element={<HelpCenter />} />
         </Routes>
       </main>

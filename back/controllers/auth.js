@@ -216,6 +216,9 @@ exports.forgotPassword = async (req, res, next) => {
 
     // Generate OTP for password reset
     const otp = user.generateOTP();
+
+    console.log(otp,"otp");
+    
     await user.save();
 
     // In a real app, send OTP via SMS using Twilio
