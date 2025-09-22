@@ -27,7 +27,7 @@ const Footer = () => {
     <img src={Logo} alt="Rogers Logo" className="rogers-logo" />
   </Link>
 </div>
-            <p className="small">
+            <p className="small x_f_con">
               Rogers is a leading telecom provider offering innovative mobile
               solutions, high-speed internet, and cutting-edge technology
               services across India.

@@ -461,6 +461,9 @@ body {
   border-color: #b71414 !important;
   color: #b71414 !important;
 }
+.x_f_con{
+  width: 80%;
+}
 @media screen and (max-width: 768px) {
   .x_ms {
     margin-left: 0rem;
@@ -489,4 +492,7 @@ body {
     width: calc(var(--swiper-navigation-size) / 41 * 21) !important;
     border-radius: 0% !important;
   }
+  .x_f_con{
+  width: 90%;
+}
 }

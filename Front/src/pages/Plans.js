@@ -26,7 +26,7 @@ import { useLocation } from "react-router-dom";
 // initialise Stripe with your public key
 const stripePromise = loadStripe(
   process.env.REACT_APP_STRIPE_KEY ||
-    "pk_test_51R8wmeQ0DPGsMRTSHTci2XmwYmaDLRqeSSRS2hNUCU3xU7ikSAvXzSI555Rxpyf9SsTIgI83PXvaaQE3pJAlkMaM00g9BdsrOB"
+  "pk_test_51R8wmeQ0DPGsMRTSHTci2XmwYmaDLRqeSSRS2hNUCU3xU7ikSAvXzSI555Rxpyf9SsTIgI83PXvaaQE3pJAlkMaM00g9BdsrOB"
 );
 
 function Plans() {
@@ -162,10 +162,10 @@ function Plans() {
   // filter and group plans
   const filteredPlans = Array.isArray(plans)
     ? plans.filter((p) =>
-        isFiber
-          ? p.planType?.toLowerCase() === "fiber"
-          : p.planType?.toLowerCase() === "mobile"
-      )
+      isFiber
+        ? p.planType?.toLowerCase() === "fiber"
+        : p.planType?.toLowerCase() === "mobile"
+    )
     : [];
 
   const groupedPlans = filteredPlans.reduce((acc, plan) => {
@@ -362,14 +362,14 @@ function Plans() {
                         <>
                           <tr>
                             <td>Data</td>
-                            <td>{(localSelectedPlan || selectedPlan).dataLimit }</td>
+                            <td>{(localSelectedPlan || selectedPlan).dataLimit}</td>
                           </tr>
                           <tr>
                             <td>High Speed</td>
                             <td>
                               {(localSelectedPlan || selectedPlan).speed}
                             </td>
-                          </tr>                         
+                          </tr>
                         </>
                       )}
                     </tbody>

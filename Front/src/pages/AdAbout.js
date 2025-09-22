@@ -1,10 +1,14 @@
 import React from 'react';
 import "../style/x_app.css";
+import { useNavigate } from 'react-router-dom';
 
 export default function AdAbout() {
+  const navigate = useNavigate();
   const requestACall = () => {
-    // Add your callback request logic here (e.g. open modal, navigate, etc.)
-    console.log("Request A Callback clicked");
+    navigate('/contact');
+    // Add your callback request logic here (
+    // e.g. open modal, navigate, etc.)
+    console.log("Let’s Talk Business clicked");
   };
 
   return (
@@ -22,7 +26,7 @@ export default function AdAbout() {
                 id="lead-form-wp"
                 onClick={requestACall}
               >
-                Request A Callback
+                Let’s Talk Business
               </button>
             </div>
           </div>
@@ -41,3 +45,4 @@ export default function AdAbout() {
     </section>
   );
 }
+
