@@ -426,8 +426,14 @@ function Plans() {
                       const onlyNums = e.target.value.replace(/\D/g, "");
                       setPhoneNumber(onlyNums);
                     }}
+                    onKeyDown={e => {
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+                        handleProceedToStripe();
+                      }
+                    }}
                     placeholder="Enter 10-digit phone number"
-                    maxLength={10} // limit input to 10 digits
+                    maxLength={10}
                     required
                     isInvalid={
                       phoneNumber.length > 0 && phoneNumber.length !== 10

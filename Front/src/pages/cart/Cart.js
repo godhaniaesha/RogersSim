@@ -185,8 +185,8 @@ const Cart = () => {
           {/* Order Summary */}
           <div className="col-lg-4">
             <div
-              className="card border-0 shadow-sm sticky-lg-top"
-              style={{ top: '2rem' }}
+              className="card border  shadow-sm"
+              style={{ border: "2px solid black"}}
             >
               <div className="card-header bg-white py-3">
                 <h4 className="mb-0">Order Summary</h4>
