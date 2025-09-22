@@ -8,7 +8,7 @@ export default function Termscondition() {
 
         <div className="x_info__card p-4 mt-2">
           <header className="x_info__hero text-center mb-3">
-            <h1 className="x_info__title">Terms of Service</h1>
+            <h1 className="x_info__title">Terms & Condition</h1>
             <p className="x_info__subtitle">Simple terms to ensure fair and secure usage.</p>
           </header>
           <div className="px-3 py-3">

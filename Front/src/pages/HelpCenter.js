@@ -13,16 +13,17 @@ import "../style/helcenter.css";
 import { useNavigate } from "react-router-dom";
 
 export default function HelpCenter() {
-    const navigate = useNavigate();
+  const navigate = useNavigate();
 
   return (
     <div className="d_help-center">
       {/* Hero Section */}
-         <div className="d_help-hero">
+      <div className="d_help-hero">
         <Container className="text-center">
           <h1 className="d_help-title">Help Center</h1>
           <p className="d_help-subtitle">
-            Find quick answers, explore topics, or reach out to our support team.
+            Find quick answers, explore topics, or reach out to our support
+            team.
           </p>
           <Button href="#contact" className="d_btn-primary mt-3">
             <FaQuestionCircle className="me-2" /> Get Support
@@ -133,7 +134,7 @@ export default function HelpCenter() {
               </Card.Body>
             </Card>
           </Col>
-             <Col md={4}>
+          <Col md={4}>
             <Card className="d_help-card">
               <Card.Body>
                 <Card.Title>
@@ -184,49 +185,55 @@ export default function HelpCenter() {
       </Container>
 
       {/* Contact Section */}
-        <div className="d_help-contact" id="contact">
-  <Container>
-    <Row className="g-4 align-items-center">
-      {/* Contact Info */}
-      <Col md={7}>
-        <div className="d_contact-info">
-          <h3 className="d_contact-title">Still need assistance?</h3>
-          <p className="d_text-light">
-            Our friendly support team is available 24/7 to help you.
-          </p>
-          <ul className="d_help-contact-list">
-            <li>
-              <FaPhoneAlt className="d_contact-icon me-2" />
-              <span><b>Call:</b> 1-800-ROGERS</span>
-            </li>
-            <li>
-              <FaEnvelope className="d_contact-icon me-2" />
-              <span><b>Email:</b> support@rogers.com</span>
-            </li>
-            <li>
+      <div className="d_help-contact" id="contact">
+        <Container>
+          <Row className="g-4 align-items-center">
+            {/* Contact Info */}
+            <Col md={7}>
+              <div className="d_contact-info">
+                <h3 className="d_contact-title">Still need assistance?</h3>
+                <p className="d_text-light">
+                  Our friendly support team is available 24/7 to help you.
+                </p>
+                <ul className="d_help-contact-list">
+                  <li>
+                    <FaPhoneAlt className="d_contact-icon me-2" />
+                    <span>
+                      <b>Call:</b> 1-800-ROGERS
+                    </span>
+                  </li>
+                  <li>
+                    <FaEnvelope className="d_contact-icon me-2" />
+                    <span>
+                      <b>Email:</b> support@rogers.com
+                    </span>
+                  </li>
+                  {/* <li>
               <FaQuestionCircle className="d_contact-icon me-2" />
               <span>
                 <b>Live Chat:</b>{" "}
                 <a href="/chat" className="d_link">Start Chat</a>
               </span>
-            </li>
-          </ul>
-        </div>
-      </Col>
+            </li> */}
+                </ul>
+              </div>
+            </Col>
 
-      {/* CTA Box */}
-      <Col md={5}>
-        <div className="d_contact-cta text-center p-md-4 p-3">
-          <h5 className="mb-3">Need urgent help?</h5>
-          <Button className="d_btn-primary w-100"    onClick={() => navigate("/contact")} >
-            <FaPhoneAlt className="me-2" /> Contact Support
-          </Button>
-        </div>
-      </Col>
-    </Row>
-  </Container>
-</div>
-
+            {/* CTA Box */}
+            <Col md={5}>
+              <div className="d_contact-cta text-center p-md-4 p-3">
+                <h5 className="mb-3">Need urgent help?</h5>
+                <Button
+                  className="d_btn-primary w-100"
+                  onClick={() => navigate("/contact")}
+                >
+                  <FaPhoneAlt className="me-2" /> Contact Support
+                </Button>
+              </div>
+            </Col>
+          </Row>
+        </Container>
+      </div>
     </div>
   );
 }
