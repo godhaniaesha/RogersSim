@@ -389,6 +389,7 @@ const Products = () => {
           </label>
         </div>
       </div>
+      
 
 
       {/* Sort Options */}
@@ -446,7 +447,7 @@ const Products = () => {
             </div>
             {/* Mobile Filter Button */}
             <button
-              className="btn btn-outline-primary d-md-none"
+              className="btn btn-outline-primary text-nowrap d-lg-none"
               type="button"
               onClick={() => setShowOffcanvas(true)}
             >
@@ -478,7 +479,7 @@ const Products = () => {
 
       <div className="row">
         {/* Desktop Filters - Hidden on mobile/tablet */}
-        <div className="col-lg-3 col-md-4 mb-4 d-none d-md-block">
+        <div className="col-lg-3 col-md-4 mb-4 d-none d-lg-block">
           <div
             className="card border-0 shadow-sm position-sticky"
             style={{ top: "1rem" }}
@@ -490,7 +491,7 @@ const Products = () => {
         </div>
 
         {/* Products Grid */}
-        <div className="col-12 col-lg-9 col-md-8">
+        <div className="col-12 col-lg-9">
           {/* Results count */}
           <div className="d-flex justify-content-between align-items-center mb-3">
             <p className="text-muted mb-0">
@@ -507,7 +508,7 @@ const Products = () => {
                   .slice((currentPage - 1) * productsPerPage, currentPage * productsPerPage)
                   .map((product) => (
                     <div
-                      className="col-12 col-sm-6 col-lg-4 mb-4 d-flex justify-content-center"
+                      className="col-12 col-sm-6 col-lg-6 col-xl-4 mb-4 d-flex justify-content-center"
                       key={product.id}
                     >
                       <div className="card h-100 border-0 shadow-sm z_prd_card">
@@ -638,7 +639,7 @@ const Products = () => {
         <>
           {/* Backdrop */}
           <div
-            className="offcanvas-backdrop fade show d-md-none"
+            className="offcanvas-backdrop fade show d-lg-none"
             onClick={() => setShowOffcanvas(false)}
             style={{
               position: "fixed",
@@ -653,7 +654,7 @@ const Products = () => {
 
           {/* Off-canvas Panel */}
           <div
-            className={`offcanvas offcanvas-start show d-md-none`}
+            className={`offcanvas offcanvas-start show d-lg-none`}
             style={{
               position: "fixed",
               top: 0,

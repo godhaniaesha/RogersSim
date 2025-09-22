@@ -40,7 +40,7 @@ body {
 }
 
 .z_prd_card .card-title {
-  font-size: 1.25rem;
+  font-size: 20px;
   font-weight: 500;
   color: #333;
 }
@@ -335,6 +335,10 @@ body {
     flex-direction: column;
     gap: 17px;
   }
+  .z_prd_card .card-title {
+    font-size: 19px;
+    font-weight: 600;
+}
 }
 .z_benefit_card {
   transition: all 0.3s ease-in-out;
