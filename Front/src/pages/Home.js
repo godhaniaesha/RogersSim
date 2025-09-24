@@ -20,7 +20,7 @@ import '../style/theme.css'
 // Initialize Stripe
 const stripePromise = loadStripe(
   process.env.REACT_APP_STRIPE_KEY ||
-  "pk_test_51R8wmeQ0DPGsMRTSHTci2XmwYmaDLRqeSSRS2hNUCU3xU7ikSAvXzSI555Rxpyf9SsTIgI83PXvaaQE3pJAlkMaM00g9BdsrOB"
+    "pk_test_51R8wmeQ0DPGsMRTSHTci2XmwYmaDLRqeSSRS2hNUCU3xU7ikSAvXzSI555Rxpyf9SsTIgI83PXvaaQE3pJAlkMaM00g9BdsrOB"
 );
 
 export default function Home() {
@@ -92,24 +92,24 @@ export default function Home() {
   ];
 
   // Function to convert validity into days
-  const convertValidityToDays = (validity) => {
-    switch (validity) {
-      case "1_day":
-        return 1;
-      case "1_month":
-        return 30;   // approx 30 days
-      case "3_months":
-        return 90;   // 3 × 30
-      case "6_months":
-        return 180;  // 6 × 30
-      case "1_year":
-        return 365;
-      case "2_years":
-        return 730;  // 2 × 365
-      default:
-        return 0; // fallback
-    }
-  };
+const convertValidityToDays = (validity) => {
+  switch (validity) {
+    case "1_day":
+      return 1;
+    case "1_month":
+      return 30;   // approx 30 days
+    case "3_months":
+      return 90;   // 3 × 30
+    case "6_months":
+      return 180;  // 6 × 30
+    case "1_year":
+      return 365;
+    case "2_years":
+      return 730;  // 2 × 365
+    default:
+      return 0; // fallback
+  }
+};
 
 
   // Redux: fetch plans
@@ -227,7 +227,7 @@ export default function Home() {
       <div >
         {/* Hero Banner Carousel */}
         {/* <Hero /> */}
-        <NewHero></NewHero>
+        <NewHero></NewHero>        
 
         {/* SIM Categories Section */}
         <section className="py-md-5 py-4 bg-light-custom">
@@ -237,7 +237,8 @@ export default function Home() {
               {simCategories.map(category => (
                 <div key={category.id} className="col-md-6 col-lg-3">
                   <div className="card h-100 border-0 shadow">
-                    <div className="card-body text-center p-4">
+                    <div className="card-body text-ce
+                    nter p-4">
                       {category.icon}
                       <h4 className="card-title">{category.name}</h4>
                       <p className="card-text text-muted">{category.description}</p>
@@ -257,8 +258,6 @@ export default function Home() {
 
         {/* Add for About redirect */}
         <AdAbout></AdAbout>
-
-       
 
         {/* Popular Plans Section (Dynamic) */}
         <section className="py-md-5 py-4 mb-3">
@@ -299,7 +298,7 @@ export default function Home() {
                           </ul>
                         </div>
                         <div className="card-footer bg-white border-0 pb-4">
-                          <button
+                          <button 
                             className="btn btn-primary w-100"
                             onClick={() => handleShow(plan)}
                           >
@@ -321,7 +320,7 @@ export default function Home() {
         <AddBus></AddBus>
 
         {/* Buy SIM CTA Section */}
-        {/* <section className="py-md-5 py-3 bg-primary-custom">
+        <section className="py-md-5 py-3 bg-primary-custom">
           <div className="container text-center">
             <h2 className="text-white mb-4">Ready to Experience Rogers Network?</h2>
             <p className="lead text-white mb-4">Get started with a new SIM card or port your existing number today!</p>
@@ -329,20 +328,7 @@ export default function Home() {
               <span className="fs-md-5 fs-6">Buy SIM Now</span> <FaArrowRight className="ms-2" style={{ fontSize: "16px" }} />
             </Link>
           </div>
-        </section> */}
-         <section className="py-md-5 py-3 bg-primary-custom">
-          <div className="container text-center">
-            <h2 className="text-white mb-4">Upgrade to Lightning-Fast Fiber Internet</h2>
-            <p className="lead text-white mb-4">
-              Enjoy ultra-fast speeds, seamless streaming, and reliable connectivity for your home or business.
-            </p>
-            <Link to="/plans" className="btn btn-light btn-lg px-md-5 px-3">
-              <span className="fs-md-5 fs-6">Choose Your Plan</span>{" "}
-              <FaArrowRight className="ms-2" style={{ fontSize: "16px" }} />
-            </Link>
-          </div>
         </section>
-
 
         {/* Plan Details Modal */}
         <Modal show={show} onHide={handleClose} centered size="md">
@@ -381,7 +367,7 @@ export default function Home() {
                       <tr>
                         <td><strong>Features:</strong></td>
                         <td>
-                          <ul className="mb-0 z_resp_ul">
+                          <ul className="mb-0">
                             {(selectedPlan || planDetails).features.map((feature, index) => (
                               <li key={index}>{feature}</li>
                             ))}
